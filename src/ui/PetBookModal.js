@@ -10,7 +10,8 @@ export const MONSTER_HABITATS = {
   sparkpudding: '篝火火山峰 • 熔火之巔 (Boss)',
   ember_fox: '螢火蟲森林 • 螢火古樹 (Boss)',
   charfoal: '篝火火山峰 • 熾熱峽谷',
-  burnie: '螢火蟲森林 • 晚霞林梢',
+  burnie: '篝火火山峰 • 火山口晚霞',
+  cinderkat: '篝火火山峰 • 熔岩暖穴',
 
   // Water
   squiddle: '海難海岸 (Shipwreck Shore)',
@@ -19,12 +20,14 @@ export const MONSTER_HABITATS = {
   diveosaur: '海難海岸 • 潮汐祭壇 (Boss)',
   aquafox: '海難海岸 • 潮間帶淺灘',
   crabbot: '海難海岸 • 古代沉船遺跡',
+  starfin: '海難海岸 • 蔚藍海灣',
 
   // Earth
   peeko: '螢火蟲森林 (Firefly Forest)',
   floraflare: '螢火蟲森林 • 繁花古樹',
   sprout: '螢火蟲森林 • 綠意草甸',
   mossy: '螢火蟲森林 • 巨石青苔林',
+  woodling: '螢火蟲森林 • 守護者森林神壇',
 
   // Ice
   snoot: '寒顫雪山 (Shiverchill Mountains)',
@@ -32,12 +35,15 @@ export const MONSTER_HABITATS = {
   ice_elemental: '寒顫雪山 • 冰晶王座 (Boss)',
   frostfang: '寒顫雪山 • 極寒冰川谷',
   snowfluff: '寒顫雪山 • 霜凍松林',
+  polarcub: '寒顫雪山 • 冰晶山洞',
 
   // Storm
   cloudling: '浮空風暴城 (Skywatch)',
   stormcloud: '浮空風暴城 • 雲端雷陣',
   galehound: '浮空風暴城 • 風暴殿堂 (Boss)',
   electromite: '浮空風暴城 • 浮空外圍',
+  zapzap: '浮空風暴城 • 雷光雲海',
+  windcherub: '浮空風暴城 • 天空聖殿',
   volts: '浮空風暴城 • 雷霆要塞'
 };
 

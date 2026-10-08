@@ -5,27 +5,39 @@ export const REALM_MONSTER_POOLS = {
   'firefly_forest': [
     { id: 'peeko', name: 'Peeko (葉雀靈)', sprite: './assets/sprites/peeko.png', balloonMsg: '🌱 綠蔭深處 • 點擊戰鬥！', isBoss: false },
     { id: 'hotpot', name: 'Hotpot (火罐靈)', sprite: './assets/sprites/hotpot.png', balloonMsg: '🔥 森林小徑 • 點擊戰鬥！', isBoss: false },
-    { id: 'floraflare', name: 'Floraflare (繁花靈鳥)', sprite: './assets/sprites/floraflare.png', balloonMsg: '🌸 繁花古樹 • 點擊戰鬥！', isBoss: false }
+    { id: 'floraflare', name: 'Floraflare (繁花靈鳥)', sprite: './assets/sprites/floraflare.png', balloonMsg: '🌸 繁花古樹 • 點擊戰鬥！', isBoss: false },
+    { id: 'sprout', name: 'Sprout (嫩芽精靈)', sprite: './assets/sprites/sprout.png', balloonMsg: '🌱 嫩綠草甸 • 點擊收服！', isBoss: false },
+    { id: 'mossy', name: 'Mossy (古石苔靈)', sprite: './assets/sprites/mossy.png', balloonMsg: '🪨 青苔巨石 • 點擊收服！', isBoss: false },
+    { id: 'woodling', name: 'Woodling (森之守護獸)', sprite: './assets/sprites/woodling.png', balloonMsg: '🌲 森林神殿 • 點擊收服！', isBoss: false }
   ],
   'shipwreck_shore': [
     { id: 'squiddle', name: 'Squiddle (章魚仔)', sprite: './assets/sprites/squiddle.png', balloonMsg: '🌊 潮汐淺灘 • 點擊戰鬥！', isBoss: false },
     { id: 'fishbol', name: 'Fishbol (小魚獸)', sprite: './assets/sprites/fishbol.png', balloonMsg: '🐠 珊瑚暗礁 • 點擊戰鬥！', isBoss: false },
-    { id: 'triptrop', name: 'TripTrop (海龜獸)', sprite: './assets/sprites/triptrop.png', balloonMsg: '🐢 金色沙灘 • 點擊戰鬥！', isBoss: false }
+    { id: 'triptrop', name: 'TripTrop (海龜獸)', sprite: './assets/sprites/triptrop.png', balloonMsg: '🐢 金色沙灘 • 點擊戰鬥！', isBoss: false },
+    { id: 'aquafox', name: 'Aquafox (潮汐小狐)', sprite: './assets/sprites/aquafox.png', balloonMsg: '🦊 浪花潮間帶 • 點擊收服！', isBoss: false },
+    { id: 'crabbot', name: 'Crabbot (泡泡鋼甲蟹)', sprite: './assets/sprites/crabbot.png', balloonMsg: '🦀 沉船古銅甲 • 點擊收服！', isBoss: false },
+    { id: 'starfin', name: 'Starfin (幻藍海星獸)', sprite: './assets/sprites/starfin.png', balloonMsg: '⭐ 蔚藍海灣 • 點擊收服！', isBoss: false }
   ],
   'bonfire_spire': [
     { id: 'magmay', name: 'Magmay (熔岩巨獸)', sprite: './assets/sprites/magmay.png', balloonMsg: '🌋 黑曜石山道 • 點擊戰鬥！', isBoss: false },
-    { id: 'hotpot', name: 'Hotpot (火罐靈)', sprite: './assets/sprites/hotpot.png', balloonMsg: '🔥 熔岩火星 • 點擊戰鬥！', isBoss: false },
-    { id: 'pyropup', name: 'Pyropup (火犬獸)', sprite: './assets/sprites/pyropup.png', balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false }
+    { id: 'pyropup', name: 'Pyropup (火犬獸)', sprite: './assets/sprites/pyropup.png', balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false },
+    { id: 'charfoal', name: 'Charfoal (炎馬獸)', sprite: './assets/sprites/charfoal.png', balloonMsg: '🐎 熾熱峽谷 • 點擊收服！', isBoss: false },
+    { id: 'burnie', name: 'Burnie (小炎雀)', sprite: './assets/sprites/burnie.png', balloonMsg: '🔥 火山口晚霞 • 點擊收服！', isBoss: false },
+    { id: 'cinderkat', name: 'Cinderkat (熾焰幼貓)', sprite: './assets/sprites/cinderkat.png', balloonMsg: '🐱 熔火暖穴 • 點擊收服！', isBoss: false }
   ],
   'shiverchill_mountains': [
     { id: 'snoot', name: 'Snoot (雪鼻獸)', sprite: './assets/sprites/snoot.png', balloonMsg: '❄️ 霜凍松林 • 點擊戰鬥！', isBoss: false },
     { id: 'chillwing', name: 'Chillwing (寒翼鳥)', sprite: './assets/sprites/chillwing.png', balloonMsg: '🦅 冰雪懸崖 • 點擊戰鬥！', isBoss: false },
-    { id: 'triptrop', name: 'TripTrop (冰原海龜)', sprite: './assets/sprites/triptrop.png', balloonMsg: '❄️ 冰河湖畔 • 點擊戰鬥！', isBoss: false }
+    { id: 'frostfang', name: 'Frostfang (霜牙雪靈)', sprite: './assets/sprites/frostfang.png', balloonMsg: '🐺 極寒冰川 • 點擊收服！', isBoss: false },
+    { id: 'snowfluff', name: 'Snowfluff (雪絨兔)', sprite: './assets/sprites/snowfluff.png', balloonMsg: '🐰 霜凍雪坡 • 點擊收服！', isBoss: false },
+    { id: 'polarcub', name: 'Polarcub (冰晶幼熊)', sprite: './assets/sprites/polarcub.png', balloonMsg: '🐻 冰晶洞窟 • 點擊收服！', isBoss: false }
   ],
   'skywatch': [
     { id: 'cloudling', name: 'Cloudling (雷雲獸)', sprite: './assets/sprites/cloudling.png', balloonMsg: '⚡ 浮空外圍 • 點擊戰鬥！', isBoss: false },
     { id: 'stormcloud', name: 'Stormcloud (暴風雲獸)', sprite: './assets/sprites/stormcloud.png', balloonMsg: '☁️ 雲端雷陣 • 點擊戰鬥！', isBoss: false },
-    { id: 'floraflare', name: 'Floraflare (風暴靈鳥)', sprite: './assets/sprites/floraflare.png', balloonMsg: '⚡ 雲海巢穴 • 點擊戰鬥！', isBoss: false }
+    { id: 'electromite', name: 'Electromite (雷電浮靈)', sprite: './assets/sprites/electromite.png', balloonMsg: '⚡ 浮空電磁環 • 點擊收服！', isBoss: false },
+    { id: 'zapzap', name: 'Zapzap (雷光飛鼠)', sprite: './assets/sprites/zapzap.png', balloonMsg: '🐿️ 雷光雲海 • 點擊收服！', isBoss: false },
+    { id: 'windcherub', name: 'Windcherub (狂風精靈)', sprite: './assets/sprites/windcherub.png', balloonMsg: '✨ 天空聖殿 • 點擊收服！', isBoss: false }
   ]
 };
 

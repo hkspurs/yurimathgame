@@ -3,9 +3,10 @@
 All assets used in Prodigy Math RPG follow strict open-source, CC0, or authorized game-flow parity rules.
 
 ## 1. CC0 Public Domain Assets
-- **Kenney Game Assets (Tiny Town, Tiny Dungeon, Audio)**
+- **Kenney Game Assets (Tiny Town, Tiny Dungeon, Monster Builder, Audio)**
   - Source: https://kenney.nl
   - License: CC0 1.0 Universal (Public Domain)
+  - Features: Monster Builder Sprite Parts for custom creatures (Charfoal, Burnie, Cinderkat, Aquafox, Crabbot, Starfin, Sprout, Mossy, Woodling, Frostfang, Snowfluff, Polarcub, Electromite, Zapzap, Windcherub)
 - **OpenGameArt.org CC0 Assets**
   - Source: https://opengameart.org (Filtered: CC0)
   - License: CC0 1.0 Universal
