@@ -672,8 +672,8 @@ html, body {
 
 /* Single Parchment Tablet Grimoire */
 #math-modal .ancient-grimoire {
-  max-width: 520px;
-  width: 92%;
+  max-width: 780px;
+  width: 94%;
   margin: 0 auto;
 }
 
@@ -3801,100 +3801,109 @@ html, body {
 
   /* Grimoire (Math Modal) on Landscape Mobile */
   .tome-overlay {
-    padding: 4px 8px;
+    padding: 6px 12px;
   }
   .ancient-grimoire {
-    max-height: calc(100% - 6px);
+    max-height: calc(100% - 8px);
     border-width: 2.5px;
-    border-radius: 10px;
+    border-radius: 12px;
   }
   #math-modal .ancient-grimoire {
-    max-width: 480px;
-    width: 90%;
+    max-width: 850px;
+    width: 96%;
+    max-height: calc(100dvh - 12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
   }
   .grimoire-single-body {
-    padding: 6px 14px 8px;
-    gap: 5px;
+    padding: 8px 18px 10px;
+    gap: 7px;
   }
   .grimoire-ribbon {
-    padding: 3px 12px;
+    padding: 5px 16px;
   }
   .incantation-tag {
-    font-size: 12px;
+    font-size: 13.5px;
+    font-weight: 800;
   }
   .grimoire-cancel-seal {
-    width: 28px;
-    height: 28px;
-    font-size: 22px;
+    width: 32px;
+    height: 32px;
+    font-size: 24px;
   }
   .grimoire-page {
-    padding: 5px 10px;
-    gap: 4px;
+    padding: 6px 12px;
+    gap: 5px;
   }
   .chapter-label {
-    font-size: 9px;
+    font-size: 11px;
+    font-weight: 800;
   }
   .runic-problem-box {
-    padding: 4px 8px;
+    padding: 7px 16px;
+    border-radius: 9px;
   }
   .math-visual-container {
-    margin: 2px 0 3px;
-    min-height: 36px;
+    margin: 3px 0 4px;
+    min-height: 38px;
   }
   .bond-svg {
-    max-width: 130px;
-    height: 52px;
+    max-width: 155px;
+    height: 56px;
   }
   .ten-frame-grid {
-    grid-template-columns: repeat(5, 14px);
-    grid-template-rows: repeat(2, 14px);
-    gap: 1.5px;
-    padding: 2px;
+    grid-template-columns: repeat(5, 17px);
+    grid-template-rows: repeat(2, 17px);
+    gap: 2px;
+    padding: 2.5px;
   }
   .ten-frame-cell {
-    font-size: 9px;
+    font-size: 11px;
   }
   .visual-comparison-box {
-    padding: 2px 6px;
+    padding: 3px 8px;
     gap: 2px;
   }
   .visual-comparison-row {
-    font-size: 11px;
+    font-size: 12px;
   }
   .visual-comparison-label {
-    font-size: 9.5px;
-    min-width: 38px;
+    font-size: 10.5px;
+    min-width: 44px;
   }
   .visual-item-group {
-    padding: 2px 4px;
-    font-size: 11px;
+    padding: 2px 6px;
+    font-size: 12px;
   }
   .visual-ten-rod {
-    width: 9px;
-    height: 38px;
+    width: 10px;
+    height: 42px;
   }
   .visual-unit-cube {
-    width: 7.5px;
-    height: 7.5px;
+    width: 8.5px;
+    height: 8.5px;
   }
   .plinth-header {
-    font-size: 8px;
-    margin-bottom: 1px;
+    font-size: 9.5px;
+    font-weight: 800;
+    margin-bottom: 2px;
   }
   .runic-math-prompt {
-    font-size: 15px;
-    line-height: 1.2;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.25;
   }
   .answer-runes-container {
-    gap: 5px;
+    gap: 8px 12px;
+    margin-top: 3px;
   }
   .rune-seal-btn {
-    min-height: 32px;
-    padding: 3px 5px;
-    font-size: 15px;
-    border-width: 1.5px;
-    border-bottom-width: 2.5px;
-    border-radius: 7px;
+    min-height: 44px;
+    padding: 5px 10px;
+    font-size: 22px;
+    font-weight: 900;
+    border-width: 2px;
+    border-bottom-width: 3.5px;
+    border-radius: 9px;
   }
   .slate-header {
     padding: 2px 8px;
@@ -3911,15 +3920,17 @@ html, body {
     height: 64px;
   }
   .channel-magic-btn {
-    min-height: 32px;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 18px;
+    min-height: 42px;
+    padding: 6px 18px;
+    font-size: 15px;
+    font-weight: 900;
+    border-radius: 22px;
     letter-spacing: 0.5px;
   }
   .incantation-feedback {
-    padding: 2px 6px;
-    font-size: 10px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 800;
   }
 
   /* Battle Dock on Landscape Mobile */
