@@ -4804,6 +4804,12 @@ html, body {
     white-space: nowrap;
   }
 
+  /* In battle mode on portrait, hide realm and mode badges to give 100% clean visual focus to HP plates */
+  .battle-mode #hud-realm-badge,
+  .battle-mode #hud-mode-badge {
+    display: none !important;
+  }
+
   /* Badges & Actions group on portrait */
   .hud-badges-group {
     display: flex;

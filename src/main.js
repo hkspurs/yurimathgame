@@ -746,6 +746,8 @@ class GameApp {
     }
     this.mobileControlsEl.classList.add('hidden');
     this.battleUiEl.classList.remove('hidden');
+    const hudLayer = document.getElementById('hud-layer');
+    if (hudLayer) hudLayer.classList.add('battle-mode');
 
     // Hide any lingering modals
     if (this.rewardModalEl) this.rewardModalEl.classList.add('hidden');
@@ -990,6 +992,8 @@ class GameApp {
     if (this.battleBannerEl) {
       this.battleBannerEl.classList.add('hidden');
     }
+    const hudLayer = document.getElementById('hud-layer');
+    if (hudLayer) hudLayer.classList.remove('battle-mode');
     this.mobileControlsEl.classList.remove('hidden');
 
     if (this.worldScene) {

@@ -79,13 +79,23 @@ export class BattleScene {
       const w = this.canvas.width;
       const h = this.canvas.height;
       const isCompact = h <= 500;
-      const playerX = w * 0.23;
-      const petX = Math.round(w * 0.33);
-      const monsterX = w * 0.77;
-      const targetY = isCompact ? h * 0.44 : h * 0.48;
-      const groundY = isCompact ? h * 0.82 : h * 0.75;
-      const playerSize = Math.round(isCompact ? Math.min(w * 0.17, h * 0.32, 115) : Math.min(w * 0.22, h * 0.30, 160));
-      const petSize = Math.round(playerSize * 0.65);
+      const isPortrait = w < 600 || w / h < 1.0;
+
+      const playerX = isPortrait ? Math.round(w * 0.20) : Math.round(w * 0.23);
+      const petX = isPortrait ? Math.round(w * 0.39) : Math.round(w * 0.33);
+      const monsterX = isPortrait ? Math.round(w * 0.78) : Math.round(w * 0.77);
+
+      const groundY = isPortrait
+        ? Math.round(h * 0.58)
+        : Math.round(h - (isCompact ? 104 : 148) - (isCompact ? 18 : 26));
+
+      const targetY = isPortrait ? Math.round(h * 0.53) : (isCompact ? h * 0.44 : h * 0.48);
+      const playerSize = Math.round(isCompact 
+        ? Math.min(w * 0.17, h * 0.32, 115) 
+        : isPortrait
+          ? Math.min(w * 0.28, h * 0.16, 110)
+          : Math.min(w * 0.22, h * 0.30, 160));
+      const petSize = Math.round(playerSize * (isPortrait ? 0.60 : 0.65));
       const petY = groundY - petSize + 10;
 
       if (target === 'monster') {
@@ -172,9 +182,10 @@ export class BattleScene {
       const w = this.canvas.width;
       const h = this.canvas.height;
       const isCompact = h <= 500;
-      const playerX = w * 0.23;
-      const petX = Math.round(w * 0.33);
-      const targetY = isCompact ? h * 0.44 : h * 0.48;
+      const isPortrait = w < 600 || w / h < 1.0;
+      const playerX = isPortrait ? Math.round(w * 0.20) : Math.round(w * 0.23);
+      const petX = isPortrait ? Math.round(w * 0.39) : Math.round(w * 0.33);
+      const targetY = isPortrait ? Math.round(h * 0.53) : (isCompact ? h * 0.44 : h * 0.48);
 
       this.spawnImpactParticles(playerX, targetY, '#2ed573');
       if (this.activePet) {
@@ -195,8 +206,9 @@ export class BattleScene {
       const w = this.canvas.width;
       const h = this.canvas.height;
       const isCompact = h <= 500;
-      const playerX = w * 0.23;
-      const targetY = isCompact ? h * 0.44 : h * 0.48;
+      const isPortrait = w < 600 || w / h < 1.0;
+      const playerX = isPortrait ? Math.round(w * 0.20) : Math.round(w * 0.23);
+      const targetY = isPortrait ? Math.round(h * 0.53) : (isCompact ? h * 0.44 : h * 0.48);
 
       this.screenShake = 6;
       // Smoke puff particles
@@ -214,12 +226,15 @@ export class BattleScene {
     eventBus.on('BATTLE_PLAYER_TURN', () => {
       const w = this.canvas.width;
       const h = this.canvas.height;
+      const isPortrait = w < 600 || w / h < 1.0;
+      const auraX = isPortrait ? w * 0.20 : w * 0.28;
+      const auraY = isPortrait ? h * 0.53 : h * 0.50;
       // Golden mana aura ring particles
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * Math.PI * 2;
         this.particles.push({
-          x: w * 0.28 + Math.cos(angle) * 32,
-          y: h * 0.50 + Math.sin(angle) * 20,
+          x: auraX + Math.cos(angle) * (isPortrait ? 24 : 32),
+          y: auraY + Math.sin(angle) * (isPortrait ? 16 : 20),
           vx: Math.cos(angle) * 30,
           vy: Math.sin(angle) * 30 - 15,
           color: '#f1c40f',
@@ -328,11 +343,18 @@ export class BattleScene {
       ctx.translate(sx, sy);
     }
 
-    // 2. Battle Background
+    // 2. Battle Background (Aspect-Ratio Cover so pixel art is never vertically stretched)
     if (this.bgImg.complete && this.bgImg.naturalWidth > 0) {
       ctx.save();
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(this.bgImg, 0, 0, w, h);
+      const imgW = this.bgImg.naturalWidth;
+      const imgH = this.bgImg.naturalHeight;
+      const scale = Math.max(w / imgW, h / imgH);
+      const drawW = imgW * scale;
+      const drawH = imgH * scale;
+      const drawX = (w - drawW) / 2;
+      const drawY = (h - drawH) / 2;
+      ctx.drawImage(this.bgImg, drawX, drawY, drawW, drawH);
       ctx.restore();
     } else {
       ctx.fillStyle = '#2d98da';
@@ -350,13 +372,20 @@ export class BattleScene {
     const monsterBob = Math.cos(this.timer) * 3.5;
 
     const isCompact = h <= 500;
-    // Position ground line higher than the bottom dock
-    const groundY = Math.round(h - (isCompact ? 104 : 148) - (isCompact ? 18 : 26));
-    const daisRadiusX = Math.round(Math.min(w * 0.075, isCompact ? 68 : 86));
-    const daisRadiusY = Math.round(Math.min(h * 0.045, isCompact ? 17 : 24));
+    const isPortrait = w < 600 || w / h < 1.0;
 
-    const wizardX = Math.round(w * 0.23);
-    const monsterX = Math.round(w * 0.77);
+    // In portrait mode, position combatants vertically centered in the viewport
+    // In landscape/desktop mode, ground line sits right above bottom dock
+    const groundY = isPortrait
+      ? Math.round(h * 0.58)
+      : Math.round(h - (isCompact ? 104 : 148) - (isCompact ? 18 : 26));
+
+    const daisRadiusX = Math.round(Math.min(w * (isPortrait ? 0.13 : 0.075), isCompact ? 68 : (isPortrait ? 60 : 86)));
+    const daisRadiusY = Math.round(Math.min(h * (isPortrait ? 0.030 : 0.045), isCompact ? 17 : (isPortrait ? 18 : 24)));
+
+    // X coordinates: give ample breathing space in portrait
+    const wizardX = isPortrait ? Math.round(w * 0.20) : Math.round(w * 0.23);
+    const monsterX = isPortrait ? Math.round(w * 0.78) : Math.round(w * 0.77);
 
     // 3. Ground Summoning Dais for Player (Left)
     this.renderPlayerDais(wizardX, groundY, daisRadiusX, daisRadiusY);
@@ -367,7 +396,9 @@ export class BattleScene {
     // 5. Render Player Wizard
     const playerSize = Math.round(isCompact 
       ? Math.min(w * 0.17, h * 0.32, 115) 
-      : Math.min(w * 0.22, h * 0.30, 160));
+      : isPortrait
+        ? Math.min(w * 0.28, h * 0.16, 110)
+        : Math.min(w * 0.22, h * 0.30, 160));
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     if (this.playerHurtTimer > 0) {
@@ -391,12 +422,12 @@ export class BattleScene {
       if (this.petJumpTimer > 0) {
         // Pet leap forward when attacking
         const jumpProgress = (0.45 - this.petJumpTimer) / 0.45;
-        jumpOffsetX = Math.sin(jumpProgress * Math.PI) * 36;
-        jumpOffsetY = -Math.sin(jumpProgress * Math.PI) * 22;
+        jumpOffsetX = Math.sin(jumpProgress * Math.PI) * (isPortrait ? 26 : 36);
+        jumpOffsetY = -Math.sin(jumpProgress * Math.PI) * (isPortrait ? 16 : 22);
       }
 
-      const petSize = Math.round(playerSize * 0.65);
-      const petX = Math.round(w * 0.33) + jumpOffsetX;
+      const petSize = Math.round(playerSize * (isPortrait ? 0.60 : 0.65));
+      const petX = (isPortrait ? Math.round(w * 0.39) : Math.round(w * 0.33)) + jumpOffsetX;
       const petY = groundY - petSize + 10 + petBob + jumpOffsetY;
 
       ctx.save();
@@ -418,13 +449,15 @@ export class BattleScene {
       ctx.restore();
 
       // Render Pet Diegetic Health Bar & Name Plate (above pet)
-      this.renderPetHpPlate(petX, petY - 8, this.activePet.name.split(' ')[0], this.petHp, this.petMaxHp, isFainted);
+      this.renderPetHpPlate(petX, petY - 6, this.activePet.name.split(' ')[0], this.petHp, this.petMaxHp, isFainted);
     }
 
     // 6. Render Monster
     const monsterSize = Math.round(isCompact 
       ? Math.min(w * 0.19, h * 0.34, 125) 
-      : Math.min(w * 0.25, h * 0.32, 175));
+      : isPortrait
+        ? Math.min(w * 0.32, h * 0.18, 128)
+        : Math.min(w * 0.25, h * 0.32, 175));
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     if (this.monsterHurtTimer > 0) {
@@ -463,28 +496,45 @@ export class BattleScene {
     ctx.globalAlpha = 1;
 
     // 9. Diegetic RPG Battle Plates
-    const plateY = isCompact ? Math.max(48, Math.round(h * 0.13)) : Math.round(h * 0.20);
+    // In portrait mode, place plates neatly in the top quarter under HUD (y=78)
+    const plateY = isPortrait
+      ? 78
+      : (isCompact ? Math.max(48, Math.round(h * 0.13)) : Math.round(h * 0.20));
+
+    // Custom plate widths & anchors in portrait to guarantee 0px edge-bleed or center collision
+    let playerPlateX = wizardX;
+    let monsterPlateX = monsterX;
+    let customPlateW = null;
+
+    if (isPortrait) {
+      customPlateW = Math.max(140, Math.min(195, Math.floor((w - 24) / 2)));
+      playerPlateX = 8 + customPlateW / 2;
+      monsterPlateX = w - 8 - customPlateW / 2;
+    }
+
     if (this.player) {
       this.drawCombatantPlate(
-        wizardX,
+        playerPlateX,
         plateY,
         this.player.name,
         this.player.hp,
         this.player.maxHp,
         'hero',
-        'Lv.1 見習法師'
+        'Lv.1 見習法師',
+        customPlateW
       );
     }
 
     if (this.monster) {
       this.drawCombatantPlate(
-        monsterX,
+        monsterPlateX,
         plateY,
         this.monster.name,
         this.monster.hp,
         this.monster.maxHp,
         'monster',
-        `${this.monster.element ? this.monster.element.toUpperCase() : ''} ${this.monster.isBoss ? 'Boss' : '野生'}`
+        `${this.monster.element ? this.monster.element.toUpperCase() : ''} ${this.monster.isBoss ? 'Boss' : '野生'}`,
+        customPlateW
       );
     }
 
@@ -568,12 +618,13 @@ export class BattleScene {
     ctx.restore();
   }
 
-  drawCombatantPlate(x, y, name, hp, maxHp, type, subtitle) {
+  drawCombatantPlate(x, y, name, hp, maxHp, type, subtitle, customWidth = null) {
     const { ctx } = this;
     const isHero = type === 'hero';
     const isCompact = this.canvas.height <= 500;
-    const plateW = isCompact ? 190 : 230;
-    const plateH = isCompact ? 40 : 54;
+    const isPortrait = this.canvas.width < 600 || this.canvas.width / this.canvas.height < 1.0;
+    const plateW = customWidth || (isCompact ? 190 : (isPortrait ? 180 : 230));
+    const plateH = isCompact ? 40 : (isPortrait ? 46 : 54);
 
     ctx.save();
 
@@ -604,24 +655,25 @@ export class BattleScene {
 
     // Header: Name & Subtitle
     ctx.fillStyle = '#ffffff';
-    ctx.font = isCompact ? 'bold 11px ProdigySans, sans-serif' : 'bold 12px ProdigySans, sans-serif';
+    ctx.font = (isCompact || isPortrait) ? 'bold 11px ProdigySans, sans-serif' : 'bold 12px ProdigySans, sans-serif';
     ctx.textAlign = 'left';
     let displayName = name;
-    if (displayName.length > (isCompact ? 11 : 14)) {
-      displayName = displayName.substring(0, isCompact ? 10 : 13) + '…';
+    const maxChars = isPortrait ? 9 : (isCompact ? 11 : 14);
+    if (displayName.length > maxChars) {
+      displayName = displayName.substring(0, maxChars - 1) + '…';
     }
-    ctx.fillText(displayName, x - plateW / 2 + 10, y + (isCompact ? 14 : 18));
+    ctx.fillText(displayName, x - plateW / 2 + 8, y + (isCompact ? 14 : (isPortrait ? 15 : 18)));
 
     ctx.textAlign = 'right';
     ctx.fillStyle = isHero ? '#7bed9f' : '#ff7675';
-    ctx.font = isCompact ? 'bold 9.5px ProdigySans, sans-serif' : 'bold 11px ProdigySans, sans-serif';
-    ctx.fillText(subtitle, x + plateW / 2 - 10, y + (isCompact ? 14 : 18));
+    ctx.font = (isCompact || isPortrait) ? 'bold 9.5px ProdigySans, sans-serif' : 'bold 11px ProdigySans, sans-serif';
+    ctx.fillText(subtitle, x + plateW / 2 - 8, y + (isCompact ? 14 : (isPortrait ? 15 : 18)));
 
     // HP Bar Outer Groove
-    const barX = x - plateW / 2 + 10;
-    const barY = y + (isCompact ? 20 : 27);
-    const barW = plateW - 20;
-    const barH = isCompact ? 12 : 14;
+    const barX = x - plateW / 2 + 8;
+    const barY = y + (isCompact ? 20 : (isPortrait ? 22 : 27));
+    const barW = plateW - 16;
+    const barH = isCompact ? 12 : (isPortrait ? 13 : 14);
 
     ctx.fillStyle = '#0b0e14';
     ctx.beginPath();
