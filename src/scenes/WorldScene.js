@@ -79,6 +79,10 @@ export class WorldScene {
       hopTimer: 0,
       img: new Image()
     };
+    this.petGoofyMode = null;
+    this.petGoofyTimer = 0;
+    this.petGoofyAngle = 0;
+    this.petInteractionIndex = 0;
 
     // Tap target indicator
     this.tapIndicator = null;
@@ -731,37 +735,114 @@ export class WorldScene {
   }
 
   interactWithFollowerPet() {
-    const activePet = this.getActivePet();
+    let activePet = this.getActivePet();
+    if (!activePet) {
+      if (this.gameState) {
+        this.gameState.addPet({
+          id: 'peeko',
+          name: 'Peeko (葉雀靈)',
+          element: 'earth',
+          level: 1,
+          maxHp: 80,
+          hp: 80,
+          attack: 14,
+          sprite: './assets/sprites/peeko.png'
+        });
+        this.gameState.activePetId = 'peeko';
+        activePet = this.getActivePet();
+      }
+    }
     if (!activePet) return;
+
+    this.petInteractionIndex = (this.petInteractionIndex || 0) + 1;
+    const modeRoll = this.petInteractionIndex % 4;
+    const petName = (activePet.name || '夥伴').split(' ')[0];
 
     // Jump up in joy
     this.followerPet.hopTimer = Math.PI * 0.5;
 
-    // Burst 6 floating heart particles above pet
-    for (let i = 0; i < 6; i++) {
-      this.petHearts.push({
-        x: this.followerPet.x + (Math.random() - 0.5) * 16,
-        y: this.followerPet.y - 20,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: -(Math.random() * 2 + 1.5),
-        alpha: 1.0,
-        size: Math.random() * 4 + 10,
-        symbol: ['💖', '✨', '🐾', '🍓'][Math.floor(Math.random() * 4)]
+    if (modeRoll === 1) {
+      // 1. 🌶️ 爆辣火焰椒！噴火繞圈狂奔
+      this.petGoofyMode = 'chili';
+      this.petGoofyTimer = 3.5;
+      this.petGoofyAngle = 0;
+      for (let i = 0; i < 8; i++) {
+        this.petHearts.push({
+          x: this.followerPet.x,
+          y: this.followerPet.y - 10,
+          vx: (Math.random() - 0.5) * 3,
+          vy: -(Math.random() * 3 + 2),
+          alpha: 1.0,
+          size: 16,
+          symbol: '🔥'
+        });
+      }
+      eventBus.emit('SHOW_TOAST', {
+        message: `🌶️ 你餵【${petName}】吃了爆辣火焰椒！嘴巴噴火像火箭一樣狂奔！(+10 親密度)`,
+        type: 'success'
+      });
+    } else if (modeRoll === 2) {
+      // 2. 🍦 急凍雪糕！結成冰塊發抖
+      this.petGoofyMode = 'ice';
+      this.petGoofyTimer = 2.5;
+      for (let i = 0; i < 8; i++) {
+        this.petHearts.push({
+          x: this.followerPet.x,
+          y: this.followerPet.y - 15,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -(Math.random() * 2 + 1),
+          alpha: 1.0,
+          size: 16,
+          symbol: '❄️'
+        });
+      }
+      eventBus.emit('SHOW_TOAST', {
+        message: `🍦 你餵【${petName}】吃了急凍雪糕！凍成冰塊瑟瑟發抖～ (+10 親密度)`,
+        type: 'info'
+      });
+    } else if (modeRoll === 3) {
+      // 3. 🫘 彈跳跳跳豆！高高彈起
+      this.petGoofyMode = 'bean';
+      this.petGoofyTimer = 3.0;
+      for (let i = 0; i < 8; i++) {
+        this.petHearts.push({
+          x: this.followerPet.x,
+          y: this.followerPet.y - 20,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -(Math.random() * 3 + 2),
+          alpha: 1.0,
+          size: 15,
+          symbol: ['🫘', '⭐', '🎶'][Math.floor(Math.random() * 3)]
+        });
+      }
+      eventBus.emit('SHOW_TOAST', {
+        message: `🫘 你餵【${petName}】吃了彈跳跳跳豆！變成彈簧球在螢幕上高高蹦跳！(+10 親密度)`,
+        type: 'success'
+      });
+    } else {
+      // 4. 🪶 摸肚子癢癢！打滾大笑
+      this.petGoofyMode = 'tickle';
+      this.petGoofyTimer = 2.8;
+      for (let i = 0; i < 8; i++) {
+        this.petHearts.push({
+          x: this.followerPet.x + (Math.random() - 0.5) * 20,
+          y: this.followerPet.y - 20,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: -(Math.random() * 2 + 1.5),
+          alpha: 1.0,
+          size: 16,
+          symbol: ['😆', '💖', '🐾', '🤣'][Math.floor(Math.random() * 4)]
+        });
+      }
+      eventBus.emit('SHOW_TOAST', {
+        message: `🪶 你搔了搔【${petName}】的肚皮！牠笑到在草地上打滾翻跟斗！(+15 親密度)`,
+        type: 'success'
       });
     }
 
-    // Award +5 Pet Bond XP
     if (this.gameState) {
-      this.gameState.addPetXp(activePet.id, 5);
+      this.gameState.addPetXp(activePet.id, 10);
     }
-
-    const petName = (activePet.name || '夥伴').split(' ')[0];
-    const petSounds = ['喵嗚~ (蹭了蹭你的手)', '吱吱！(開心地跳了起來)', '汪！(搖了搖尾巴)', '咕嚕嚕~ (感到非常溫暖)'];
-    const chosenSound = petSounds[Math.floor(Math.random() * petSounds.length)];
-    eventBus.emit('SHOW_TOAST', {
-      message: `🐾 你摸了摸【${petName}】！${chosenSound} (+5 夥伴親密度)`,
-      type: 'success'
-    });
   }
 
   interactWithBush(bush) {
@@ -787,6 +868,40 @@ export class WorldScene {
 
     bush.opened = true;
     const roll = Math.random();
+
+    // 方案 B：蛋孵化與草叢撿蛋
+    if (this.gameState?.egg && this.gameState.egg.hasEgg) {
+      const eggRes = this.gameState.progressEgg(1);
+      if (eggRes?.readyToHatch) {
+        eventBus.emit('SHOW_TOAST', {
+          message: '🥚 喀嚓！隨身保溫巢裡的【神秘精靈蛋】劇烈晃動，要破殼啦！',
+          type: 'success'
+        });
+        setTimeout(() => {
+          eventBus.emit('TRIGGER_EGG_HATCH', { egg: this.gameState.egg });
+        }, 800);
+      } else {
+        eventBus.emit('SHOW_TOAST', {
+          message: `🥚 探索暖意傳入保溫巢！精靈蛋裂縫擴大 (${this.gameState.egg.progress}/${this.gameState.egg.target})！`,
+          type: 'info'
+        });
+      }
+    } else if (roll < 0.25) {
+      if (this.gameState) {
+        this.gameState.egg = {
+          hasEgg: true,
+          name: '星紋恐龍蛋',
+          icon: '🥚',
+          pattern: 'dino',
+          progress: 0,
+          target: 3
+        };
+        eventBus.emit('SHOW_TOAST', {
+          message: '🥚 奇蹟！你在蓬鬆草叢裡挖出了一枚溫暖的【星紋神秘精靈蛋】！',
+          type: 'success'
+        });
+      }
+    }
 
     if (roll < 0.50) {
       // Surprise! A wild monster leaped out of the bush!
@@ -1085,6 +1200,48 @@ export class WorldScene {
       this.followerPet.img.src = spritePath;
     }
 
+    // Goofy Pet Behaviors
+    if (this.petGoofyMode) {
+      this.petGoofyTimer -= dt;
+      if (this.petGoofyTimer <= 0) {
+        if (this.petGoofyMode === 'ice') {
+          // Burst 12 snowflakes when ice thaws
+          for (let i = 0; i < 12; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const spd = Math.random() * 3 + 1.5;
+            this.petHearts.push({
+              x: this.followerPet.x,
+              y: this.followerPet.y,
+              vx: Math.cos(angle) * spd,
+              vy: Math.sin(angle) * spd,
+              alpha: 1.0,
+              size: 14,
+              symbol: '❄️'
+            });
+          }
+        }
+        this.petGoofyMode = null;
+      } else if (this.petGoofyMode === 'chili') {
+        // High speed fire rocket orbit around wizard
+        this.petGoofyAngle += dt * 7.5;
+        this.followerPet.x = this.player.x + Math.cos(this.petGoofyAngle) * 58;
+        this.followerPet.y = this.player.y + Math.sin(this.petGoofyAngle) * 45;
+        this.followerPet.facing = Math.cos(this.petGoofyAngle) > 0 ? 'right' : 'left';
+        if (Math.random() < 0.40) {
+          this.petHearts.push({
+            x: this.followerPet.x,
+            y: this.followerPet.y,
+            vx: -Math.cos(this.petGoofyAngle) * 2,
+            vy: -Math.sin(this.petGoofyAngle) * 2,
+            alpha: 1.0,
+            size: 14,
+            symbol: '🔥'
+          });
+        }
+        return;
+      }
+    }
+
     let targetX = this.player.x;
     let targetY = this.player.y;
 
@@ -1120,37 +1277,63 @@ export class WorldScene {
     if (!activePet) return;
 
     const { ctx } = this;
-    const hopBob = Math.abs(Math.sin(this.followerPet.hopTimer)) * (this.player.isMoving ? 8 : 3.5);
+    let hopBob = Math.abs(Math.sin(this.followerPet.hopTimer)) * (this.player.isMoving ? 8 : 3.5);
+    let petRot = 0;
+    let scaleX = 1;
+    let scaleY = 1;
+
+    if (this.petGoofyMode === 'bean') {
+      // Jumping bean spring bounce
+      hopBob = Math.abs(Math.sin(Date.now() * 0.008)) * 36;
+      scaleX = hopBob < 5 ? 1.3 : 0.85;
+      scaleY = hopBob < 5 ? 0.7 : 1.25;
+    } else if (this.petGoofyMode === 'tickle') {
+      // Tummy tickle roll
+      petRot = Math.sin(Date.now() * 0.012) * 0.75;
+      hopBob = 2;
+    }
 
     // Follower shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
     ctx.beginPath();
-    ctx.ellipse(this.followerPet.x, this.followerPet.y + 16, 16, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(this.followerPet.x, this.followerPet.y + 16, 16 * scaleX, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Follower sprite
     ctx.save();
     ctx.imageSmoothingEnabled = false;
+    ctx.translate(this.followerPet.x, this.followerPet.y - hopBob);
     if (this.followerPet.facing === 'left') {
-      ctx.translate(this.followerPet.x, this.followerPet.y - hopBob);
-      ctx.scale(-1, 1);
-      ctx.drawImage(
-        this.followerPet.img,
-        -this.followerPet.size / 2,
-        -this.followerPet.size / 2,
-        this.followerPet.size,
-        this.followerPet.size
-      );
+      ctx.scale(-scaleX, scaleY);
     } else {
-      ctx.drawImage(
-        this.followerPet.img,
-        this.followerPet.x - this.followerPet.size / 2,
-        this.followerPet.y - this.followerPet.size / 2 - hopBob,
-        this.followerPet.size,
-        this.followerPet.size
-      );
+      ctx.scale(scaleX, scaleY);
     }
+    if (petRot !== 0) {
+      ctx.rotate(petRot);
+    }
+
+    if (this.petGoofyMode === 'chili') {
+      ctx.filter = 'drop-shadow(0 0 10px #ff4757)';
+    }
+
+    ctx.drawImage(
+      this.followerPet.img,
+      -this.followerPet.size / 2,
+      -this.followerPet.size / 2,
+      this.followerPet.size,
+      this.followerPet.size
+    );
     ctx.restore();
+
+    // Ice cube overlay if frozen
+    if (this.petGoofyMode === 'ice') {
+      ctx.save();
+      ctx.font = '36px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🧊', this.followerPet.x, this.followerPet.y - hopBob);
+      ctx.restore();
+    }
 
     // Cute Follower Pill Name Tag
     ctx.save();

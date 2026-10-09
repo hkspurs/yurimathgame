@@ -121,6 +121,16 @@ class GameApp {
     this.isLevelGiftUnboxed = false;
     this.pendingLevelUpNumber = null;
 
+    // Egg Hatching Ceremony Modal
+    this.eggHatchModalEl = document.getElementById('egg-hatch-modal');
+    this.btnTapEgg = document.getElementById('btn-tap-egg');
+    this.babyPetRevealEl = document.getElementById('baby-pet-reveal');
+    this.babyPetIconEl = document.getElementById('baby-pet-icon');
+    this.babyPetNameEl = document.getElementById('baby-pet-name');
+    this.babyPetTaglineEl = document.getElementById('baby-pet-tagline');
+    this.btnEggHatchConfirm = document.getElementById('btn-egg-hatch-confirm');
+    this.isEggHatched = false;
+
     this.keystoneModalEl = document.getElementById('keystone-modal');
     this.keystoneIconEl = document.getElementById('keystone-large-icon');
     this.keystoneTitleEl = document.getElementById('keystone-restore-title');
@@ -565,6 +575,14 @@ class GameApp {
         this.showKeystoneModal(this.pendingKeystone);
         this.pendingKeystone = null;
       } else {
+        // Check Egg Hatch on battle victory!
+        if (this.gameState?.egg && this.gameState.egg.hasEgg) {
+          const res = this.gameState.progressEgg(1);
+          if (res?.readyToHatch) {
+            this.showEggHatchModal();
+            return;
+          }
+        }
         this.returnToWorld();
       }
     });
@@ -661,6 +679,65 @@ class GameApp {
         }
       });
     }
+
+    // Egg Hatch Ceremony Events
+    if (this.btnTapEgg) {
+      this.btnTapEgg.addEventListener('click', () => {
+        if (this.isEggHatched) return;
+        this.isEggHatched = true;
+
+        const babyPets = [
+          { id: 'baby_peeko', name: '蛋殼皮克鳥 (Shell-Peeko)', icon: '🐣', tagline: '頂著五彩斑斕的蛋殼帽，發出清脆的啾啾叫聲！', element: 'earth', sprite: './assets/sprites/peeko.png' },
+          { id: 'baby_rexy', name: '迷你晶角龍 (Baby Rexy)', icon: '🦕', tagline: '渾身閃閃發光的綠色幼龍，好奇地咬了咬你的手指！', element: 'water', sprite: './assets/sprites/diveosaur.png' },
+          { id: 'baby_foxling', name: '萌火小狐狸 (Ember Foxling)', icon: '🦊', tagline: '尾巴燃燒著溫暖的小火焰，開心地搖來搖去！', element: 'fire', sprite: './assets/sprites/ember_fox.png' }
+        ];
+        const chosen = babyPets[Math.floor(Math.random() * babyPets.length)];
+
+        this.gameState.addPet({
+          id: chosen.id + '_' + Date.now(),
+          name: chosen.name,
+          element: chosen.element,
+          level: 1,
+          maxHp: 90,
+          hp: 90,
+          attack: 16,
+          sprite: chosen.sprite
+        });
+        this.gameState.activePetId = this.gameState.pets[this.gameState.pets.length - 1].id;
+        this.gameState.egg = null;
+
+        if (this.babyPetIconEl) this.babyPetIconEl.textContent = chosen.icon;
+        if (this.babyPetNameEl) this.babyPetNameEl.textContent = `【${chosen.name}】誕生了！`;
+        if (this.babyPetTaglineEl) this.babyPetTaglineEl.textContent = chosen.tagline;
+
+        if (this.btnTapEgg) this.btnTapEgg.classList.add('hidden');
+        if (this.babyPetRevealEl) this.babyPetRevealEl.classList.remove('hidden');
+
+        if (this.btnEggHatchConfirm) {
+          this.btnEggHatchConfirm.disabled = false;
+          this.btnEggHatchConfirm.style.opacity = '1';
+          this.btnEggHatchConfirm.innerHTML = '<span>帶上新夥伴去冒險！🎉</span>';
+        }
+
+        eventBus.emit('SHOW_TOAST', {
+          icon: chosen.icon,
+          title: '破殼大奇蹟！',
+          text: `【${chosen.name}】破殼而出，成為你的新夥伴！`
+        });
+      });
+    }
+
+    if (this.btnEggHatchConfirm) {
+      this.btnEggHatchConfirm.addEventListener('click', () => {
+        if (!this.isEggHatched) return;
+        if (this.eggHatchModalEl) this.eggHatchModalEl.classList.add('hidden');
+        this.returnToWorld();
+      });
+    }
+
+    eventBus.on('TRIGGER_EGG_HATCH', () => {
+      this.showEggHatchModal();
+    });
 
     // Altar Boss Trial Trigger
     eventBus.on('TRIGGER_ALTAR_BOSS_TRIAL', ({ realmId, altar }) => {
@@ -773,6 +850,19 @@ class GameApp {
     this.levelUpModalEl.classList.remove('hidden');
   }
 
+  showEggHatchModal() {
+    if (!this.eggHatchModalEl) return;
+    this.isEggHatched = false;
+    if (this.btnTapEgg) this.btnTapEgg.classList.remove('hidden');
+    if (this.babyPetRevealEl) this.babyPetRevealEl.classList.add('hidden');
+    if (this.btnEggHatchConfirm) {
+      this.btnEggHatchConfirm.disabled = true;
+      this.btnEggHatchConfirm.style.opacity = '0.6';
+      this.btnEggHatchConfirm.innerHTML = '<span>👉 請先點擊上方彩蛋助牠破殼！</span>';
+    }
+    this.eggHatchModalEl.classList.remove('hidden');
+  }
+
   showKeystoneModal(stoneInfo) {
     if (!this.keystoneModalEl) return;
     if (this.keystoneIconEl) this.keystoneIconEl.textContent = stoneInfo.icon;
@@ -841,6 +931,12 @@ class GameApp {
     if (this.keystoneModalEl) this.keystoneModalEl.classList.add('hidden');
     if (this.altarBossModalEl) this.altarBossModalEl.classList.add('hidden');
     if (this.defeatModalEl) this.defeatModalEl.classList.add('hidden');
+    if (this.eggHatchModalEl) this.eggHatchModalEl.classList.add('hidden');
+    const lingeringIds = ['world-map-modal', 'pet-book-modal', 'backpack-modal', 'character-creator-modal'];
+    lingeringIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
 
     this.battleEngine = new BattleEngine(this.gameState, monsterDef);
     this.battleScene.setCombatants(this.gameState.getSnapshot(), this.battleEngine.monster);

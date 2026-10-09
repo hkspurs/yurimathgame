@@ -91,6 +91,17 @@ export const SPELLS = {
     healAmount: 40,
     desc: '背包物品：飲用魔法紅藥水，立即恢復 40 點生命值（Hearts）。',
     color: '#27ae60'
+  },
+  frogify: {
+    id: 'frogify',
+    name: 'Frogify (變身呱呱叫)',
+    element: 'astral',
+    icon: '🐸',
+    energyCost: 1,
+    power: 12,
+    isPrank: true,
+    desc: '惡作劇搞怪法術：將兇猛怪獸變成一隻戴巫師帽的呱呱叫小青蛙！攻擊力暫時降為 1！',
+    color: '#2ecc71'
   }
 };
 

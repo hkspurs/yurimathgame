@@ -463,13 +463,33 @@ export class BattleScene {
     if (this.monsterHurtTimer > 0) {
       ctx.filter = 'brightness(2.2) drop-shadow(0 0 12px #ff4757)';
     }
-    ctx.drawImage(
-      this.monsterImg,
-      monsterX - monsterSize / 2,
-      groundY - monsterSize + 14 + monsterBob,
-      monsterSize,
-      monsterSize
-    );
+    if (this.monster?.isFrogified) {
+      // Render funny frog with mini wizard hat & Ribbit bubbles
+      const frogY = groundY - 24 + monsterBob;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `${Math.round(monsterSize * 0.70)}px sans-serif`;
+      ctx.fillText('🐸', monsterX, frogY);
+      
+      // Mini wizard hat
+      ctx.font = `${Math.round(monsterSize * 0.32)}px sans-serif`;
+      ctx.fillText('🧙‍♂️', monsterX + 2, frogY - monsterSize * 0.30);
+
+      // Ribbit bubble
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#2ed573';
+      ctx.fillText('Ribbit! 🫧', monsterX, frogY - monsterSize * 0.50);
+      ctx.restore();
+    } else {
+      ctx.drawImage(
+        this.monsterImg,
+        monsterX - monsterSize / 2,
+        groundY - monsterSize + 14 + monsterBob,
+        monsterSize,
+        monsterSize
+      );
+    }
     ctx.restore();
 
     // 7. Visual FX: Spell Projectiles

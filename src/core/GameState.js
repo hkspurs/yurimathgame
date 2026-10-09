@@ -64,8 +64,17 @@ export class GameState {
       'forest_1': { stars: 3, cleared: true }
     };
     this.unlockedSpells = initialData?.unlockedSpells || [
-      'starbit', 'bop', 'arcane_blast', 'torrent', 'flame_orb', 'vine_whip', 'static_shock', 'star_dust', 'potion'
+      'starbit', 'bop', 'arcane_blast', 'torrent', 'flame_orb', 'vine_whip', 'static_shock', 'star_dust', 'potion', 'frogify'
     ];
+    // Mystery Pet Egg Incubator System
+    this.egg = initialData?.egg || {
+      hasEgg: true,
+      name: '彩虹星斑蛋',
+      icon: '🥚',
+      pattern: 'rainbow',
+      progress: 1, // 0 to 3
+      target: 3
+    };
     this.grade = initialData?.grade || 1;
     this.soundEnabled = initialData?.soundEnabled ?? true;
     this.hasSeenPrologue = initialData?.hasSeenPrologue || false;
@@ -486,6 +495,7 @@ export class GameState {
       ownedEquipment: [...this.ownedEquipment],
       stagesProgress: { ...this.stagesProgress },
       unlockedSpells: [...this.unlockedSpells],
+      egg: this.egg ? { ...this.egg } : null,
       grade: this.grade,
       soundEnabled: this.soundEnabled,
       hasSeenPrologue: this.hasSeenPrologue,
@@ -494,6 +504,15 @@ export class GameState {
       openedChests: [...this.openedChests],
       playLocation: this.playLocation,
       classCode: this.classCode
+    };
+  }
+
+  progressEgg(amount = 1) {
+    if (!this.egg || !this.egg.hasEgg) return null;
+    this.egg.progress = Math.min(this.egg.target, this.egg.progress + amount);
+    return {
+      readyToHatch: this.egg.progress >= this.egg.target,
+      egg: this.egg
     };
   }
 }

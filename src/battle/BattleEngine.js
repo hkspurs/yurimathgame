@@ -219,18 +219,34 @@ export class BattleEngine {
         petName: this.activePet.name
       });
     } else {
-      // Wizard attack
-      baseDmg = spell.power + Math.floor(this.gameState.attack * 0.8);
-      const totalDmg = Math.round(baseDmg * mult);
-      this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
+      let totalDmg = 0;
+      if (spell.id === 'frogify') {
+        this.monster.isFrogified = true;
+        this.monster.frogifyTurns = 2;
+        if (!this.monster.originalName) this.monster.originalName = this.monster.name;
+        this.monster.name = `呱呱叫青蛙 (${this.monster.originalName})`;
+        totalDmg = 12;
+        this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
+        eventBus.emit('BATTLE_LOG', `🐸 惡作劇大成功！【${this.monster.originalName}】被變成了戴巫師帽的呱呱叫小青蛙！攻擊力驟降為 1 點！`);
+        eventBus.emit('SHOW_TOAST', {
+          icon: '🐸',
+          title: '變身小青蛙！',
+          text: `${this.monster.originalName} 變成青蛙呱呱叫！`
+        });
+        eventBus.emit('BATTLE_MONSTER_FROGIFIED', { turns: 2 });
+      } else {
+        baseDmg = spell.power + Math.floor(this.gameState.attack * 0.8);
+        totalDmg = Math.round(baseDmg * mult);
+        this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
 
-      logMsg = mult > 1.0
-        ? `💥 屬性克制！【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
-        : `✨ 【${spell.name}】命中！對 ${this.monster.name} 造成了 ${totalDmg} 點傷害！`;
+        logMsg = mult > 1.0
+          ? `💥 屬性克制！【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
+          : `✨ 【${spell.name}】命中！對 ${this.monster.name} 造成了 ${totalDmg} 點傷害！`;
 
-      eventBus.emit('BATTLE_LOG', logMsg);
-      if (mult > 1.0) {
-        eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+        eventBus.emit('BATTLE_LOG', logMsg);
+        if (mult > 1.0) {
+          eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+        }
       }
       eventBus.emit('BATTLE_DAMAGE_DEALT', {
         attacker: 'player',
@@ -358,6 +374,36 @@ export class BattleEngine {
     eventBus.emit('BATTLE_LOG', `${this.monster.name} 正在積聚暗影法力...`);
 
     setTimeout(() => {
+      // Frogified Prank Behavior
+      if (this.monster.isFrogified) {
+        this.monster.frogifyTurns--;
+        const damage = 1;
+        this.gameState.takeDamage(damage);
+        eventBus.emit('BATTLE_LOG', `🐸 呱呱小青蛙跳了一下，吐出一朵小肥皂泡泡！(造成 1 點傷害！Ribbit~)`);
+        eventBus.emit('BATTLE_DAMAGE_DEALT', {
+          attacker: 'monster',
+          target: 'player',
+          damage,
+          playerHp: this.gameState.hp,
+          playerMaxHp: this.gameState.maxHp
+        });
+
+        if (this.monster.frogifyTurns <= 0) {
+          this.monster.isFrogified = false;
+          this.monster.name = this.monster.originalName || this.monster.name;
+          eventBus.emit('BATTLE_LOG', `✨ 惡作劇魔法失效！小青蛙變回了兇猛的【${this.monster.name}】！`);
+        }
+
+        setTimeout(() => {
+          this.isPlayerTurn = true;
+          this.isBusy = false;
+          this.turnInProgress = false;
+          eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術或精靈招式)');
+          eventBus.emit('BATTLE_PLAYER_TURN');
+        }, 1300);
+        return;
+      }
+
       const skills = this.monster.skills || [{ name: '暗影撞擊', power: 12, text: '發動了猛烈衝擊！' }];
       const skill = skills[Math.floor(Math.random() * skills.length)];
       const damage = skill.power + Math.floor(Math.random() * 4);
