@@ -260,6 +260,10 @@ class AudioManager {
     }, intervalMs);
   }
 
+  get isMuted() {
+    return !this.enabled;
+  }
+
   setEnabled(enabled) {
     this.enabled = !!enabled;
     if (!this.enabled) {

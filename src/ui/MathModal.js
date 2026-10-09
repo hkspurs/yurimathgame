@@ -79,6 +79,25 @@ export class MathModal {
       this.close();
       eventBus.emit('MATH_QUESTION_CANCELLED');
     });
+
+    window.addEventListener('keydown', (e) => {
+      if (this.modalEl.classList.contains('hidden')) return;
+
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= 4) {
+        const buttons = this.choicesContainer.querySelectorAll('.rune-seal-btn');
+        if (buttons[num - 1]) {
+          buttons[num - 1].click();
+        }
+      } else if (e.key === 'Enter') {
+        if (!this.submitBtn.disabled) {
+          this.submitAnswer();
+        }
+      } else if (e.key === 'Escape') {
+        this.close();
+        eventBus.emit('MATH_QUESTION_CANCELLED');
+      }
+    });
   }
 
   open(spell, grade, realm) {

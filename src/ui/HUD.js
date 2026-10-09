@@ -13,6 +13,8 @@ export class HUD {
     this.goldEl = document.getElementById('hud-gold');
     this.starsEl = document.getElementById('hud-stars');
     this.soundBtn = document.getElementById('btn-sound');
+    this.townShopBtn = document.getElementById('btn-town-shop');
+    this.keystonesTrackerEl = document.getElementById('hud-keystones-tracker');
     this.modeBadgeEl = document.getElementById('hud-mode-badge');
     this.modeBadgeIconEl = document.getElementById('mode-badge-icon');
     this.modeBadgeTextEl = document.getElementById('mode-badge-text');
@@ -66,9 +68,26 @@ export class HUD {
         this.soundBtn.textContent = stats.soundEnabled ? '🔊' : '🔇';
       }
     }
+
+    // Update 5 Warden Keystones Mini Tracker
+    if (this.keystonesTrackerEl && stats.keystones) {
+      const dots = this.keystonesTrackerEl.querySelectorAll('.hud-ks-dot');
+      dots.forEach(dot => {
+        const sId = dot.dataset.stone;
+        const obtained = stats.keystones.includes(sId);
+        dot.classList.toggle('obtained', obtained);
+        dot.classList.toggle('missing', !obtained);
+      });
+    }
   }
 
   bindEvents() {
+    if (this.townShopBtn) {
+      this.townShopBtn.addEventListener('click', () => {
+        eventBus.emit('OPEN_TOWN_SHOP');
+      });
+    }
+
     if (this.modeBadgeEl) {
       this.modeBadgeEl.addEventListener('click', () => {
         eventBus.emit('OPEN_WHERE_PLAYING');

@@ -721,6 +721,13 @@ class GameApp {
     this.mobileControlsEl.classList.add('hidden');
     this.battleUiEl.classList.remove('hidden');
 
+    // Hide any lingering modals
+    if (this.rewardModalEl) this.rewardModalEl.classList.add('hidden');
+    if (this.levelUpModalEl) this.levelUpModalEl.classList.add('hidden');
+    if (this.keystoneModalEl) this.keystoneModalEl.classList.add('hidden');
+    if (this.altarBossModalEl) this.altarBossModalEl.classList.add('hidden');
+    if (this.defeatModalEl) this.defeatModalEl.classList.add('hidden');
+
     this.battleEngine = new BattleEngine(this.gameState, monsterDef);
     this.battleScene.setCombatants(this.gameState.getSnapshot(), this.battleEngine.monster);
 

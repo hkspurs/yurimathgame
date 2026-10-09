@@ -6,3 +6,6 @@ dist
 test_screenshots
 *.tmp
 .vite
+wai_*.png
+playtest_*.png
+
