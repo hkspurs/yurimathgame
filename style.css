@@ -5206,30 +5206,123 @@ html, body {
     max-width: 56px;
   }
 
-  /* Ancient Grimoire Portrait Adaptation */
-  .ancient-grimoire {
-    width: 95vw;
-    max-width: 380px;
-    max-height: 85dvh;
-    padding: 12px 14px;
+  /* Ancient Grimoire Portrait Adaptation - Full Screen Immersive Math Tome */
+  #math-modal.tome-overlay {
+    padding: 0 !important;
+    background: rgba(4, 7, 12, 0.95) !important;
   }
 
-  .runic-problem-box {
-    padding: 10px 8px;
+  #math-modal .ancient-grimoire {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
   }
 
-  .runic-math-prompt {
-    font-size: 16px;
+  #math-modal .grimoire-ribbon {
+    padding: 10px 14px 10px 18px !important;
+    border-bottom: 2px solid #c59b27 !important;
+    flex-shrink: 0 !important;
   }
 
-  .answer-runes-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+  #math-modal .incantation-tag {
+    font-size: 15px !important;
+    font-weight: 800 !important;
   }
 
-  .rune-seal-btn {
-    padding: 10px 8px;
-    font-size: 15px;
+  #math-modal .grimoire-cancel-seal {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 28px !important;
+  }
+
+  #math-modal .grimoire-single-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 16px 18px 24px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+  }
+
+  #math-modal .chapter-label {
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    color: #8c531b !important;
+    margin-bottom: 2px !important;
+  }
+
+  #math-modal .runic-problem-box {
+    padding: 18px 16px !important;
+    border-radius: 16px !important;
+    border: 2.5px solid #d5b88a !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fdf8eb 100%) !important;
+    box-shadow: 0 4px 14px rgba(140, 83, 27, 0.1) !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: 120px !important;
+  }
+
+  #math-modal .plinth-header {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    margin-bottom: 8px !important;
+  }
+
+  #math-modal .runic-math-prompt {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    line-height: 1.45 !important;
+    color: #2c1a0e !important;
+  }
+
+  #math-modal .answer-runes-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+    flex: 1 !important;
+    align-content: stretch !important;
+    margin: 10px 0 !important;
+  }
+
+  #math-modal .rune-seal-btn {
+    min-height: 72px !important;
+    padding: 14px 12px !important;
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    border-radius: 16px !important;
+    border-width: 2.5px !important;
+    border-bottom-width: 5px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  #math-modal .cast-seal-wrapper {
+    margin-top: auto !important;
+    padding-top: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #math-modal .channel-magic-btn {
+    min-height: 56px !important;
+    padding: 14px 24px !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    border-radius: 28px !important;
+    letter-spacing: 0.8px !important;
+    box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5) !important;
   }
 }
 
