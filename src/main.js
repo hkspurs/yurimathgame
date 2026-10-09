@@ -78,6 +78,9 @@ class GameApp {
     this.realmBadgeIconEl = document.getElementById('realm-badge-icon');
     this.realmBadgeNameEl = document.getElementById('realm-badge-name');
 
+    // Measure viewport display before constructing world scene
+    this.resizeCanvas();
+
     // Scenes
     this.worldScene = new WorldScene(this.canvas, this.gameState);
     this.battleScene = new BattleScene(this.canvas);
@@ -172,6 +175,9 @@ class GameApp {
       if (this.canvas.width !== displayW || this.canvas.height !== displayH) {
         this.canvas.width = displayW;
         this.canvas.height = displayH;
+        if (this.worldScene?.onResize) {
+          this.worldScene.onResize(displayW, displayH);
+        }
       }
     }
   }

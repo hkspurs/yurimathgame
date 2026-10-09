@@ -47,14 +47,24 @@ export class WorldScene {
     this.ctx = canvas.getContext('2d');
     this.gameState = gameState;
 
-    // Player position and movement
+    // World Dimensions & Dynamic Viewport Camera
+    this.worldWidth = 1400;
+    this.worldHeight = 1600;
+    this.camera = {
+      x: 0,
+      y: 0,
+      targetX: 0,
+      targetY: 0
+    };
+
+    // Player position and movement (Spawn at central crossroads)
     this.player = {
-      x: 280,
-      y: 360,
+      x: 700,
+      y: 800,
       targetX: null,
       targetY: null,
       size: 64,
-      speed: 3.5,
+      speed: 4.2,
       direction: 'down',
       isMoving: false,
       animTimer: 0,
@@ -63,8 +73,8 @@ export class WorldScene {
 
     // Follower Pet companion behind wizard
     this.followerPet = {
-      x: 240,
-      y: 380,
+      x: 660,
+      y: 820,
       size: 46,
       hopTimer: 0,
       img: new Image()
@@ -77,12 +87,12 @@ export class WorldScene {
     this.roamingMonsters = [];
     this.encounterCooldown = 0; // Grace period after returning from battle
 
-    // Academy Mentor NPC: Headmaster Noot
+    // Academy Mentor NPC: Headmaster Noot (Near North Lamplight Gate)
     this.npcHeadmaster = {
       name: '努特校長 (Headmaster Noot)',
       title: '燈火學院院長',
-      x: 390,
-      y: 190,
+      x: 620,
+      y: 220,
       size: 64,
       bobTimer: 0
     };
@@ -102,10 +112,10 @@ export class WorldScene {
     this.isEncountering = false;
     this.currentRealm = this.gameState?.currentRealm || 'firefly_forest';
 
-    // Ambient floating particles
-    this.fireflies = Array.from({ length: 35 }, () => ({
-      x: Math.random() * 1024,
-      y: Math.random() * 768,
+    // Ambient floating particles across large realm
+    this.fireflies = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 1400,
+      y: Math.random() * 1600,
       radius: Math.random() * 2.5 + 1.2,
       speedX: (Math.random() - 0.5) * 0.4,
       speedY: -(Math.random() * 0.5 + 0.2),
@@ -123,6 +133,27 @@ export class WorldScene {
 
     this.bindInputs();
     this.loadRealm(this.currentRealm);
+  }
+
+  centerCameraOnPlayer(immediate = false) {
+    const cw = this.canvas?.width || 800;
+    const ch = this.canvas?.height || 600;
+    const targetCamX = this.player.x - cw / 2;
+    const targetCamY = this.player.y - ch / 2;
+    const maxCamX = Math.max(0, this.worldWidth - cw);
+    const maxCamY = Math.max(0, this.worldHeight - ch);
+
+    this.camera.targetX = Math.max(0, Math.min(maxCamX, targetCamX));
+    this.camera.targetY = Math.max(0, Math.min(maxCamY, targetCamY));
+
+    if (immediate) {
+      this.camera.x = this.camera.targetX;
+      this.camera.y = this.camera.targetY;
+    }
+  }
+
+  onResize(newW, newH) {
+    this.centerCameraOnPlayer(false);
   }
 
   get roamingMonster() {
@@ -232,21 +263,19 @@ export class WorldScene {
     const monster2Def = pickUnique([monster1Def.id]);
     const monster3Def = pickUnique([monster1Def.id, monster2Def.id]);
 
-    const ch = this.canvas?.height || 600;
-    const isCompact = ch <= 500;
-
+    // Zone 1: Northwest Glade (x: 320, y: 380)
     const m1 = {
       id: monster1Def.id,
       name: monster1Def.name,
       balloonMsg: monster1Def.balloonMsg,
       isBoss: !!monster1Def.isBoss,
-      x: 540,
-      y: isCompact ? Math.min(230, ch * 0.52) : 260,
-      homeX: 540,
-      homeY: isCompact ? Math.min(230, ch * 0.52) : 260,
+      x: 320,
+      y: 380,
+      homeX: 320,
+      homeY: 380,
       wanderTimer: 0,
       wanderAngle: Math.random() * Math.PI * 2,
-      size: monster1Def.isBoss ? (isCompact ? 70 : 80) : (isCompact ? 62 : 72),
+      size: monster1Def.isBoss ? 78 : 70,
       bobTimer: 0,
       alert: false,
       flameParticles: [],
@@ -254,19 +283,19 @@ export class WorldScene {
     };
     m1.img.src = monster1Def.sprite;
 
-    const m2Y = isCompact ? Math.min(280, ch - 85) : 320;
+    // Zone 2: Eastern Ruins & Riverbank (x: 1120, y: 820)
     const m2 = {
       id: monster2Def.id,
       name: monster2Def.name,
       balloonMsg: monster2Def.balloonMsg,
       isBoss: !!monster2Def.isBoss,
-      x: 740,
-      y: m2Y,
-      homeX: 740,
-      homeY: m2Y,
+      x: 1120,
+      y: 820,
+      homeX: 1120,
+      homeY: 820,
       wanderTimer: 1.5,
       wanderAngle: Math.random() * Math.PI * 2,
-      size: monster2Def.isBoss ? (isCompact ? 70 : 80) : (isCompact ? 62 : 72),
+      size: monster2Def.isBoss ? 78 : 70,
       bobTimer: Math.PI * 0.7,
       alert: false,
       flameParticles: [],
@@ -274,19 +303,19 @@ export class WorldScene {
     };
     m2.img.src = monster2Def.sprite;
 
-    const m3Y = isCompact ? Math.min(180, ch * 0.38) : 180;
+    // Zone 3: Southern Deep Mystic Wilds (x: 780, y: 1380)
     const m3 = {
       id: monster3Def.id,
       name: monster3Def.name,
       balloonMsg: monster3Def.balloonMsg,
       isBoss: !!monster3Def.isBoss,
-      x: 380,
-      y: m3Y,
-      homeX: 380,
-      homeY: m3Y,
+      x: 780,
+      y: 1380,
+      homeX: 780,
+      homeY: 1380,
       wanderTimer: 2.2,
       wanderAngle: Math.random() * Math.PI * 2,
-      size: monster3Def.isBoss ? (isCompact ? 70 : 80) : (isCompact ? 62 : 72),
+      size: monster3Def.isBoss ? 78 : 70,
       bobTimer: Math.PI * 1.3,
       alert: false,
       flameParticles: [],
@@ -299,26 +328,31 @@ export class WorldScene {
     this.isEncountering = false;
     this.encounterCooldown = 0;
 
-    // Reset player position safely
-    this.player.x = 280;
-    this.player.y = isCompact ? Math.min(300, ch - 80) : 360;
+    // Reset player position to Central Crossroads
+    this.player.x = 700;
+    this.player.y = 800;
     this.player.targetX = null;
     this.player.targetY = null;
+    this.followerPet.x = 660;
+    this.followerPet.y = 820;
+
+    // Center camera on player
+    this.centerCameraOnPlayer(true);
 
     // Interactive Adventure Entities for Current Realm
     const chestConfigs = {
-      'firefly_forest': { id: 'chest_forest', x: 190, y: isCompact ? Math.min(220, ch * 0.5) : 240, rewards: { gold: 40, xp: 30, stars: 1 } },
-      'shipwreck_shore': { id: 'chest_shore', x: 210, y: isCompact ? Math.min(260, ch * 0.6) : 310, rewards: { gold: 45, xp: 35, stars: 1 } },
-      'bonfire_spire': { id: 'chest_volcano', x: 190, y: isCompact ? Math.min(210, ch * 0.48) : 230, rewards: { gold: 50, xp: 40, stars: 1 } },
-      'shiverchill_mountains': { id: 'chest_snow', x: 220, y: isCompact ? Math.min(250, ch * 0.58) : 280, rewards: { gold: 50, xp: 40, stars: 1 } },
-      'skywatch': { id: 'chest_sky', x: 200, y: isCompact ? Math.min(260, ch * 0.6) : 290, rewards: { gold: 60, xp: 50, stars: 2 } }
+      'firefly_forest': { id: 'chest_forest', x: 280, y: 1300, rewards: { gold: 40, xp: 30, stars: 1 } },
+      'shipwreck_shore': { id: 'chest_shore', x: 280, y: 1300, rewards: { gold: 45, xp: 35, stars: 1 } },
+      'bonfire_spire': { id: 'chest_volcano', x: 280, y: 1300, rewards: { gold: 50, xp: 40, stars: 1 } },
+      'shiverchill_mountains': { id: 'chest_snow', x: 280, y: 1300, rewards: { gold: 50, xp: 40, stars: 1 } },
+      'skywatch': { id: 'chest_sky', x: 280, y: 1300, rewards: { gold: 60, xp: 50, stars: 2 } }
     };
     const cCfg = chestConfigs[this.currentRealm] || chestConfigs['firefly_forest'];
     this.treasureChest = {
       id: cCfg.id,
       x: cCfg.x,
       y: cCfg.y,
-      size: isCompact ? 36 : 42,
+      size: 42,
       rewards: cCfg.rewards,
       sparkleTimer: 0,
       particles: []
@@ -333,9 +367,9 @@ export class WorldScene {
     };
     const aCfg = altarConfigs[this.currentRealm] || altarConfigs['firefly_forest'];
     this.keystoneAltar = {
-      x: 710,
-      y: isCompact ? Math.min(310, ch - 80) : 370,
-      size: isCompact ? 48 : 58,
+      x: 1120,
+      y: 260,
+      size: 58,
       keystoneId: aCfg.keystoneId,
       name: aCfg.name,
       icon: aCfg.icon,
@@ -347,26 +381,24 @@ export class WorldScene {
     };
 
     const signpostConfigs = {
-      'firefly_forest': '📜 【森林路牌】向北通往燈火學院主城，向東常有野生怪獸（弱水）出沒！',
-      'shipwreck_shore': '📜 【海岸路牌】金色沙灘潮汐洶湧！野生章魚怪獸（弱風暴）鎮守海岸！',
-      'bonfire_spire': '📜 【火山路牌】黑曜石熔岩翻滾！火山怪獸（弱水）常在附近徘徊！',
-      'shiverchill_mountains': '📜 【雪山路牌】極地暴風雪呼嘯！冰霜雪鼻獸（弱火）潛伏雪谷！',
-      'skywatch': '📜 【浮空路牌】雷霆雲層翻湧！雷雲獸（弱地）穿梭雲巔！'
+      'firefly_forest': '📜 【十字路口路牌】北通燈火學院；東通繁花溪流；西南藏有古寶箱；南通秘林野生怪獸！',
+      'shipwreck_shore': '📜 【海岸十字路】北通沉船前哨；東通珊瑚浪潮；西南有失落寶箱！野生章魚怪獸常在南境徘徊！',
+      'bonfire_spire': '📜 【火山十字路】北通黑曜石主城；東北為烈焰祭壇；南通熔岩峽谷，火山巨獸出沒！',
+      'shiverchill_mountains': '📜 【雪山十字路】北通霜凍要塞；東通極地冰川；南通雪靈深谷，小心暴風雪！',
+      'skywatch': '📜 【浮空十字路】北通雷霆神殿；東通浮空雲島；南通狂風深淵，雷雲精靈盤旋！'
     };
     this.signpost = {
-      x: 330,
-      y: isCompact ? Math.min(330, ch - 65) : 420,
-      size: isCompact ? 30 : 36,
+      x: 630,
+      y: 720,
+      size: 36,
       text: signpostConfigs[this.currentRealm] || signpostConfigs['firefly_forest']
     };
 
-    // Props for current realm
+    // Props for current realm across 1400 x 1600 world
     this.environmentProps = this.generatePropsForRealm(this.currentRealm);
   }
 
   generatePropsForRealm(realmId) {
-    const ch = this.canvas?.height || 600;
-    const isCompact = ch <= 500;
     const props = [];
     const seedRandom = (s) => {
       let x = Math.sin(s++) * 10000;
@@ -382,25 +414,52 @@ export class WorldScene {
     };
     const palette = flowerPalettes[realmId] || flowerPalettes['firefly_forest'];
 
-    // 35 decorative thematic items
-    for (let i = 0; i < 35; i++) {
+    // 70 decorative thematic flowers across the whole 1400 x 1600 realm
+    for (let i = 0; i < 70; i++) {
       props.push({
         type: 'flower',
-        x: seedRandom(i * 3) * 960 + 30,
-        y: seedRandom(i * 3 + 1) * (isCompact ? (ch - 90) : 680) + 50,
+        x: seedRandom(i * 3) * (this.worldWidth - 140) + 70,
+        y: seedRandom(i * 3 + 1) * (this.worldHeight - 180) + 100,
         size: seedRandom(i * 3 + 3) * 3 + 4,
         color: palette[Math.floor(seedRandom(i * 7) * palette.length)]
       });
     }
 
-    // Natural landscape landmarks / trees / rocks
-    props.push({ type: 'tree', x: 100, y: 150, r: 52 });
-    props.push({ type: 'tree', x: 230, y: 110, r: 44 });
-    props.push({ type: 'tree', x: 780, y: 140, r: 58 });
-    props.push({ type: 'tree', x: 920, y: 220, r: 50 });
-    props.push({ type: 'tree', x: 80, y: isCompact ? ch - 55 : 560, r: isCompact ? 42 : 54 });
-    props.push({ type: 'tree', x: 180, y: isCompact ? ch - 35 : 640, r: isCompact ? 36 : 46 });
-    props.push({ type: 'tree', x: 880, y: isCompact ? ch - 50 : 580, r: isCompact ? 40 : 52 });
+    // Natural landscape landmarks & trees distributed across world
+    // Northwest Grove (around Monster 1)
+    props.push({ type: 'tree', x: 120, y: 180, r: 54 });
+    props.push({ type: 'tree', x: 260, y: 140, r: 46 });
+    props.push({ type: 'tree', x: 160, y: 440, r: 50 });
+    props.push({ type: 'tree', x: 420, y: 220, r: 48 });
+
+    // Northeast Altar Grove
+    props.push({ type: 'tree', x: 960, y: 160, r: 52 });
+    props.push({ type: 'tree', x: 1240, y: 180, r: 56 });
+    props.push({ type: 'tree', x: 1220, y: 380, r: 46 });
+
+    // West Boundary Trees
+    props.push({ type: 'tree', x: 90, y: 720, r: 52 });
+    props.push({ type: 'tree', x: 90, y: 920, r: 50 });
+
+    // East Ruins & Riverbank Trees
+    props.push({ type: 'tree', x: 1180, y: 640, r: 48 });
+    props.push({ type: 'tree', x: 1240, y: 980, r: 52 });
+
+    // Southwest Chest Clearing
+    props.push({ type: 'tree', x: 140, y: 1180, r: 54 });
+    props.push({ type: 'tree', x: 380, y: 1420, r: 50 });
+    props.push({ type: 'tree', x: 160, y: 1460, r: 48 });
+
+    // South Deep Woods (around Monster 3)
+    props.push({ type: 'tree', x: 620, y: 1480, r: 56 });
+    props.push({ type: 'tree', x: 940, y: 1460, r: 52 });
+    props.push({ type: 'tree', x: 1120, y: 1380, r: 50 });
+
+    // Central Crossroads accents (leaves paths clear)
+    props.push({ type: 'tree', x: 480, y: 620, r: 44 });
+    props.push({ type: 'tree', x: 920, y: 640, r: 44 });
+    props.push({ type: 'tree', x: 480, y: 960, r: 44 });
+    props.push({ type: 'tree', x: 920, y: 960, r: 44 });
 
     return props;
   }
@@ -418,10 +477,9 @@ export class WorldScene {
     if (this.keystoneAltar) {
       list.push({ x: this.keystoneAltar.x, y: this.keystoneAltar.y + 4, r: 36 });
     }
-    // Lamplight Gate stone pillars
-    const gateMidX = this.canvas.width * 0.48;
-    list.push({ x: gateMidX - 50, y: 70, r: 18 });
-    list.push({ x: gateMidX + 50, y: 70, r: 18 });
+    // Lamplight Gate stone pillars at (700, 80)
+    list.push({ x: 650, y: 70, r: 18 });
+    list.push({ x: 750, y: 70, r: 18 });
     return list;
   }
 
@@ -457,7 +515,7 @@ export class WorldScene {
             return;
           }
         }
-        const distToGate = Math.hypot(this.player.x - this.canvas.width * 0.48, this.player.y - 80);
+        const distToGate = Math.hypot(this.player.x - 700, this.player.y - 80);
         if (distToGate < 80) {
           eventBus.emit('OPEN_TOWN_SHOP');
           return;
@@ -498,7 +556,7 @@ export class WorldScene {
       this.loadRealm(realmId);
     });
 
-    // Tap/Click on canvas to interact or move
+    // Tap/Click on canvas to interact or move in large world
     this.canvas.addEventListener('pointerdown', (e) => {
       // Strictly prevent clicks during battle or when any modal/grimoire overlay is open
       if (!this.isActive || window.gameApp?.currentScene !== 'world') return;
@@ -507,13 +565,17 @@ export class WorldScene {
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = this.canvas.width / rect.width;
       const scaleY = this.canvas.height / rect.height;
-      const clickX = (e.clientX - rect.left) * scaleX;
-      const clickY = (e.clientY - rect.top) * scaleY;
+      const screenClickX = (e.clientX - rect.left) * scaleX;
+      const screenClickY = (e.clientY - rect.top) * scaleY;
+
+      // Project screen touch into virtual world coordinates
+      const worldClickX = screenClickX + this.camera.x;
+      const worldClickY = screenClickY + this.camera.y;
 
       // Click on monster (Checks all active roaming monsters in realm)
       for (const monster of this.roamingMonsters) {
-        const distToMonster = Math.hypot(clickX - monster.x, clickY - monster.y);
-        if (distToMonster < 70 && !this.isEncountering && this.encounterCooldown <= 0) {
+        const distToMonster = Math.hypot(worldClickX - monster.x, worldClickY - monster.y);
+        if (distToMonster < 75 && !this.isEncountering && this.encounterCooldown <= 0) {
           this.isEncountering = true;
           monster.alert = true;
           eventBus.emit('TRIGGER_ENCOUNTER_ALERT', { monster });
@@ -522,23 +584,23 @@ export class WorldScene {
       }
 
       // Click on Headmaster Noot NPC
-      const distToNPC = Math.hypot(clickX - this.npcHeadmaster.x, clickY - this.npcHeadmaster.y);
-      if (distToNPC < 65) {
+      const distToNPC = Math.hypot(worldClickX - this.npcHeadmaster.x, worldClickY - this.npcHeadmaster.y);
+      if (distToNPC < 70) {
         eventBus.emit('INTERACT_NPC_HEADMASTER');
         return;
       }
 
-      // Click on Lamplight Town Gate
-      const distToGate = Math.hypot(clickX - this.canvas.width * 0.48, clickY - 80);
-      if (distToGate < 75) {
+      // Click on Lamplight Town Gate (x: 700, y: 80)
+      const distToGate = Math.hypot(worldClickX - 700, worldClickY - 80);
+      if (distToGate < 80) {
         eventBus.emit('OPEN_TOWN_SHOP');
         return;
       }
 
       // Click on Treasure Chest
       if (this.treasureChest) {
-        const distToChest = Math.hypot(clickX - this.treasureChest.x, clickY - this.treasureChest.y);
-        if (distToChest < 60) {
+        const distToChest = Math.hypot(worldClickX - this.treasureChest.x, worldClickY - this.treasureChest.y);
+        if (distToChest < 65) {
           this.interactWithChest();
           return;
         }
@@ -546,8 +608,8 @@ export class WorldScene {
 
       // Click on Keystone Altar
       if (this.keystoneAltar) {
-        const distToAltar = Math.hypot(clickX - this.keystoneAltar.x, clickY - this.keystoneAltar.y);
-        if (distToAltar < 65) {
+        const distToAltar = Math.hypot(worldClickX - this.keystoneAltar.x, worldClickY - this.keystoneAltar.y);
+        if (distToAltar < 70) {
           this.interactWithAltar();
           return;
         }
@@ -555,16 +617,16 @@ export class WorldScene {
 
       // Click on Signpost
       if (this.signpost) {
-        const distToSign = Math.hypot(clickX - this.signpost.x, clickY - this.signpost.y);
-        if (distToSign < 55) {
+        const distToSign = Math.hypot(worldClickX - this.signpost.x, worldClickY - this.signpost.y);
+        if (distToSign < 60) {
           eventBus.emit('SHOW_TOAST', { message: this.signpost.text, type: 'info' });
           return;
         }
       }
 
-      // Tap to move
-      this.player.targetX = Math.max(50, Math.min(this.canvas.width - 60, clickX));
-      this.player.targetY = Math.max(90, Math.min(this.canvas.height - 70, clickY));
+      // Tap to move in world space
+      this.player.targetX = Math.max(60, Math.min(this.worldWidth - 60, worldClickX));
+      this.player.targetY = Math.max(90, Math.min(this.worldHeight - 70, worldClickY));
       this.tapIndicator = {
         x: this.player.targetX,
         y: this.player.targetY,
@@ -663,8 +725,8 @@ export class WorldScene {
 
       const stepX = dx * this.player.speed;
       const stepY = dy * this.player.speed;
-      const targetX = Math.max(50, Math.min(this.canvas.width - 60, this.player.x + stepX));
-      const targetY = Math.max(90, Math.min(this.canvas.height - 70, this.player.y + stepY));
+      const targetX = Math.max(60, Math.min(this.worldWidth - 60, this.player.x + stepX));
+      const targetY = Math.max(90, Math.min(this.worldHeight - 70, this.player.y + stepY));
 
       const obstacles = this.getObstacles();
       const isColliding = (px, py) => {
@@ -700,15 +762,14 @@ export class WorldScene {
     }
 
     // Universal boundary safety clamp
-    this.player.x = Math.max(50, Math.min(this.canvas.width - 60, this.player.x));
-    this.player.y = Math.max(90, Math.min(this.canvas.height - 70, this.player.y));
+    this.player.x = Math.max(60, Math.min(this.worldWidth - 60, this.player.x));
+    this.player.y = Math.max(90, Math.min(this.worldHeight - 70, this.player.y));
 
-    // Walking through North Lamplight Gate Archway
-    const gateMidX = this.canvas.width * 0.48;
-    if (this.player.y <= 95 && Math.abs(this.player.x - gateMidX) < 48) {
+    // Walking through North Lamplight Gate Archway at (700, 80)
+    if (this.player.y <= 95 && Math.abs(this.player.x - 700) < 60) {
       if (!this.hasTriggeredGate) {
         this.hasTriggeredGate = true;
-        this.player.y = 110;
+        this.player.y = 115;
         this.player.targetX = null;
         this.player.targetY = null;
         this.player.isMoving = false;
@@ -716,6 +777,20 @@ export class WorldScene {
         setTimeout(() => { this.hasTriggeredGate = false; }, 1200);
       }
     }
+
+    // Dynamic Camera Viewport Smooth Tracking
+    const cw = this.canvas.width;
+    const ch = this.canvas.height;
+    const targetCamX = this.player.x - cw / 2;
+    const targetCamY = this.player.y - ch / 2;
+    const maxCamX = Math.max(0, this.worldWidth - cw);
+    const maxCamY = Math.max(0, this.worldHeight - ch);
+
+    this.camera.targetX = Math.max(0, Math.min(maxCamX, targetCamX));
+    this.camera.targetY = Math.max(0, Math.min(maxCamY, targetCamY));
+
+    this.camera.x += (this.camera.targetX - this.camera.x) * 0.14;
+    this.camera.y += (this.camera.targetY - this.camera.y) * 0.14;
 
     // Update Follower Pet
     this.updateFollowerPet(dt);
@@ -749,7 +824,7 @@ export class WorldScene {
         const nextY = monster.y + wdy;
         const hx = monster.homeX || monster.x;
         const hy = monster.homeY || monster.y;
-        if (Math.hypot(nextX - hx, nextY - hy) < 38) {
+        if (Math.hypot(nextX - hx, nextY - hy) < 42) {
           monster.x = nextX;
           monster.y = nextY;
         } else {
@@ -786,17 +861,17 @@ export class WorldScene {
     // Water animation timer
     this.waterTimer += dt;
 
-    // Fireflies update
+    // Fireflies update across world dimensions
     this.fireflies.forEach(p => {
       p.x += p.speedX;
       p.y += p.speedY;
       p.pulse += dt * 3;
       if (p.y < 0) {
-        p.y = this.canvas.height;
-        p.x = Math.random() * this.canvas.width;
+        p.y = this.worldHeight;
+        p.x = Math.random() * this.worldWidth;
       }
-      if (p.x < 0) p.x = this.canvas.width;
-      if (p.x > this.canvas.width) p.x = 0;
+      if (p.x < 0) p.x = this.worldWidth;
+      if (p.x > this.worldWidth) p.x = 0;
     });
 
     // Update chest sparkle & particles
@@ -932,47 +1007,41 @@ export class WorldScene {
 
   render() {
     const { ctx, canvas } = this;
-    const w = canvas.width;
-    const h = canvas.height;
+    const screenW = canvas.width;
+    const screenH = canvas.height;
+
+    // 0. Base screen background
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, screenW, screenH);
+
+    // ==========================================
+    // 1. WORLD SPACE (Transformed by Camera Viewport)
+    // ==========================================
+    ctx.save();
+    ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
 
     // 1. Multi-tone Thematic Realm Meadow / Terrain
-    const cfg = this.realmConfig || {
-      skyTop: '#559c3a',
-      skyBottom: '#44842d',
-      lightDapple: 'rgba(120, 210, 85, 0.2)'
-    };
-    const grassGrad = ctx.createLinearGradient(0, 0, 0, h);
-    grassGrad.addColorStop(0, cfg.skyTop);
-    grassGrad.addColorStop(1, cfg.skyBottom);
-    ctx.fillStyle = grassGrad;
-    ctx.fillRect(0, 0, w, h);
+    this.renderTerrain(this.worldWidth, this.worldHeight);
 
-    // Soft dappled light patches
-    ctx.fillStyle = cfg.lightDapple || 'rgba(120, 210, 85, 0.2)';
-    ctx.beginPath();
-    ctx.ellipse(w * 0.3, h * 0.4, 260, 180, 0.2, 0, Math.PI * 2);
-    ctx.ellipse(w * 0.7, h * 0.6, 280, 190, -0.15, 0, Math.PI * 2);
-    ctx.fill();
+    // 2. Animated Sparkling Stream along East border
+    this.renderStream(this.worldWidth, this.worldHeight);
 
-    // 2. Animated Sparkling Stream along right boundary
-    this.renderStream(w, h);
+    // 3. Winding Cobblestone Road Network
+    this.renderRoad(this.worldWidth, this.worldHeight);
 
-    // 3. Winding Cobblestone Road
-    this.renderRoad(w, h);
-
-    // 4. North Lamplight Gateway Arch
-    this.renderLamplightGate(w * 0.48, 80);
+    // 4. North Lamplight Gateway Arch at (700, 80)
+    this.renderLamplightGate(700, 80);
 
     // 5. Environmental props (Flowers, Shrubs, Trees)
-    this.renderProps(w, h);
+    this.renderProps(this.worldWidth, this.worldHeight);
 
-    // 5.2 Adventure Signpost
+    // 5.2 Adventure Signpost at (630, 720)
     this.renderSignpost();
 
-    // 5.4 Ancient Keystone Altar
+    // 5.4 Ancient Keystone Altar at (1120, 260)
     this.renderKeystoneAltar();
 
-    // 5.6 Interactive Treasure Chest
+    // 5.6 Interactive Treasure Chest at (280, 1300)
     this.renderTreasureChest();
 
     // 5.8 Tap Indicator (Ripple)
@@ -1108,48 +1177,7 @@ export class WorldScene {
       }
     }
 
-    // 8b. Off-screen Creature Radar Indicators (Essential for narrow iPhone portrait views)
-    const margin = 28;
-    const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
-    this.roamingMonsters.forEach(m => {
-      const isOffScreen = m.x < 10 || m.x > w - 10 || m.y < 50 || m.y > h - 40;
-      if (isOffScreen) {
-        const clampedX = Math.max(margin, Math.min(w - margin, m.x));
-        const clampedY = Math.max(75, Math.min(h - margin - 20, m.y));
-        const angle = Math.atan2(m.y - clampedY, m.x - clampedX);
-        const isUnowned = !ownedPetIds.includes(m.id);
-
-        ctx.save();
-        ctx.translate(clampedX, clampedY);
-        ctx.rotate(angle);
-
-        // Radar Arrow Pointer
-        ctx.fillStyle = isUnowned ? '#f1c40f' : '#2ed573';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.moveTo(14, 0);
-        ctx.lineTo(-8, -10);
-        ctx.lineTo(-3, 0);
-        ctx.lineTo(-8, 10);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.restore();
-
-        // Off-screen Mini Badge
-        ctx.save();
-        ctx.font = 'bold 9px ProdigySans, sans-serif';
-        ctx.fillStyle = isUnowned ? '#fff3cd' : '#ffffff';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        ctx.shadowBlur = 4;
-        ctx.textAlign = 'center';
-        ctx.fillText(isUnowned ? `✨${m.name.split(' ')[0]}` : m.name.split(' ')[0], clampedX, clampedY + 16);
-        ctx.restore();
-      }
-    });
-
-    // 9. Floating Golden Fireflies
+    // 9. Floating Golden Fireflies in World Space
     this.fireflies.forEach(p => {
       const currentAlpha = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));
       const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 3.5);
@@ -1166,42 +1194,133 @@ export class WorldScene {
       ctx.fill();
     });
 
-    // 10. Diegetic World Guide Ribbon (Bottom Center)
-    this.renderWorldGuideBanner(w, h);
+    ctx.restore(); // END OF WORLD SPACE
+
+    // ==========================================
+    // 2. SCREEN SPACE (Fixed Viewport HUD Elements)
+    // ==========================================
+
+    // 10. Off-screen Creature Radar Indicators (Live distance tracking!)
+    this.renderRadarIndicators(screenW, screenH);
+
+    // 11. Current Exploration Region Pill
+    this.renderRegionPill(screenW, screenH);
+
+    // 12. Diegetic World Guide Ribbon (Bottom Center)
+    this.renderWorldGuideBanner(screenW, screenH);
+  }
+
+  renderTerrain(w, h) {
+    const { ctx } = this;
+    const cfg = this.realmConfig || {
+      skyTop: '#559c3a',
+      skyBottom: '#44842d',
+      lightDapple: 'rgba(120, 210, 85, 0.2)'
+    };
+    const grassGrad = ctx.createLinearGradient(0, 0, 0, h);
+    grassGrad.addColorStop(0, cfg.skyTop);
+    grassGrad.addColorStop(1, cfg.skyBottom);
+    ctx.fillStyle = grassGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Soft dappled light patches across zones
+    ctx.fillStyle = cfg.lightDapple || 'rgba(120, 210, 85, 0.2)';
+    const dapples = [
+      { x: 350, y: 380, rx: 260, ry: 200, rot: 0.2 },
+      { x: 1050, y: 300, rx: 240, ry: 180, rot: -0.15 },
+      { x: 400, y: 800, rx: 280, ry: 210, rot: 0.1 },
+      { x: 1050, y: 850, rx: 260, ry: 190, rot: -0.2 },
+      { x: 350, y: 1300, rx: 250, ry: 190, rot: 0.15 },
+      { x: 800, y: 1380, rx: 270, ry: 200, rot: -0.1 }
+    ];
+    dapples.forEach(d => {
+      ctx.beginPath();
+      ctx.ellipse(d.x, d.y, d.rx, d.ry, d.rot, 0, Math.PI * 2);
+      ctx.fill();
+    });
   }
 
   renderRoad(w, h) {
     const { ctx } = this;
     ctx.save();
     
-    // Road dirt foundation
+    // Road dirt foundation - Main North-South Highway
     ctx.strokeStyle = '#c8a268';
-    ctx.lineWidth = 82;
+    ctx.lineWidth = 88;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.moveTo(w * 0.48, 60);
-    ctx.bezierCurveTo(w * 0.46, h * 0.35, w * 0.35, h * 0.5, w * 0.5, h * 0.65);
-    ctx.bezierCurveTo(w * 0.65, h * 0.8, w * 0.55, h * 0.95, w * 0.52, h + 20);
+    ctx.moveTo(700, 60);
+    ctx.bezierCurveTo(690, 350, 710, 600, 700, 800);
+    ctx.bezierCurveTo(690, 1050, 710, 1300, 700, 1550);
+    ctx.stroke();
+
+    // East-West Crossroads Trail
+    ctx.beginPath();
+    ctx.moveTo(220, 800);
+    ctx.lineTo(1180, 800);
+    ctx.stroke();
+
+    // Northeast Path to Keystone Altar
+    ctx.beginPath();
+    ctx.moveTo(700, 420);
+    ctx.bezierCurveTo(850, 400, 980, 340, 1120, 260);
+    ctx.stroke();
+
+    // Southwest Path to Treasure Chest
+    ctx.beginPath();
+    ctx.moveTo(700, 1150);
+    ctx.bezierCurveTo(550, 1180, 420, 1220, 280, 1300);
     ctx.stroke();
 
     // Cobblestone core
     ctx.strokeStyle = '#dfc294';
-    ctx.lineWidth = 70;
+    ctx.lineWidth = 72;
+    ctx.beginPath();
+    ctx.moveTo(700, 60);
+    ctx.bezierCurveTo(690, 350, 710, 600, 700, 800);
+    ctx.bezierCurveTo(690, 1050, 710, 1300, 700, 1550);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(220, 800);
+    ctx.lineTo(1180, 800);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(700, 420);
+    ctx.bezierCurveTo(850, 400, 980, 340, 1120, 260);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(700, 1150);
+    ctx.bezierCurveTo(550, 1180, 420, 1220, 280, 1300);
     ctx.stroke();
 
     // Stylized Cobblestone pavers
     ctx.fillStyle = '#bca070';
     const stones = [
-      { x: w * 0.47, y: 120, rx: 12, ry: 8 },
-      { x: w * 0.49, y: 150, rx: 14, ry: 9 },
-      { x: w * 0.44, y: 200, rx: 13, ry: 8 },
-      { x: w * 0.42, y: 260, rx: 15, ry: 10 },
-      { x: w * 0.39, y: 320, rx: 14, ry: 8 },
-      { x: w * 0.44, y: 390, rx: 16, ry: 9 },
-      { x: w * 0.52, y: 440, rx: 14, ry: 10 },
-      { x: w * 0.56, y: 500, rx: 15, ry: 9 },
-      { x: w * 0.54, y: 560, rx: 13, ry: 8 }
+      { x: 695, y: 140, rx: 14, ry: 9 },
+      { x: 705, y: 220, rx: 13, ry: 8 },
+      { x: 690, y: 320, rx: 15, ry: 10 },
+      { x: 700, y: 440, rx: 14, ry: 9 },
+      { x: 705, y: 580, rx: 16, ry: 10 },
+      { x: 690, y: 700, rx: 15, ry: 9 },
+      { x: 700, y: 800, rx: 20, ry: 14 },
+      { x: 640, y: 800, rx: 14, ry: 9 },
+      { x: 760, y: 800, rx: 14, ry: 9 },
+      { x: 520, y: 800, rx: 15, ry: 10 },
+      { x: 900, y: 800, rx: 15, ry: 9 },
+      { x: 1040, y: 800, rx: 14, ry: 8 },
+      { x: 695, y: 920, rx: 14, ry: 9 },
+      { x: 705, y: 1040, rx: 15, ry: 10 },
+      { x: 690, y: 1180, rx: 14, ry: 9 },
+      { x: 705, y: 1320, rx: 15, ry: 10 },
+      { x: 695, y: 1460, rx: 14, ry: 9 },
+      { x: 840, y: 390, rx: 13, ry: 8 },
+      { x: 970, y: 330, rx: 14, ry: 9 },
+      { x: 550, y: 1200, rx: 14, ry: 9 },
+      { x: 410, y: 1240, rx: 13, ry: 8 }
     ];
     stones.forEach(s => {
       ctx.beginPath();
@@ -1216,11 +1335,12 @@ export class WorldScene {
     const { ctx } = this;
     ctx.save();
 
-    // River bed
+    // River bed along East border
     ctx.fillStyle = '#1e75a8';
     ctx.beginPath();
-    ctx.moveTo(w * 0.84, 0);
-    ctx.bezierCurveTo(w * 0.78, h * 0.35, w * 0.88, h * 0.65, w * 0.82, h);
+    ctx.moveTo(1260, 0);
+    ctx.bezierCurveTo(1220, 400, 1290, 800, 1240, 1200);
+    ctx.bezierCurveTo(1210, 1400, 1260, 1500, 1250, h);
     ctx.lineTo(w, h);
     ctx.lineTo(w, 0);
     ctx.closePath();
@@ -1229,8 +1349,9 @@ export class WorldScene {
     // Sparkling water flow
     ctx.fillStyle = '#3aa0db';
     ctx.beginPath();
-    ctx.moveTo(w * 0.87, 0);
-    ctx.bezierCurveTo(w * 0.81, h * 0.35, w * 0.90, h * 0.65, w * 0.85, h);
+    ctx.moveTo(1280, 0);
+    ctx.bezierCurveTo(1240, 400, 1310, 800, 1260, 1200);
+    ctx.bezierCurveTo(1230, 1400, 1280, 1500, 1270, h);
     ctx.lineTo(w, h);
     ctx.lineTo(w, 0);
     ctx.closePath();
@@ -1239,12 +1360,100 @@ export class WorldScene {
     // Water ripple highlights
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.lineWidth = 2.5;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 12; i++) {
       const waveY = ((i * 140 + this.waterTimer * 40) % h);
       ctx.beginPath();
-      ctx.arc(w * 0.90 + Math.sin(waveY * 0.05) * 8, waveY, 18, 0, Math.PI * 0.6);
+      ctx.arc(1280 + Math.sin(waveY * 0.05) * 12, waveY, 20, 0, Math.PI * 0.6);
       ctx.stroke();
     }
+
+    ctx.restore();
+  }
+
+  renderRadarIndicators(screenW, screenH) {
+    const { ctx } = this;
+    const margin = 34;
+    const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
+
+    this.roamingMonsters.forEach(m => {
+      // Calculate monster position in current screen viewport
+      const screenX = m.x - this.camera.x;
+      const screenY = m.y - this.camera.y;
+
+      const isOffScreen = screenX < 20 || screenX > screenW - 20 || screenY < 75 || screenY > screenH - 55;
+      if (isOffScreen) {
+        const clampedX = Math.max(margin, Math.min(screenW - margin, screenX));
+        const clampedY = Math.max(85, Math.min(screenH - margin - 25, screenY));
+        const angle = Math.atan2(screenY - clampedY, screenX - clampedX);
+        const dist = Math.round(Math.hypot(m.x - this.player.x, m.y - this.player.y));
+        const isUnowned = !ownedPetIds.includes(m.id);
+
+        ctx.save();
+        ctx.translate(clampedX, clampedY);
+        ctx.rotate(angle);
+
+        // Radar Arrow Pointer
+        ctx.fillStyle = isUnowned ? '#f1c40f' : '#2ed573';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(-8, -10);
+        ctx.lineTo(-3, 0);
+        ctx.lineTo(-8, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+
+        // Off-screen Mini Badge with distance!
+        ctx.save();
+        ctx.font = 'bold 9.5px ProdigySans, sans-serif';
+        ctx.fillStyle = isUnowned ? '#fff3cd' : '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+        ctx.shadowBlur = 5;
+        ctx.textAlign = 'center';
+        const label = isUnowned ? `✨${m.name.split(' ')[0]} ${dist}m` : `${m.name.split(' ')[0]} ${dist}m`;
+        ctx.fillText(label, clampedX, clampedY + 16);
+        ctx.restore();
+      }
+    });
+  }
+
+  renderRegionPill(screenW, screenH) {
+    const { ctx } = this;
+    ctx.save();
+
+    let regionName = '🌾 中央十字平原 (Crossroads)';
+    if (this.player.y < 520) {
+      regionName = '🌲 北方前哨 • 學院神殿區 (North)';
+    } else if (this.player.y > 1100) {
+      regionName = '🌿 南方深谷 • 秘境密林 (South)';
+    } else if (this.player.x > 950) {
+      regionName = '🏛️ 東方遺跡 • 潮汐溪畔 (East)';
+    } else if (this.player.x < 450) {
+      regionName = '🌸 西方花甸 • 晨曦平原 (West)';
+    }
+
+    ctx.font = 'bold 10.5px ProdigySans, sans-serif';
+    const textW = ctx.measureText(regionName).width;
+    const pillW = textW + 18;
+    const pillH = 22;
+    const pillX = Math.round((screenW - pillW) / 2);
+    const pillY = 106; // Below top realm badge
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.strokeStyle = 'rgba(241, 196, 15, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect?.(pillX, pillY, pillW, pillH, 11);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#fef3c7';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(regionName, pillX + pillW / 2, pillY + pillH / 2 + 0.5);
 
     ctx.restore();
   }
@@ -1486,10 +1695,10 @@ export class WorldScene {
       : candidates[Math.floor(Math.random() * candidates.length)];
 
     const slotPos = targetIndex === 0 
-      ? { x: 540 + (Math.random() - 0.5) * 40, y: 260 + (Math.random() - 0.5) * 30 }
+      ? { x: 320 + (Math.random() - 0.5) * 50, y: 380 + (Math.random() - 0.5) * 50 }
       : (targetIndex === 1 
-          ? { x: 740 + (Math.random() - 0.5) * 40, y: 320 + (Math.random() - 0.5) * 30 }
-          : { x: 380 + (Math.random() - 0.5) * 40, y: 180 + (Math.random() - 0.5) * 30 });
+          ? { x: 1120 + (Math.random() - 0.5) * 50, y: 820 + (Math.random() - 0.5) * 50 }
+          : { x: 780 + (Math.random() - 0.5) * 50, y: 1380 + (Math.random() - 0.5) * 50 });
 
     const newMonster = {
       id: nextDef.id,
@@ -1557,28 +1766,32 @@ export class WorldScene {
   }
 
   renderWorldGuideBanner(w, h) {
+    // On narrow screens (e.g. mobile portrait), omit banner to keep D-Pad & screen clear
+    if (w <= 550) return;
+
     const { ctx } = this;
     ctx.save();
 
-    const bannerW = 380;
-    const bannerH = 34;
+    const bannerW = Math.min(380, w - 40);
+    const bannerH = 32;
     const bannerX = (w - bannerW) / 2;
-    const bannerY = h - 46;
+    const bannerY = h - 44;
 
     // Background shield pill
     ctx.fillStyle = 'rgba(26, 36, 43, 0.88)';
     ctx.strokeStyle = 'rgba(241, 196, 15, 0.8)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect?.(bannerX, bannerY, bannerW, bannerH, 17);
+    ctx.roundRect?.(bannerX, bannerY, bannerW, bannerH, 16);
     ctx.fill();
     ctx.stroke();
 
     // Text
     ctx.fillStyle = '#f1c40f';
-    ctx.font = 'bold 13px ProdigySans, sans-serif';
+    ctx.font = 'bold 12px ProdigySans, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🧭 點擊畫面任意處移動，或用十字鍵探索；點擊怪獸立即戰鬥！', w * 0.5, bannerY + 22);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🧭 點擊畫面任意處移動，或用十字鍵探索；點擊怪獸立即戰鬥！', w * 0.5, bannerY + bannerH / 2 + 0.5);
 
     ctx.restore();
   }
