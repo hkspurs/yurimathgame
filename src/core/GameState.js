@@ -33,6 +33,9 @@ export class GameState {
     this.energy = 0; // Spell energy pips (0 to 5)
     this.maxEnergy = 5;
     this.potionsCount = initialData?.potionsCount || 3;
+    this.xpBoostBattles = initialData?.xpBoostBattles || 0;
+    this.petTreatsCount = initialData?.petTreatsCount || 1;
+    this.winStreak = initialData?.winStreak || 0;
     this.pets = initialData?.pets || [];
     this.activePetId = initialData?.activePetId || (this.pets[0]?.id || null);
     this.keystones = initialData?.keystones || []; // 5 Warden Keystones
@@ -472,6 +475,9 @@ export class GameState {
       energy: this.energy,
       maxEnergy: this.maxEnergy,
       potionsCount: this.potionsCount,
+      xpBoostBattles: this.xpBoostBattles,
+      petTreatsCount: this.petTreatsCount,
+      winStreak: this.winStreak,
       pets: [...this.pets],
       activePetId: this.activePetId,
       keystones: [...this.keystones],

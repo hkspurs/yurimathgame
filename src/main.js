@@ -251,6 +251,16 @@ class GameApp {
       });
     }
 
+    // Flee (Run Away) button in Battle UI
+    const btnFlee = document.getElementById('btn-flee-battle');
+    if (btnFlee) {
+      btnFlee.addEventListener('click', () => {
+        if (this.battleEngine) {
+          this.battleEngine.flee();
+        }
+      });
+    }
+
     // Realm Badge click to open World Map
     if (this.realmBadgeEl) {
       this.realmBadgeEl.addEventListener('click', () => {
@@ -433,7 +443,8 @@ class GameApp {
         this.pendingPetEvolution = rewards.activePet.id;
       }
       this.battleUiEl.classList.add('hidden');
-      this.rewardXpEl.textContent = `+${rewards.xp} XP (已淨化夥伴入隊)`;
+      const bonusStr = (rewards.bonusReasons && rewards.bonusReasons.length > 0) ? `\n(${rewards.bonusReasons.join(' • ')})` : '';
+      this.rewardXpEl.textContent = `+${rewards.xp} XP ${bonusStr}`;
       this.rewardGoldEl.textContent = `+${rewards.gold} 金幣`;
 
       if (rewards.activePet && this.rewardPetXpEl) {
@@ -446,6 +457,9 @@ class GameApp {
       if (this.rewardPetLvlupBannerEl) {
         if (rewards.petLeveledUp && rewards.activePet) {
           this.rewardPetLvlupBannerEl.textContent = `🎉 守護精靈 ${rewards.activePet.name} 升級至 LV. ${rewards.activePet.level}！(Max HP +15, 攻擊 +3)`;
+          this.rewardPetLvlupBannerEl.classList.remove('hidden');
+        } else if (rewards.isNewPet) {
+          this.rewardPetLvlupBannerEl.textContent = `🌟 【新夥伴入隊】${monster.name} 已成功解鎖登錄至精靈圖鑑！`;
           this.rewardPetLvlupBannerEl.classList.remove('hidden');
         } else {
           this.rewardPetLvlupBannerEl.classList.add('hidden');
@@ -712,6 +726,8 @@ class GameApp {
     const monsterDef = MONSTERS[monsterId] || MONSTERS['ember_fox'];
     this.currentScene = 'battle';
     if (this.worldScene) {
+      this.lastWorldX = this.worldScene.player.x;
+      this.lastWorldY = this.worldScene.player.y;
       this.worldScene.isActive = false;
       this.worldScene.player.targetX = null;
       this.worldScene.player.targetY = null;
@@ -950,8 +966,16 @@ class GameApp {
       this.worldScene.player.targetY = null;
       this.worldScene.player.isMoving = false;
       this.worldScene.keys = {};
-      this.worldScene.player.x = 240;
-      this.worldScene.player.y = 280;
+      
+      // Preserve player's previous coordinates so they don't lose exploration progress
+      if (typeof this.lastWorldX === 'number' && typeof this.lastWorldY === 'number') {
+        this.worldScene.player.x = this.lastWorldX;
+        this.worldScene.player.y = this.lastWorldY;
+      } else {
+        this.worldScene.player.x = 240;
+        this.worldScene.player.y = 280;
+      }
+      this.worldScene.encounterCooldown = 2.0; // 2s grace period on return
       this.worldScene.respawnAfterBattle(this.currentBattlingMonsterId);
     }
     this.currentBattlingMonsterId = null;

@@ -143,11 +143,25 @@ export class TownShopModal {
       }
 
       this.gameState.gold -= item.price;
-      this.gameState.potionsCount += 1;
-      eventBus.emit('SHOW_TOAST', {
-        message: `🧪 購買成功！獲得 1 瓶 ${item.name}！`,
-        type: 'success'
-      });
+      if (item.id === 'potion_xp') {
+        this.gameState.xpBoostBattles = (this.gameState.xpBoostBattles || 0) + 3;
+        eventBus.emit('SHOW_TOAST', {
+          message: `✨ 購買並飲用【${item.name}】！接下來 3 場戰鬥經驗值翻倍 (XP x2.0)！`,
+          type: 'success'
+        });
+      } else if (item.id === 'pet_treat') {
+        this.gameState.petTreatsCount = (this.gameState.petTreatsCount || 0) + 1;
+        eventBus.emit('SHOW_TOAST', {
+          message: `🍎 購買成功！獲得 1 份【${item.name}】！可在戰鬥中安撫野怪！`,
+          type: 'success'
+        });
+      } else {
+        this.gameState.potionsCount += 1;
+        eventBus.emit('SHOW_TOAST', {
+          message: `🧪 購買成功！獲得 1 瓶【${item.name}】！`,
+          type: 'success'
+        });
+      }
       eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
       this.renderShop();
       return;

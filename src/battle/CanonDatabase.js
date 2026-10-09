@@ -25,7 +25,9 @@ export const CANON_ITEMS = {
     { id: 'boots_winged', name: 'Winged Boots (羽翼輕靴)', hearts: 30, price: 180, desc: '附有浮空羽毛的輕便靴，增加 30 點 Hearts。' }
   ],
   potions: [
-    { id: 'potion_health', name: 'Health Potion (生命紅藥水)', heal: 45, price: 30, desc: '立即恢復 45 點生命值（Hearts）。' }
+    { id: 'potion_health', name: 'Health Potion (生命紅藥水)', heal: 45, price: 30, desc: '立即恢復 45 點生命值（Hearts）。' },
+    { id: 'potion_xp', name: 'XP Elixir (雙倍經驗魔藥)', xpBoost: 3, price: 60, desc: '在接下來 3 場戰鬥中獲得 2 倍經驗值！' },
+    { id: 'pet_treat', name: 'Starfruit Treat (星光精靈誘餌)', catchBoost: true, price: 50, desc: '戰鬥中使用可安撫野怪心靈，直接削弱野怪體力至可收服線！' }
   ]
 };
 

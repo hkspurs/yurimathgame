@@ -650,6 +650,25 @@ export class BattleScene {
       ctx.fillRect(barX + 2, barY + 1.5, fillW - 4, 2.5);
     }
 
+    // Diegetic 45% Rescue Notch on Monster HP Bar
+    if (!isHero) {
+      const rescueThresholdX = barX + barW * 0.45;
+      ctx.strokeStyle = '#f1c40f';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(rescueThresholdX, barY - 2);
+      ctx.lineTo(rescueThresholdX, barY + barH + 2);
+      ctx.stroke();
+
+      // If HP is <= 45%, render pulsating Rescue Flag
+      if (hp / maxHp <= 0.45 && hp > 0) {
+        ctx.fillStyle = '#ff4757';
+        ctx.font = 'bold 9px ProdigySans, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('💖 RESCUE READY', barX, barY - 4);
+      }
+    }
+
     // HP Text
     ctx.fillStyle = '#ffffff';
     ctx.font = isCompact ? 'bold 9px ProdigySans, sans-serif' : 'bold 10px ProdigySans, sans-serif';

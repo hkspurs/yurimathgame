@@ -216,8 +216,21 @@ export class WorldScene {
     this.realmConfig = cfg;
 
     const pool = REALM_MONSTER_POOLS[this.currentRealm] || REALM_MONSTER_POOLS['firefly_forest'];
-    const monster1Def = pool[0];
-    const monster2Def = pool.length > 1 ? pool[1] : pool[0];
+    
+    // Prioritize uncollected pets from player's Pet Book
+    const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
+    const unownedPool = pool.filter(p => !ownedPetIds.includes(p.id));
+    const selectionPool = unownedPool.length > 0 ? [...unownedPool, ...pool] : [...pool];
+
+    const pickUnique = (exclude = []) => {
+      const candidates = selectionPool.filter(p => !exclude.includes(p.id));
+      if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+      return pool[Math.floor(Math.random() * pool.length)];
+    };
+
+    const monster1Def = pickUnique();
+    const monster2Def = pickUnique([monster1Def.id]);
+    const monster3Def = pickUnique([monster1Def.id, monster2Def.id]);
 
     const ch = this.canvas?.height || 600;
     const isCompact = ch <= 500;
@@ -261,7 +274,27 @@ export class WorldScene {
     };
     m2.img.src = monster2Def.sprite;
 
-    this.roamingMonsters = [m1, m2];
+    const m3Y = isCompact ? Math.min(180, ch * 0.38) : 180;
+    const m3 = {
+      id: monster3Def.id,
+      name: monster3Def.name,
+      balloonMsg: monster3Def.balloonMsg,
+      isBoss: !!monster3Def.isBoss,
+      x: 380,
+      y: m3Y,
+      homeX: 380,
+      homeY: m3Y,
+      wanderTimer: 2.2,
+      wanderAngle: Math.random() * Math.PI * 2,
+      size: monster3Def.isBoss ? (isCompact ? 70 : 80) : (isCompact ? 62 : 72),
+      bobTimer: Math.PI * 1.3,
+      alert: false,
+      flameParticles: [],
+      img: new Image()
+    };
+    m3.img.src = monster3Def.sprite;
+
+    this.roamingMonsters = [m1, m2, m3];
     this.monsterImg.src = m1.img.src;
     this.isEncountering = false;
     this.encounterCooldown = 0;
@@ -1394,18 +1427,28 @@ export class WorldScene {
     const otherSlotMonsterId = this.roamingMonsters[targetIndex === 0 ? 1 : 0]?.id;
 
     // Filter candidate wild monsters to ensure constant rotation and variety
-    let candidates = pool.filter(p => p.id !== lastFoughtMonsterId && p.id !== otherSlotMonsterId);
+    const activeMonsterIds = this.roamingMonsters.map(m => m.id);
+    const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
+
+    let candidates = pool.filter(p => p.id !== lastFoughtMonsterId && !activeMonsterIds.includes(p.id));
     if (candidates.length === 0) {
       candidates = pool.filter(p => p.id !== lastFoughtMonsterId);
     }
     if (candidates.length === 0) {
       candidates = pool;
     }
-    const nextDef = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // Prioritize candidates not yet collected in player's Pet Book
+    const unownedCandidates = candidates.filter(p => !ownedPetIds.includes(p.id));
+    const nextDef = unownedCandidates.length > 0 
+      ? unownedCandidates[Math.floor(Math.random() * unownedCandidates.length)]
+      : candidates[Math.floor(Math.random() * candidates.length)];
 
     const slotPos = targetIndex === 0 
       ? { x: 540 + (Math.random() - 0.5) * 40, y: 260 + (Math.random() - 0.5) * 30 }
-      : { x: 740 + (Math.random() - 0.5) * 40, y: 320 + (Math.random() - 0.5) * 30 };
+      : (targetIndex === 1 
+          ? { x: 740 + (Math.random() - 0.5) * 40, y: 320 + (Math.random() - 0.5) * 30 }
+          : { x: 380 + (Math.random() - 0.5) * 40, y: 180 + (Math.random() - 0.5) * 30 });
 
     const newMonster = {
       id: nextDef.id,

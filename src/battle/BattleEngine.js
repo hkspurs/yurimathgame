@@ -255,33 +255,70 @@ export class BattleEngine {
     }
   }
 
+  calculateXpMultipliers(baseXp, isRescue = false) {
+    let multiplier = 1.0;
+    let bonusReasons = [];
+
+    // 1. Rescue Double XP Bonus (Encourages Pet Collection!)
+    if (isRescue) {
+      multiplier *= 2.0;
+      bonusReasons.push('💖 成功拯救淨化 (XP x2.0)');
+    }
+
+    // 2. Win Streak Bonus (Up to +75% XP)
+    const streak = this.gameState.winStreak || 0;
+    if (streak > 0) {
+      const streakBonus = Math.min(0.75, streak * 0.15);
+      multiplier *= (1.0 + streakBonus);
+      bonusReasons.push(`🔥 連勝 ${streak} 場 (+${Math.round(streakBonus * 100)}%)`);
+    }
+
+    // 3. XP Elixir Booster (from Town Shop)
+    if (this.gameState.xpBoostBattles > 0) {
+      multiplier *= 2.0;
+      this.gameState.xpBoostBattles = Math.max(0, this.gameState.xpBoostBattles - 1);
+      bonusReasons.push('🧪 雙倍經驗魔藥效果 (XP x2.0)');
+    }
+
+    const finalXp = Math.round(baseXp * multiplier);
+    return { finalXp, bonusReasons };
+  }
+
   handleRescueSuccess() {
     this.isBusy = false;
     this.turnInProgress = false;
+    this.gameState.winStreak = (this.gameState.winStreak || 0) + 1;
     this.gameState.progressBounty('monster_rescue', 1);
+
+    const isNewPet = !this.gameState.pets.some(p => p.id === this.monster.id);
     this.gameState.addPet(this.monster);
-    const rescueRewards = {
-      xp: (this.monster.rewards?.xp || 30) + 20,
-      gold: (this.monster.rewards?.gold || 20) + 15
-    };
-    this.gameState.addXp(rescueRewards.xp);
-    this.gameState.addGold(rescueRewards.gold);
+
+    const rawXp = (this.monster.rewards?.xp || 30) + 20;
+    const { finalXp, bonusReasons } = this.calculateXpMultipliers(rawXp, true);
+    const rescueGold = (this.monster.rewards?.gold || 20) + 25;
+
+    this.gameState.addXp(finalXp);
+    this.gameState.addGold(rescueGold);
 
     let petReward = null;
     if (this.activePet) {
-      petReward = this.gameState.addPetXp(this.activePet.id, rescueRewards.xp);
-      // Restore pet HP
+      petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
     }
 
-    eventBus.emit('BATTLE_LOG', `🎉 成功拯救！暗影魔力被淨化，${this.monster.name} 加入了你的寵物隊伍！`);
+    const bonusMsg = bonusReasons.length > 0 ? ` [${bonusReasons.join(', ')}]` : '';
+    eventBus.emit('BATTLE_LOG', `🎉 成功拯救！暗影魔力被淨化，${this.monster.name} 加入了你的寵物隊伍！獲得 +${finalXp} XP${bonusMsg}！`);
+
     setTimeout(() => {
       eventBus.emit('BATTLE_RESCUE_VICTORY', {
         monster: this.monster,
+        isNewPet,
+        bonusReasons,
         rewards: {
-          ...rescueRewards,
-          petXp: rescueRewards.xp,
+          xp: finalXp,
+          gold: rescueGold,
+          petXp: finalXp,
           activePet: this.activePet,
           petLeveledUp: petReward?.leveledUp || false,
           canEvolve: petReward?.canEvolve || false
@@ -370,24 +407,29 @@ export class BattleEngine {
   handleVictory() {
     this.isBusy = false;
     this.turnInProgress = false;
+    this.gameState.winStreak = (this.gameState.winStreak || 0) + 1;
     this.gameState.progressBounty('monster_defeat', 1);
-    const rewards = this.monster.rewards || { xp: 40, gold: 25 };
-    this.gameState.addXp(rewards.xp);
-    this.gameState.addGold(rewards.gold);
+
+    const rawRewards = this.monster.rewards || { xp: 40, gold: 25 };
+    const { finalXp, bonusReasons } = this.calculateXpMultipliers(rawRewards.xp, false);
+    
+    this.gameState.addXp(finalXp);
+    this.gameState.addGold(rawRewards.gold);
 
     let petReward = null;
     if (this.activePet) {
-      petReward = this.gameState.addPetXp(this.activePet.id, rewards.xp);
-      // Restore pet HP
+      petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
     }
 
     eventBus.emit('BATTLE_VICTORY', {
       monster: this.monster,
+      bonusReasons,
       rewards: {
-        ...rewards,
-        petXp: rewards.xp,
+        xp: finalXp,
+        gold: rawRewards.gold,
+        petXp: finalXp,
         activePet: this.activePet,
         petLeveledUp: petReward?.leveledUp || false,
         canEvolve: petReward?.canEvolve || false
@@ -398,11 +440,21 @@ export class BattleEngine {
   handleDefeat() {
     this.isBusy = false;
     this.turnInProgress = false;
+    this.gameState.winStreak = 0; // Reset streak on loss
     this.gameState.revive();
     if (this.activePet) {
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
     }
     eventBus.emit('BATTLE_DEFEAT');
+  }
+
+  flee() {
+    if (!this.isPlayerTurn || this.isBusy) return;
+    this.isBusy = true;
+    eventBus.emit('BATTLE_LOG', '🏃 你迅速施展煙霧法術，成功脫離了戰鬥！');
+    setTimeout(() => {
+      eventBus.emit('RETURN_TO_WORLD');
+    }, 600);
   }
 }
