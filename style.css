@@ -779,11 +779,13 @@ html, body {
   display: none;
 }
 
-/* Number Bond Tree */
-.math-diagram-bond-wrapper {
+/* Number Bond Tree & Sequence Track */
+.math-diagram-bond-wrapper,
+.math-diagram-track-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 4px 0;
 }
 .bond-svg {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));

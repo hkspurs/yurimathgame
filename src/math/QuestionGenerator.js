@@ -40,45 +40,70 @@ export const STORY_PLACES = [
   '冒險者營地', '彩虹花園', '月光湖畔', '沙灘'
 ];
 
-// Anti-Repetition Ring Buffer (Remembers last 40 questions to prevent repeating numbers/patterns)
+// Anti-Repetition Ring Buffer (Remembers last 80 questions to prevent repeating numbers/patterns across reloads)
 class QuestionDeduplicator {
-  constructor(capacity = 40) {
+  constructor(capacity = 80) {
     this.capacity = capacity;
-    this.history = [];
+    this.history = this.loadFromStorage();
+  }
+
+  loadFromStorage() {
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const stored = window.sessionStorage.getItem('prodigy_question_history');
+        if (stored) return JSON.parse(stored);
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  saveToStorage() {
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        window.sessionStorage.setItem('prodigy_question_history', JSON.stringify(this.history));
+      }
+    } catch (e) {}
   }
 
   isDuplicate(sig, promptText) {
+    const cleanPrompt = promptText.replace(/\s+/g, ' ').trim();
     if (this.history.includes(sig)) return true;
-    if (this.history.includes(promptText.trim())) return true;
+    if (this.history.includes(cleanPrompt)) return true;
     return false;
   }
 
   record(sig, promptText) {
+    const cleanPrompt = promptText.replace(/\s+/g, ' ').trim();
     this.history.push(sig);
-    this.history.push(promptText.trim());
+    this.history.push(cleanPrompt);
     while (this.history.length > this.capacity * 2) {
       this.history.shift();
     }
+    this.saveToStorage();
   }
 
   clear() {
     this.history = [];
+    this.saveToStorage();
   }
 }
 
-const deduplicator = new QuestionDeduplicator(40);
+const deduplicator = new QuestionDeduplicator(80);
 
 export class QuestionGenerator {
+  static lastModuleIndex = -1;
+
   static generate(grade = 1, realm = 'firefly_forest') {
     const g = Number(grade) || 1;
     if (g !== 1) {
       return this.generateHigherGrades(g);
     }
 
-    // Try up to 35 times to ensure complete uniqueness from recent memory
-    for (let attempt = 0; attempt < 35; attempt++) {
+    // Try up to 45 times to ensure complete uniqueness from recent memory
+    for (let attempt = 0; attempt < 45; attempt++) {
       const q = this.generateGrade1Internal(realm);
-      const sig = `${q.topic}::${q.correctAnswer}::${q.prompt.slice(0, 30)}`;
+      const cleanPrompt = q.prompt.replace(/\s+/g, ' ').trim();
+      const sig = `${q.topic}::${q.correctAnswer}::${cleanPrompt.slice(0, 35)}`;
       if (!deduplicator.isDuplicate(sig, q.prompt)) {
         deduplicator.record(sig, q.prompt);
         return q;
@@ -177,13 +202,40 @@ export class QuestionGenerator {
     `;
   }
 
+  static buildNumberTrackSvg(nums, missingIdx) {
+    const boxW = 34;
+    const boxH = 34;
+    const gap = 8;
+    const totalW = nums.length * boxW + (nums.length - 1) * gap + 20;
+
+    const items = nums.map((val, idx) => {
+      const isMissing = idx === missingIdx;
+      const x = 10 + idx * (boxW + gap);
+      return `
+        <g transform="translate(${x}, 6)">
+          <rect width="${boxW}" height="${boxH}" rx="7" fill="${isMissing ? '#fff3cd' : '#ffffff'}" stroke="${isMissing ? '#e67e22' : '#8c531b'}" stroke-width="${isMissing ? '2.5' : '1.8'}" />
+          <text x="${boxW / 2}" y="22" text-anchor="middle" font-size="14" font-weight="900" fill="${isMissing ? '#e67e22' : '#2c1a0e'}">${isMissing ? '?' : val}</text>
+        </g>
+        ${idx < nums.length - 1 ? `<path d="M ${x + boxW + 2} 23 L ${x + boxW + gap - 2} 23" stroke="#bcaaa4" stroke-width="2" stroke-dasharray="2,1" />` : ''}
+      `;
+    }).join('');
+
+    return `
+      <div class="math-diagram-track-wrapper">
+        <svg viewBox="0 0 ${totalW} 46" width="${Math.min(270, totalW)}" height="46">
+          ${items}
+        </svg>
+      </div>
+    `;
+  }
+
   // --- Grade 1 Authentic Curriculum Modules ---
 
   static generateGrade1Internal(realm) {
     // 12 Authentic Units from 躍思 & 新思維
     const modules = [
       () => this.genUnitCounting20(),       // 1. 20以內的數與數數
-      () => this.genUnitSequences(),        // 2. 順數與倒數
+      () => this.genUnitSequences(),        // 2. 順數與倒數規律 (9大題型)
       () => this.genUnitParity(),           // 3. 奇數與偶數
       () => this.genUnitComparison(),       // 4. 比較數量與相差
       () => this.genUnitOrdinal(),          // 5. 排次序 (序數)
@@ -196,8 +248,16 @@ export class QuestionGenerator {
       () => this.genUnit3DShapes()          // 12. 立體圖形性質 (滾動/堆疊)
     ];
 
-    const pick = this.pick(modules);
-    return pick.call(this);
+    // Ensure module rotation so no unit repeats consecutively
+    let moduleIdx;
+    let attempts = 0;
+    do {
+      moduleIdx = Math.floor(Math.random() * modules.length);
+      attempts++;
+    } while (moduleIdx === this.lastModuleIndex && attempts < 10);
+    this.lastModuleIndex = moduleIdx;
+
+    return modules[moduleIdx].call(this);
   }
 
   // Unit 1: 20以內的數與數數 (新思維 P2, 躍思 P2)
@@ -210,31 +270,147 @@ export class QuestionGenerator {
     return this.formatQuestion(topic, prompt, count, 1, diagram);
   }
 
-  // Unit 2: 順數與倒數 (躍思 P4, 新思維 P4, P10)
+  // Unit 2: 順數與倒數規律 (躍思 P4, 新思維 P4, P10) - 9大題型
   static genUnitSequences() {
     const topic = '一年級 • 順數和倒數規律';
-    const type = Math.floor(Math.random() * 4);
+    const type = Math.floor(Math.random() * 9);
 
     if (type === 0) {
-      // 順數填空 (Missing number in forward sequence)
-      const start = Math.floor(Math.random() * 14) + 1; // 1..14
-      const missingIdx = Math.floor(Math.random() * 3) + 1; // 1..3
-      const nums = [start, start + 1, start + 2, start + 3, start + 4];
-      const ans = nums[missingIdx];
-      nums[missingIdx] = '_____';
-      const prompt = `依順數規律填上答案： ${nums.join(', ')}`;
-      return this.formatQuestion(topic, prompt, ans, 1);
+      // 1. 1個一數順數填空 (長度 4~5，起始 0..15，隨機空缺位置，多樣題幹)
+      const len = Math.random() > 0.5 ? 5 : 4;
+      const start = Math.floor(Math.random() * (20 - len)) + 1;
+      const missingIdx = Math.floor(Math.random() * (len - 1)) + 1;
+      const originalNums = Array.from({ length: len }, (_, i) => start + i);
+      const ans = originalNums[missingIdx];
+      const displayNums = [...originalNums];
+      displayNums[missingIdx] = '_____';
+
+      const promptTemplates = [
+        `依順數規律填上答案： ${displayNums.join(', ')}`,
+        `按由小至大的順序數下去，空格中應填入哪個數字？\n${displayNums.join(', ')}`,
+        `觀察數列規律，在橫線上填上正確數字：\n${displayNums.join(', ')}`
+      ];
+      const prompt = this.pick(promptTemplates);
+      const diagram = this.buildNumberTrackSvg(originalNums, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
     } else if (type === 1) {
-      // 倒數填空 (Missing number in backward sequence)
-      const start = Math.floor(Math.random() * 14) + 6; // 6..19
-      const missingIdx = Math.floor(Math.random() * 3) + 1;
-      const nums = [start, start - 1, start - 2, start - 3, start - 4];
-      const ans = nums[missingIdx];
-      nums[missingIdx] = '_____';
-      const prompt = `依倒數規律填上答案： ${nums.join(', ')}`;
-      return this.formatQuestion(topic, prompt, ans, 1);
+      // 2. 2個一數順數（雙數數列 2, 4, 6...）
+      const evens = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+      const len = 4;
+      const maxStartIdx = evens.length - len;
+      const startIdx = Math.floor(Math.random() * (maxStartIdx + 1));
+      const sub = evens.slice(startIdx, startIdx + len);
+      const missingIdx = Math.floor(Math.random() * (len - 1)) + 1;
+      const ans = sub[missingIdx];
+      const displayNums = [...sub];
+      displayNums[missingIdx] = '_____';
+
+      const prompt = `2個一數由小至大數下去： ${displayNums.join(', ')} ，橫線上應填入哪個數字？`;
+      const diagram = this.buildNumberTrackSvg(sub, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
     } else if (type === 2) {
-      // 判斷順數還是倒數 (新思維 P4)
+      // 3. 2個一數順數（單數數列 1, 3, 5...）
+      const odds = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+      const len = 4;
+      const maxStartIdx = odds.length - len;
+      const startIdx = Math.floor(Math.random() * (maxStartIdx + 1));
+      const sub = odds.slice(startIdx, startIdx + len);
+      const missingIdx = Math.floor(Math.random() * (len - 1)) + 1;
+      const ans = sub[missingIdx];
+      const displayNums = [...sub];
+      displayNums[missingIdx] = '_____';
+
+      const prompt = `2個一數順數： ${displayNums.join(', ')} ，橫線上應填入哪個數字？`;
+      const diagram = this.buildNumberTrackSvg(sub, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
+    } else if (type === 3) {
+      // 4. 5個一數順數 (0, 5, 10, 15, 20)
+      const fives = [0, 5, 10, 15, 20];
+      const missingIdx = Math.floor(Math.random() * 4) + 1;
+      const ans = fives[missingIdx];
+      const displayNums = [...fives];
+      displayNums[missingIdx] = '_____';
+
+      const prompt = `5個一數由小至大數下去： ${displayNums.join(', ')} ，橫線上應填入哪個數字？`;
+      const diagram = this.buildNumberTrackSvg(fives, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
+    } else if (type === 4) {
+      // 5. 1個一數倒數填空 (由大至小 20, 19, 18...)
+      const len = Math.random() > 0.5 ? 5 : 4;
+      const start = Math.floor(Math.random() * (20 - len)) + len;
+      const missingIdx = Math.floor(Math.random() * (len - 1)) + 1;
+      const originalNums = Array.from({ length: len }, (_, i) => start - i);
+      const ans = originalNums[missingIdx];
+      const displayNums = [...originalNums];
+      displayNums[missingIdx] = '_____';
+
+      const prompt = `依倒數規律（由大至小）填上答案： ${displayNums.join(', ')}`;
+      const diagram = this.buildNumberTrackSvg(originalNums, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
+    } else if (type === 5) {
+      // 6. 2個一數倒數 (20, 18, 16... 或 10, 8, 6...)
+      const evensRev = [20, 18, 16, 14, 12, 10, 8, 6, 4, 2];
+      const len = 4;
+      const startIdx = Math.floor(Math.random() * (evensRev.length - len + 1));
+      const sub = evensRev.slice(startIdx, startIdx + len);
+      const missingIdx = Math.floor(Math.random() * (len - 1)) + 1;
+      const ans = sub[missingIdx];
+      const displayNums = [...sub];
+      displayNums[missingIdx] = '_____';
+
+      const prompt = `2個一數倒數（由大至小）： ${displayNums.join(', ')} ，橫線上應填入哪個數字？`;
+      const diagram = this.buildNumberTrackSvg(sub, missingIdx);
+      return this.formatQuestion(topic, prompt, ans, 1, diagram);
+    } else if (type === 6) {
+      // 7. 前後相鄰數關係 (躍思 P4, 新思維 P10)
+      const subVariant = Math.floor(Math.random() * 4);
+      if (subVariant === 0) {
+        // 後面一個數
+        const n = Math.floor(Math.random() * 18) + 1; // 1..18
+        const prompt = `在數線上，數字 ${n} 的「後面一個數」是 _____。`;
+        return this.formatQuestion(topic, prompt, n + 1, 1);
+      } else if (subVariant === 1) {
+        // 前面一個數
+        const n = Math.floor(Math.random() * 19) + 2; // 2..20
+        const prompt = `在數線上，數字 ${n} 的「前面一個數」是 _____。`;
+        return this.formatQuestion(topic, prompt, n - 1, 1);
+      } else if (subVariant === 2) {
+        // 兩數之間
+        const n = Math.floor(Math.random() * 17) + 1; // 1..17
+        const prompt = `在數字 ${n} 和 ${n + 2} 之間的數是 _____。`;
+        return this.formatQuestion(topic, prompt, n + 1, 1);
+      } else {
+        // 比某數大1 / 小1
+        const isBigger = Math.random() > 0.5;
+        const n = Math.floor(Math.random() * 17) + 2;
+        if (isBigger) {
+          const prompt = `比 ${n} 大 1 的數是 _____。`;
+          return this.formatQuestion(topic, prompt, n + 1, 1);
+        } else {
+          const prompt = `比 ${n} 小 1 的數是 _____。`;
+          return this.formatQuestion(topic, prompt, n - 1, 1);
+        }
+      }
+    } else if (type === 7) {
+      // 8. 魔法火車車廂 / 精靈階梯情境題
+      const isTrain = Math.random() > 0.5;
+      if (isTrain) {
+        const start = Math.floor(Math.random() * 13) + 2;
+        const missingIdx = 2; // 中間車廂
+        const nums = [start, start + 1, start + 2, start + 3, start + 4];
+        const ans = nums[missingIdx];
+        const displayNums = [...nums];
+        displayNums[missingIdx] = '?';
+        const prompt = `🚂 魔法火車的車廂號碼是： [${displayNums[0]}] ➔ [${displayNums[1]}] ➔ [ ? ] ➔ [${displayNums[3]}] ➔ [${displayNums[4]}] ，問號車廂的號碼是幾號？`;
+        const diagram = this.buildNumberTrackSvg(nums, missingIdx);
+        return this.formatQuestion(topic, prompt, ans, 1, diagram);
+      } else {
+        const n = Math.floor(Math.random() * 14) + 3;
+        const prompt = `🐾 守護精靈正在第 ${n} 級魔法階梯，向前跳 1 級會到達第 _____ 級階梯。`;
+        return this.formatQuestion(topic, prompt, n + 1, 1);
+      }
+    } else {
+      // 9. 判斷順數還是倒數 (新思維 P4)
       const isAsc = Math.random() > 0.5;
       const start = isAsc ? Math.floor(Math.random() * 12) + 1 : Math.floor(Math.random() * 12) + 7;
       const nums = isAsc 
@@ -243,15 +419,6 @@ export class QuestionGenerator {
       const ans = isAsc ? '順數' : '倒數';
       const prompt = `數列： ${nums.join(', ')} ，這是順數還是倒數？`;
       return this.formatQuestion(topic, prompt, ans, 1, null, ['順數', '倒數']);
-    } else {
-      // 躍思 P4 挑出倒數
-      const start = Math.floor(Math.random() * 10) + 10;
-      const correct = `${start}, ${start - 1}, ${start - 2}`;
-      const wrong1 = `${start}, ${start + 1}, ${start + 2}`;
-      const wrong2 = `${start - 2}, ${start - 1}, ${start}`;
-      const wrong3 = `${start}, ${start + 2}, ${start + 3}`;
-      const prompt = `下列哪一組數是「倒數」？`;
-      return this.formatQuestion(topic, prompt, correct, 1, null, [correct, wrong1, wrong2, wrong3]);
     }
   }
 
