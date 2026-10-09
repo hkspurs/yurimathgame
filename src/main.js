@@ -7,7 +7,7 @@ import { BattleScene } from './scenes/BattleScene.js';
 import { HUD } from './ui/HUD.js';
 import { MathModal } from './ui/MathModal.js';
 import { MONSTERS } from './battle/Monsters.js';
-import { SPELLS } from './battle/Spells.js';
+import { SPELLS, registerPetSpell } from './battle/Spells.js';
 import { WORLDS } from './battle/Worlds.js';
 import { BattleEngine } from './battle/BattleEngine.js';
 import { audioManager } from './core/AudioManager.js';
@@ -343,6 +343,13 @@ class GameApp {
         this.battleMessageEl.textContent = msg;
       }
       this.updateBattleEnergyUI();
+    });
+
+    eventBus.on('BATTLE_DAMAGE_DEALT', () => {
+      if (this.currentScene === 'battle') {
+        this.renderBattleSpellButtons();
+        this.updateBattleEnergyUI();
+      }
     });
 
     // Hide banner when math challenge opens
@@ -755,39 +762,62 @@ class GameApp {
 
   renderBattleSpellButtons() {
     this.spellGridEl.innerHTML = '';
-    this.gameState.unlockedSpells.forEach(spellId => {
+    const activePet = this.gameState.getActivePet();
+    const spellList = [...this.gameState.unlockedSpells];
+
+    if (activePet) {
+      const petSpell = registerPetSpell(activePet);
+      if (petSpell) {
+        spellList.unshift(petSpell.id);
+      }
+    }
+
+    spellList.forEach(spellId => {
       const spell = SPELLS[spellId];
       if (!spell) return;
 
+      const isPet = !!spell.isPetSpell;
       const isPotion = spell.id === 'potion';
-      const costBadge = isPotion 
-        ? `x${this.gameState.potionsCount}` 
-        : (spell.energyCost > 0 ? `${spell.energyCost}⚡` : 'FREE');
-      const isDisabled = isPotion && this.gameState.potionsCount <= 0;
+      const isPetFainted = isPet && (this.battleEngine?.activePet?.isFainted || (this.battleEngine?.activePet?.hp !== undefined && this.battleEngine.activePet.hp <= 0));
+
+      let costBadge = 'FREE';
+      if (isPet) {
+        costBadge = isPetFainted ? '💫 昏迷' : '🐾 精靈技';
+      } else if (isPotion) {
+        costBadge = `x${this.gameState.potionsCount}`;
+      } else if (spell.energyCost > 0) {
+        costBadge = `${spell.energyCost}⚡`;
+      }
+
+      const isDisabled = (isPotion && this.gameState.potionsCount <= 0) || isPetFainted;
 
       const btn = document.createElement('button');
-      btn.className = `spell-orb-btn ${isDisabled ? 'disabled' : ''}`;
+      btn.className = `spell-orb-btn ${isPet ? 'pet-spell-btn' : ''} ${isDisabled ? 'disabled' : ''}`;
       if (isDisabled) btn.disabled = true;
 
       btn.innerHTML = `
         <div class="orb-disc element-${spell.element || 'neutral'}">
           <span class="orb-icon">${spell.icon}</span>
-          <span class="orb-cost-badge">${costBadge}</span>
+          <span class="orb-cost-badge ${isPet ? 'badge-pet' : ''}">${costBadge}</span>
         </div>
         <span class="orb-label">${spell.name}</span>
       `;
 
       btn.addEventListener('mouseenter', () => {
         if (this.battleMessageEl) {
-          this.battleMessageEl.textContent = isPotion && isDisabled
-            ? `🎒 生命藥水已耗盡！可前往燈火鎮布洛克商店購買。`
-            : `${spell.icon} ${spell.name} [${costBadge}] • ${spell.desc}`;
+          if (isPet && isPetFainted) {
+            this.battleMessageEl.textContent = `💫 守護精靈 ${spell.petName || '精靈'} 體力耗盡昏迷中，無法出戰！請使用巫師法術或生命藥水！`;
+          } else if (isPotion && isDisabled) {
+            this.battleMessageEl.textContent = `🎒 生命藥水已耗盡！可前往燈火鎮布洛克商店購買。`;
+          } else {
+            this.battleMessageEl.textContent = `${spell.icon} ${spell.name} [${costBadge}] • ${spell.desc}`;
+          }
         }
       });
 
       btn.addEventListener('mouseleave', () => {
         if (this.battleMessageEl && this.battleEngine) {
-          this.battleMessageEl.textContent = 'Choose a spell to cast. (請選擇你要施放的法術)';
+          this.battleMessageEl.textContent = 'Choose a spell to cast. (請選擇你要施放的法術或精靈招式)';
         }
       });
 

@@ -93,3 +93,63 @@ export const SPELLS = {
     color: '#27ae60'
   }
 };
+
+/**
+ * Generates canonical companion pet signature skill based on pet ID & element
+ */
+export function getPetSignatureSpell(pet) {
+  if (!pet) return null;
+  const element = pet.element || 'astral';
+  const petNameClean = pet.name.split(' ')[0];
+
+  const customMoves = {
+    hotpot: { name: '吐火星 (Spit Fire)', icon: '🔥', power: 26 },
+    magmay: { name: '熔岩爆發 (Lava Burst)', icon: '🌋', power: 34 },
+    squiddle: { name: '墨汁噴射 (Ink Spray)', icon: '💧', power: 26 },
+    diveosaur: { name: '深海潮汐 (Tidal Surge)', icon: '🌊', power: 34 },
+    peeko: { name: '小鳥啄擊 (Peck Strike)', icon: '🌱', power: 26 },
+    floraflare: { name: '藤蔓狂舞 (Vine Barrage)', icon: '🌿', power: 34 },
+    snoot: { name: '冰霜吐息 (Frost Breath)', icon: '❄️', power: 26 },
+    ice_elemental: { name: '極寒冰柱 (Glacial Spike)', icon: '🧊', power: 34 },
+    cloudling: { name: '疾風電光 (Spark Strike)', icon: '⚡', power: 26 },
+    galehound: { name: '雷霆咆哮 (Storm Howl)', icon: '🌩️', power: 34 }
+  };
+
+  const elemDefaults = {
+    fire: { name: '烈焰突擊 (Flame Strike)', icon: '🔥', power: 26 },
+    water: { name: '水流衝擊 (Water Jet)', icon: '💧', power: 26 },
+    earth: { name: '大地靈擊 (Earth Strike)', icon: '🌱', power: 26 },
+    ice: { name: '冰晶飛彈 (Ice Shard)', icon: '❄️', power: 26 },
+    storm: { name: '閃電衝擊 (Thunder Zap)', icon: '⚡', power: 26 },
+    astral: { name: '星光衝擊 (Star Spark)', icon: '✨', power: 26 }
+  };
+
+  const moveData = customMoves[pet.id] || elemDefaults[element] || elemDefaults.astral;
+  const spellId = `pet_move_${pet.id}`;
+
+  return {
+    id: spellId,
+    isPetSpell: true,
+    petId: pet.id,
+    petName: petNameClean,
+    name: `🐾 ${petNameClean}: ${moveData.name}`,
+    element: element,
+    icon: moveData.icon,
+    energyCost: 0,
+    power: moveData.power,
+    desc: `【🐾 守護精靈專屬招式】由出戰精靈 ${petNameClean} (Lv.${pet.level || 1}) 挺身而出發動的專屬屬性攻擊！`,
+    color: '#10ac84'
+  };
+}
+
+/**
+ * Registers pet signature move into SPELLS registry dynamically
+ */
+export function registerPetSpell(pet) {
+  if (!pet) return null;
+  const petSpell = getPetSignatureSpell(pet);
+  if (petSpell) {
+    SPELLS[petSpell.id] = petSpell;
+  }
+  return petSpell;
+}

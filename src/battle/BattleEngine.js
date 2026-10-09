@@ -1,6 +1,6 @@
 // BattleEngine.js - Faithful Canonical Prodigy Math Game Turn Coordinator
 import { eventBus } from '../core/EventBus.js';
-import { SPELLS } from './Spells.js';
+import { SPELLS, registerPetSpell } from './Spells.js';
 
 export class BattleEngine {
   constructor(gameState, monsterDef) {
@@ -12,16 +12,30 @@ export class BattleEngine {
     this.isPlayerTurn = true;
     this.isBusy = false;
     this.turnInProgress = false;
-    this.pendingAction = null; // { type: 'spell' | 'rescue', spell?: object }
+    this.pendingAction = null; // { type: 'spell' | 'rescue', spell?: object, attacker?: 'player' | 'pet' }
+
     // Initialize battle energy
     this.gameState.energy = 1;
+
+    // Active companion pet setup
+    this.activePet = this.gameState.getActivePet();
+    if (this.activePet) {
+      if (!this.activePet.maxHp) {
+        this.activePet.maxHp = 60 + ((this.activePet.level || 1) - 1) * 15;
+      }
+      if (this.activePet.hp === undefined || this.activePet.hp <= 0) {
+        this.activePet.hp = this.activePet.maxHp;
+      }
+      this.activePet.isFainted = false;
+      registerPetSpell(this.activePet);
+    }
 
     this.onMathCancelled = () => {
       this.isBusy = false;
       this.turnInProgress = false;
       this.pendingAction = null;
       this.isPlayerTurn = true;
-      eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術)');
+      eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術或精靈招式)');
       eventBus.emit('BATTLE_PLAYER_TURN');
     };
     eventBus.on('MATH_QUESTION_CANCELLED', this.onMathCancelled);
@@ -36,7 +50,8 @@ export class BattleEngine {
   start() {
     eventBus.emit('BATTLE_STARTED', {
       monster: this.monster,
-      player: this.gameState.getSnapshot()
+      player: this.gameState.getSnapshot(),
+      activePet: this.activePet
     });
     setTimeout(() => {
       eventBus.emit('BATTLE_PLAYER_TURN');
@@ -54,10 +69,18 @@ export class BattleEngine {
     const spell = SPELLS[spellId];
     if (!spell) return;
 
+    // Check if pet spell but pet is fainted
+    if (spell.isPetSpell) {
+      if (!this.activePet || this.activePet.isFainted || this.activePet.hp <= 0) {
+        eventBus.emit('BATTLE_LOG', '🐾 守護精靈已昏迷倒下，無法施放精靈技能！請使用巫師法術！');
+        return;
+      }
+    }
+
     // Instant Health Potion Consumption (Bag item, no math gate needed)
     if (spell.id === 'potion') {
-      if (this.gameState.hp >= this.gameState.maxHp) {
-        eventBus.emit('BATTLE_LOG', '❤️ 生命值已全滿，無需飲用生命藥水！');
+      if (this.gameState.hp >= this.gameState.maxHp && (!this.activePet || this.activePet.hp >= this.activePet.maxHp)) {
+        eventBus.emit('BATTLE_LOG', '❤️ 全隊生命值已全滿，無需飲用生命藥水！');
         return;
       }
       if (this.gameState.potionsCount <= 0) {
@@ -70,8 +93,12 @@ export class BattleEngine {
       this.gameState.potionsCount = Math.max(0, this.gameState.potionsCount - 1);
       const healAmount = spell.healAmount || 40;
       this.gameState.heal(healAmount);
-      eventBus.emit('BATTLE_LOG', `🧪 你飲用了【${spell.name}】，恢復了 ${healAmount} 點生命值！剩餘藥水：${this.gameState.potionsCount} 瓶`);
-      eventBus.emit('BATTLE_PLAYER_HEAL', { amount: healAmount });
+      if (this.activePet) {
+        this.activePet.hp = Math.min(this.activePet.maxHp, this.activePet.hp + healAmount);
+        this.activePet.isFainted = false;
+      }
+      eventBus.emit('BATTLE_LOG', `🧪 你飲用了【${spell.name}】，巫師與精靈恢復了 ${healAmount} 點生命值！剩餘藥水：${this.gameState.potionsCount} 瓶`);
+      eventBus.emit('BATTLE_PLAYER_HEAL', { amount: healAmount, petHp: this.activePet?.hp });
       eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
 
       setTimeout(() => {
@@ -87,7 +114,11 @@ export class BattleEngine {
 
     // Lock input immediately upon selecting offensive spell
     this.isBusy = true;
-    this.pendingAction = { type: 'spell', spell };
+    this.pendingAction = {
+      type: 'spell',
+      spell,
+      attacker: spell.isPetSpell ? 'pet' : 'player'
+    };
     eventBus.emit('REQUEST_MATH_QUESTION', {
       spell,
       grade: this.gameState.grade || 1,
@@ -131,14 +162,17 @@ export class BattleEngine {
     }
 
     const spell = this.pendingAction.spell;
+    const attacker = this.pendingAction.attacker || 'player';
+
     if (isCorrect) {
       this.gameState.progressBounty('math_correct', 1);
       // Award +1 Energy on correct answer (up to 5)
       this.gameState.energy = Math.min(this.gameState.maxEnergy, this.gameState.energy + 1 - (spell.energyCost || 0));
       eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
-      this.executePlayerSpell(spell);
+      this.executeSpellAttack(spell, attacker);
     } else {
-      eventBus.emit('BATTLE_LOG', `回答錯誤！【Miss!】${spell.name} 魔法未能命中！`);
+      const missSubject = attacker === 'pet' ? `🐾 ${this.activePet?.name || '精靈'}` : '巫師';
+      eventBus.emit('BATTLE_LOG', `回答錯誤！【Miss!】${missSubject}的 ${spell.name} 魔法未能命中！`);
       eventBus.emit('BATTLE_SPELL_FIZZLE', { spell });
       setTimeout(() => {
         this.nextTurn();
@@ -146,23 +180,7 @@ export class BattleEngine {
     }
   }
 
-  executePlayerSpell(spell) {
-    if (spell.healAmount) {
-      if (this.gameState.potionsCount <= 0) {
-        eventBus.emit('BATTLE_LOG', '🎒 背包中的生命藥水已經用盡！');
-        this.isBusy = false;
-        this.turnInProgress = false;
-        return;
-      }
-      this.gameState.potionsCount = Math.max(0, this.gameState.potionsCount - 1);
-      this.gameState.heal(spell.healAmount);
-      eventBus.emit('BATTLE_LOG', `你飲用了【${spell.name}】，恢復了 ${spell.healAmount} 點生命值（Hearts）！剩餘藥水：${this.gameState.potionsCount} 瓶`);
-      eventBus.emit('BATTLE_PLAYER_HEAL', { amount: spell.healAmount });
-      eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
-      setTimeout(() => this.nextTurn(), 1200);
-      return;
-    }
-
+  executeSpellAttack(spell, attacker = 'player') {
     // Canonical Elemental calculation
     let mult = 1.0;
     if (spell.element === this.monster.weakness) {
@@ -171,25 +189,56 @@ export class BattleEngine {
       mult = 0.75;
     }
 
-    const baseDmg = spell.power + Math.floor(this.gameState.attack * 0.8);
-    const totalDmg = Math.round(baseDmg * mult);
-    this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
+    let baseDmg = 0;
+    let logMsg = '';
 
-    const logMsg = mult > 1.0 
-      ? `💥 屬性克制！【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
-      : `✨ 【${spell.name}】命中！對 ${this.monster.name} 造成了 ${totalDmg} 點傷害！`;
+    if (attacker === 'pet' && this.activePet) {
+      // Pet attack incorporates Pet Attack Stat + Spell Power
+      const petAtk = this.activePet.attack || 12;
+      baseDmg = spell.power + Math.floor(petAtk * 0.95);
+      const totalDmg = Math.round(baseDmg * mult);
+      this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
 
-    eventBus.emit('BATTLE_LOG', logMsg);
-    if (mult > 1.0) {
-      eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+      logMsg = mult > 1.0
+        ? `💥 屬性克制！🐾 守護精靈【${this.activePet.name}】的【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
+        : `🐾 守護精靈【${this.activePet.name}】挺身而出！發動了【${spell.name}】，造成了 ${totalDmg} 點傷害！`;
+
+      eventBus.emit('BATTLE_LOG', logMsg);
+      if (mult > 1.0) {
+        eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+      }
+      eventBus.emit('BATTLE_DAMAGE_DEALT', {
+        attacker: 'pet',
+        target: 'monster',
+        damage: totalDmg,
+        isCrit: mult > 1.0,
+        monsterHp: this.monster.hp,
+        monsterMaxHp: this.monster.maxHp,
+        petName: this.activePet.name
+      });
+    } else {
+      // Wizard attack
+      baseDmg = spell.power + Math.floor(this.gameState.attack * 0.8);
+      const totalDmg = Math.round(baseDmg * mult);
+      this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
+
+      logMsg = mult > 1.0
+        ? `💥 屬性克制！【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
+        : `✨ 【${spell.name}】命中！對 ${this.monster.name} 造成了 ${totalDmg} 點傷害！`;
+
+      eventBus.emit('BATTLE_LOG', logMsg);
+      if (mult > 1.0) {
+        eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+      }
+      eventBus.emit('BATTLE_DAMAGE_DEALT', {
+        attacker: 'player',
+        target: 'monster',
+        damage: totalDmg,
+        isCrit: mult > 1.0,
+        monsterHp: this.monster.hp,
+        monsterMaxHp: this.monster.maxHp
+      });
     }
-    eventBus.emit('BATTLE_DAMAGE_DEALT', {
-      target: 'monster',
-      damage: totalDmg,
-      isCrit: mult > 1.0,
-      monsterHp: this.monster.hp,
-      monsterMaxHp: this.monster.maxHp
-    });
 
     if (this.monster.isTutorialMentor) {
       setTimeout(() => {
@@ -219,9 +268,11 @@ export class BattleEngine {
     this.gameState.addGold(rescueRewards.gold);
 
     let petReward = null;
-    const activePet = this.gameState.getActivePet();
-    if (activePet) {
-      petReward = this.gameState.addPetXp(activePet.id, rescueRewards.xp);
+    if (this.activePet) {
+      petReward = this.gameState.addPetXp(this.activePet.id, rescueRewards.xp);
+      // Restore pet HP
+      this.activePet.hp = this.activePet.maxHp;
+      this.activePet.isFainted = false;
     }
 
     eventBus.emit('BATTLE_LOG', `🎉 成功拯救！暗影魔力被淨化，${this.monster.name} 加入了你的寵物隊伍！`);
@@ -231,7 +282,7 @@ export class BattleEngine {
         rewards: {
           ...rescueRewards,
           petXp: rescueRewards.xp,
-          activePet: activePet,
+          activePet: this.activePet,
           petLeveledUp: petReward?.leveledUp || false,
           canEvolve: petReward?.canEvolve || false
         }
@@ -256,25 +307,62 @@ export class BattleEngine {
       const skill = skills[Math.floor(Math.random() * skills.length)];
       const damage = skill.power + Math.floor(Math.random() * 4);
 
-      this.gameState.takeDamage(damage);
-      eventBus.emit('BATTLE_LOG', `${skill.text} 造成了 ${damage} 點傷害！`);
-      eventBus.emit('BATTLE_DAMAGE_DEALT', {
-        target: 'player',
-        damage,
-        playerHp: this.gameState.hp,
-        playerMaxHp: this.gameState.maxHp
-      });
+      // Monster targeting decision: 40% targets active pet (if not fainted), 60% targets wizard
+      let target = 'player';
+      if (this.activePet && !this.activePet.isFainted && this.activePet.hp > 0) {
+        target = Math.random() < 0.40 ? 'pet' : 'player';
+      }
 
-      if (this.gameState.hp <= 0) {
-        setTimeout(() => this.handleDefeat(), 1400);
-      } else {
+      if (target === 'pet' && this.activePet) {
+        // Monster attacks companion pet
+        this.activePet.hp = Math.max(0, this.activePet.hp - damage);
+        if (this.activePet.hp <= 0) {
+          this.activePet.isFainted = true;
+          eventBus.emit('BATTLE_LOG', `💥 ${skill.text} 造成了 ${damage} 點傷害！🐾 你的守護精靈 ${this.activePet.name} 體力不支倒下了！接下來怪獸將直接攻擊巫師！`);
+        } else {
+          eventBus.emit('BATTLE_LOG', `🛡️ 守護精靈 ${this.activePet.name} 挺身守護！承受了 ${damage} 點傷害！(精靈剩餘 HP: ${this.activePet.hp}/${this.activePet.maxHp})`);
+        }
+
+        eventBus.emit('BATTLE_DAMAGE_DEALT', {
+          attacker: 'monster',
+          target: 'pet',
+          damage,
+          petHp: this.activePet.hp,
+          petMaxHp: this.activePet.maxHp,
+          isFainted: this.activePet.isFainted
+        });
+        eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
+
         setTimeout(() => {
           this.isPlayerTurn = true;
           this.isBusy = false;
           this.turnInProgress = false;
-          eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術)');
+          eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術或精靈招式)');
           eventBus.emit('BATTLE_PLAYER_TURN');
-        }, 1200);
+        }, 1300);
+      } else {
+        // Monster attacks wizard
+        this.gameState.takeDamage(damage);
+        eventBus.emit('BATTLE_LOG', `${skill.text} 造成了 ${damage} 點傷害！`);
+        eventBus.emit('BATTLE_DAMAGE_DEALT', {
+          attacker: 'monster',
+          target: 'player',
+          damage,
+          playerHp: this.gameState.hp,
+          playerMaxHp: this.gameState.maxHp
+        });
+
+        if (this.gameState.hp <= 0) {
+          setTimeout(() => this.handleDefeat(), 1400);
+        } else {
+          setTimeout(() => {
+            this.isPlayerTurn = true;
+            this.isBusy = false;
+            this.turnInProgress = false;
+            eventBus.emit('BATTLE_LOG', 'Choose a spell to cast. (請選擇你要施放的法術或精靈招式)');
+            eventBus.emit('BATTLE_PLAYER_TURN');
+          }, 1200);
+        }
       }
     }, 1200);
   }
@@ -288,9 +376,11 @@ export class BattleEngine {
     this.gameState.addGold(rewards.gold);
 
     let petReward = null;
-    const activePet = this.gameState.getActivePet();
-    if (activePet) {
-      petReward = this.gameState.addPetXp(activePet.id, rewards.xp);
+    if (this.activePet) {
+      petReward = this.gameState.addPetXp(this.activePet.id, rewards.xp);
+      // Restore pet HP
+      this.activePet.hp = this.activePet.maxHp;
+      this.activePet.isFainted = false;
     }
 
     eventBus.emit('BATTLE_VICTORY', {
@@ -298,7 +388,7 @@ export class BattleEngine {
       rewards: {
         ...rewards,
         petXp: rewards.xp,
-        activePet: activePet,
+        activePet: this.activePet,
         petLeveledUp: petReward?.leveledUp || false,
         canEvolve: petReward?.canEvolve || false
       }
@@ -309,6 +399,10 @@ export class BattleEngine {
     this.isBusy = false;
     this.turnInProgress = false;
     this.gameState.revive();
+    if (this.activePet) {
+      this.activePet.hp = this.activePet.maxHp;
+      this.activePet.isFainted = false;
+    }
     eventBus.emit('BATTLE_DEFEAT');
   }
 }

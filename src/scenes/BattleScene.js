@@ -33,6 +33,11 @@ export class BattleScene {
     // Combatant flash timers
     this.playerHurtTimer = 0;
     this.monsterHurtTimer = 0;
+    this.petHurtTimer = 0;
+    this.petJumpTimer = 0;
+    this.petHp = 0;
+    this.petMaxHp = 0;
+    this.petIsFainted = false;
 
     this.bindEvents();
   }
@@ -44,8 +49,17 @@ export class BattleScene {
       this.playerImg.src = player.avatarSprite;
     }
     this.activePet = player?.pets?.find(p => p.id === player.activePetId) || (player?.pets?.[0] || null);
-    if (this.activePet && this.activePet.sprite) {
-      this.petImg.src = this.activePet.sprite;
+    if (this.activePet) {
+      if (this.activePet.sprite) {
+        this.petImg.src = this.activePet.sprite;
+      }
+      this.petMaxHp = this.activePet.maxHp || (60 + ((this.activePet.level || 1) - 1) * 15);
+      this.petHp = this.activePet.hp !== undefined ? this.activePet.hp : this.petMaxHp;
+      this.petIsFainted = !!this.activePet.isFainted;
+    } else {
+      this.petHp = 0;
+      this.petMaxHp = 0;
+      this.petIsFainted = false;
     }
     if (monster && monster.sprite) {
       this.monsterImg.src = monster.sprite;
@@ -56,69 +70,116 @@ export class BattleScene {
     this.screenShake = 0;
     this.playerHurtTimer = 0;
     this.monsterHurtTimer = 0;
+    this.petHurtTimer = 0;
+    this.petJumpTimer = 0;
   }
 
   bindEvents() {
-    eventBus.on('BATTLE_DAMAGE_DEALT', ({ target, damage, isCrit, monsterHp, playerHp }) => {
+    eventBus.on('BATTLE_DAMAGE_DEALT', ({ attacker, target, damage, isCrit, monsterHp, playerHp, petHp, isFainted }) => {
       const w = this.canvas.width;
       const h = this.canvas.height;
       const isCompact = h <= 500;
       const playerX = w * 0.23;
+      const petX = Math.round(w * 0.33);
       const monsterX = w * 0.77;
       const targetY = isCompact ? h * 0.44 : h * 0.48;
+      const groundY = isCompact ? h * 0.82 : h * 0.75;
+      const playerSize = Math.round(isCompact ? Math.min(w * 0.17, h * 0.32, 115) : Math.min(w * 0.22, h * 0.30, 160));
+      const petSize = Math.round(playerSize * 0.65);
+      const petY = groundY - petSize + 10;
 
       if (target === 'monster') {
-        // Player shoots spell projectile towards monster
-        this.spawnSpellProjectile(playerX, targetY, monsterX, targetY, () => {
+        const startX = attacker === 'pet' ? petX : playerX;
+        const startY = attacker === 'pet' ? petY : targetY;
+        if (attacker === 'pet') {
+          this.petJumpTimer = 0.45;
+        }
+
+        this.spawnSpellProjectile(startX, startY, monsterX, targetY, () => {
           this.screenShake = isCrit ? 14 : 9;
           this.monsterHurtTimer = 0.35;
-          this.spawnImpactParticles(monsterX, targetY, isCrit ? '#ff4757' : '#ffa502');
+          const hitColor = isCrit ? '#ff4757' : (attacker === 'pet' ? '#2ed573' : '#ffa502');
+          this.spawnImpactParticles(monsterX, targetY, hitColor);
 
           if (this.monster) {
             this.monster.hp = monsterHp;
           }
 
           this.damageTexts.push({
-            text: isCrit ? `💥 暴擊 -${damage}!` : `-${damage}`,
+            text: isCrit ? `💥 暴擊 -${damage}!` : (attacker === 'pet' ? `🐾 -${damage}` : `-${damage}`),
             x: monsterX,
             y: targetY - 25,
             alpha: 1,
-            color: isCrit ? '#ff3838' : '#ffa502',
+            color: isCrit ? '#ff3838' : (attacker === 'pet' ? '#2ed573' : '#ffa502'),
             size: isCrit ? (isCompact ? 30 : 36) : (isCompact ? 24 : 28)
           });
         });
+      } else if (target === 'pet') {
+        // Monster counter-attacks companion pet
+        this.spawnSpellProjectile(monsterX, targetY, petX, petY, () => {
+          this.screenShake = 10;
+          this.petHurtTimer = 0.40;
+          this.spawnImpactParticles(petX, petY, '#eb4d4b');
+
+          if (petHp !== undefined) this.petHp = petHp;
+          if (isFainted !== undefined) this.petIsFainted = isFainted;
+          if (this.activePet) {
+            if (petHp !== undefined) this.activePet.hp = petHp;
+            if (isFainted !== undefined) this.activePet.isFainted = isFainted;
+          }
+
+          this.damageTexts.push({
+            text: `🐾 -${damage}`,
+            x: petX,
+            y: petY - 25,
+            alpha: 1,
+            color: '#ff4757',
+            size: isCompact ? 24 : 28
+          });
+        });
       } else {
-        // Monster counter-attacks player
-        this.screenShake = 10;
-        this.playerHurtTimer = 0.35;
-        this.spawnImpactParticles(playerX, targetY, '#eb4d4b');
+        // Monster counter-attacks wizard
+        this.spawnSpellProjectile(monsterX, targetY, playerX, targetY, () => {
+          this.screenShake = 10;
+          this.playerHurtTimer = 0.35;
+          this.spawnImpactParticles(playerX, targetY, '#eb4d4b');
 
-        if (this.player) {
-          this.player.hp = playerHp;
-        }
+          if (this.player) {
+            this.player.hp = playerHp;
+          }
 
-        this.damageTexts.push({
-          text: `-${damage}`,
-          x: playerX,
-          y: targetY - 25,
-          alpha: 1,
-          color: '#eb4d4b',
-          size: isCompact ? 25 : 30
+          this.damageTexts.push({
+            text: `-${damage}`,
+            x: playerX,
+            y: targetY - 25,
+            alpha: 1,
+            color: '#eb4d4b',
+            size: isCompact ? 25 : 30
+          });
         });
       }
     });
 
-    eventBus.on('BATTLE_PLAYER_HEAL', ({ amount }) => {
+    eventBus.on('BATTLE_PLAYER_HEAL', ({ amount, petHp }) => {
       if (this.player) {
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
+      }
+      if (this.activePet && petHp !== undefined) {
+        this.petHp = petHp;
+        this.activePet.hp = petHp;
+        if (this.petHp > 0) this.petIsFainted = false;
       }
       const w = this.canvas.width;
       const h = this.canvas.height;
       const isCompact = h <= 500;
       const playerX = w * 0.23;
+      const petX = Math.round(w * 0.33);
       const targetY = isCompact ? h * 0.44 : h * 0.48;
 
       this.spawnImpactParticles(playerX, targetY, '#2ed573');
+      if (this.activePet) {
+        this.spawnImpactParticles(petX, targetY, '#2ed573');
+      }
 
       this.damageTexts.push({
         text: `+${amount} HP 💚`,
@@ -209,6 +270,8 @@ export class BattleScene {
 
     if (this.playerHurtTimer > 0) this.playerHurtTimer -= dt;
     if (this.monsterHurtTimer > 0) this.monsterHurtTimer -= dt;
+    if (this.petHurtTimer > 0) this.petHurtTimer -= dt;
+    if (this.petJumpTimer > 0) this.petJumpTimer -= dt;
 
     // Update Projectiles
     this.projectiles.forEach(p => {
@@ -321,29 +384,41 @@ export class BattleScene {
 
     // 5.1 Render Active Companion Pet (beside wizard)
     if (this.activePet && this.petImg.complete && this.petImg.naturalWidth > 0) {
-      const petBob = Math.sin(this.timer * 1.3 + 1.2) * 2.5;
+      const isFainted = this.petIsFainted || this.petHp <= 0;
+      let petBob = Math.sin(this.timer * 1.3 + 1.2) * 2.5;
+      let jumpOffsetX = 0;
+      let jumpOffsetY = 0;
+      if (this.petJumpTimer > 0) {
+        // Pet leap forward when attacking
+        const jumpProgress = (0.45 - this.petJumpTimer) / 0.45;
+        jumpOffsetX = Math.sin(jumpProgress * Math.PI) * 36;
+        jumpOffsetY = -Math.sin(jumpProgress * Math.PI) * 22;
+      }
+
       const petSize = Math.round(playerSize * 0.65);
-      const petX = Math.round(w * 0.33);
+      const petX = Math.round(w * 0.33) + jumpOffsetX;
+      const petY = groundY - petSize + 10 + petBob + jumpOffsetY;
+
       ctx.save();
       ctx.imageSmoothingEnabled = false;
+      if (isFainted) {
+        ctx.globalAlpha = 0.42;
+        ctx.filter = 'grayscale(0.9)';
+      } else if (this.petHurtTimer > 0) {
+        ctx.filter = 'brightness(2.2) drop-shadow(0 0 12px #ff4757)';
+      }
+
       ctx.drawImage(
         this.petImg,
         petX - petSize / 2,
-        groundY - petSize + 10 + petBob,
+        petY,
         petSize,
         petSize
       );
-
-      // Cute mini pet badge
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-      ctx.beginPath();
-      ctx.roundRect?.(petX - 28, groundY + 4, 56, 16, 5);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 9px ProdigySans, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(this.activePet.name.split(' ')[0], petX, groundY + 15);
       ctx.restore();
+
+      // Render Pet Diegetic Health Bar & Name Plate (above pet)
+      this.renderPetHpPlate(petX, petY - 8, this.activePet.name.split(' ')[0], this.petHp, this.petMaxHp, isFainted);
     }
 
     // 6. Render Monster
@@ -582,6 +657,82 @@ export class BattleScene {
     ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
     ctx.shadowBlur = 3;
     ctx.fillText(`${hp} / ${maxHp} ❤️`, x, barY + (isCompact ? 9.5 : 11));
+
+    ctx.restore();
+  }
+
+  renderPetHpPlate(x, y, name, hp, maxHp, isFainted) {
+    const { ctx } = this;
+    const isCompact = this.canvas.height <= 500;
+    const plateW = isCompact ? 86 : 98;
+    const plateH = isCompact ? 24 : 27;
+
+    ctx.save();
+
+    // Drop Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.beginPath();
+    ctx.roundRect?.(x - plateW / 2 + 1, y - plateH + 2, plateW, plateH, 6);
+    ctx.fill();
+
+    // Background Plinth
+    ctx.fillStyle = isFainted ? '#2d3436' : '#1e272e';
+    ctx.beginPath();
+    ctx.roundRect?.(x - plateW / 2, y - plateH, plateW, plateH, 6);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = isFainted ? '#747d8c' : '#2ed573';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    // Title / Status
+    ctx.fillStyle = isFainted ? '#a4b0be' : '#ffffff';
+    ctx.font = 'bold 9.5px ProdigySans, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`🐾 ${name}`, x - plateW / 2 + 5, y - plateH + 10);
+
+    ctx.textAlign = 'right';
+    if (isFainted) {
+      ctx.fillStyle = '#ff4757';
+      ctx.fillText('💫 昏迷', x + plateW / 2 - 5, y - plateH + 10);
+    } else {
+      ctx.fillStyle = '#7bed9f';
+      ctx.fillText(`${hp}/${maxHp}`, x + plateW / 2 - 5, y - plateH + 10);
+    }
+
+    // Mini HP Bar Outer
+    const barX = x - plateW / 2 + 5;
+    const barY = y - plateH + 13;
+    const barW = plateW - 10;
+    const barH = isCompact ? 6 : 7;
+
+    ctx.fillStyle = '#0b0e14';
+    ctx.beginPath();
+    ctx.roundRect?.(barX, barY, barW, barH, 3);
+    ctx.fill();
+
+    if (!isFainted && maxHp > 0) {
+      const pct = Math.max(0, Math.min(1, hp / maxHp));
+      if (pct > 0) {
+        const fillW = Math.max(4, barW * pct);
+        const fillGrad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
+        if (pct > 0.45) {
+          fillGrad.addColorStop(0, '#2ed573');
+          fillGrad.addColorStop(1, '#10ac84');
+        } else if (pct > 0.2) {
+          fillGrad.addColorStop(0, '#ffa502');
+          fillGrad.addColorStop(1, '#ff7f50');
+        } else {
+          fillGrad.addColorStop(0, '#ff4757');
+          fillGrad.addColorStop(1, '#ee5253');
+        }
+        ctx.fillStyle = fillGrad;
+        ctx.beginPath();
+        ctx.roundRect?.(barX, barY, fillW, barH, 3);
+        ctx.fill();
+      }
+    }
 
     ctx.restore();
   }

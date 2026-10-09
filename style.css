@@ -569,6 +569,26 @@ html, body {
   letter-spacing: 0.2px;
 }
 
+/* Pet Signature Spell Orb Styling */
+.pet-spell-btn .orb-disc {
+  border-color: #2ed573;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 10px rgba(46, 213, 115, 0.5);
+}
+.pet-spell-btn:hover .orb-disc {
+  border-color: #7bed9f;
+  box-shadow: 0 0 18px rgba(46, 213, 115, 0.95);
+}
+.orb-cost-badge.badge-pet {
+  background: linear-gradient(135deg, #2ed573, #10ac84);
+  color: #ffffff;
+  font-weight: 800;
+  border: 1px solid #7bed9f;
+}
+.pet-spell-btn.disabled .orb-cost-badge.badge-pet {
+  background: #57606f;
+  border-color: #a4b0be;
+}
+
 .orb-label {
   font-size: 10px;
   font-weight: 800;
