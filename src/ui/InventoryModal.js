@@ -147,7 +147,50 @@ export class InventoryModal {
         </div>
       `;
 
-      this.gearEl.innerHTML = equippedHtml + ownedHtml;
+      const THEMES = [
+        { id: 'apprentice', name: '🌟 星光學徒', color: '#2e5cb8' },
+        { id: 'pyro', name: '🔥 烈焰術士', color: '#c0392b' },
+        { id: 'tidal', name: '💧 潮汐使者', color: '#0984e3' },
+        { id: 'frost', name: '❄️ 極地冰皇', color: '#00cec9' },
+        { id: 'scholar', name: '🌿 奧術學者', color: '#1b8a5a' },
+        { id: 'storm', name: '⚡ 風暴領主', color: '#d4a017' },
+        { id: 'shadow', name: '🔮 暗影魔導', color: '#6c3483' }
+      ];
+
+      const currentTheme = snap.wizardStyle || 'apprentice';
+
+      const themeHtml = `
+        <div style="margin-bottom: 12px; background: rgba(0, 0, 0, 0.03); padding: 8px 12px; border-radius: 12px; border: 1px solid #dcdde1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <h4 style="font-size: 12.5px; color: #5d4037; margin: 0; font-weight: bold;">✨ 法師外觀套裝風格 (Wizard Theme Skin)</h4>
+            <span style="font-size: 11px; color: #7f8c8d;">著裝自動切換 • 亦可手動點擊</span>
+          </div>
+          <div class="theme-chips-row" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            ${THEMES.map(t => `
+              <button class="theme-chip-btn ${t.id === currentTheme ? 'active' : ''}" data-theme="${t.id}" style="padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 12px; border: 1.5px solid ${t.id === currentTheme ? t.color : '#bdc3c7'}; background: ${t.id === currentTheme ? t.color : '#ffffff'}; color: ${t.id === currentTheme ? '#ffffff' : '#2c3e50'}; cursor: pointer; transition: all 0.15s ease;">
+                ${t.name} ${t.id === currentTheme ? '✓' : ''}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      this.gearEl.innerHTML = themeHtml + equippedHtml + ownedHtml;
+
+      // Bind theme buttons
+      const themeBtns = this.gearEl.querySelectorAll('.theme-chip-btn');
+      themeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const themeId = e.currentTarget.dataset.theme;
+          this.gameState.setWizardStyle(themeId);
+          this.render();
+          const targetTheme = THEMES.find(t => t.id === themeId);
+          eventBus.emit('SHOW_TOAST', {
+            message: `✨ 已換裝為【${targetTheme?.name}】全身套裝！`,
+            type: 'success'
+          });
+        });
+      });
 
       // Bind equip buttons
       const equipBtns = this.gearEl.querySelectorAll('.btn-equip-gear:not([disabled])');

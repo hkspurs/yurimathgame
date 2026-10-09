@@ -1,6 +1,7 @@
 // GameState.js - Player state, stats, inventory, and progression
 import { eventBus } from './EventBus.js';
 import { PET_EVOLUTIONS } from '../battle/CanonDatabase.js';
+import { AvatarRenderer } from '../ui/AvatarRenderer.js';
 
 export const DEFAULT_BOUNTIES = [
   { id: 'bounty_1', title: '螢火森林巡查', desc: '在螢火森林擊敗或淨化 1 隻野怪', target: 1, current: 0, rewardGold: 60, rewardStars: 1, completed: false, claimed: false },
@@ -69,6 +70,61 @@ export class GameState {
     this.lastWheelSpinDate = initialData?.lastWheelSpinDate || null;
     this.openedChests = initialData?.openedChests || [];
     this.recalculateStats();
+
+    // Initialize or refresh avatar sprite to ensure it reflects current archetype and hair/skin
+    if (!initialData?.avatarSprite || initialData.avatarSprite.startsWith('./assets/')) {
+      this.updateAvatarSprite();
+    }
+  }
+
+  determineThemeFromGear() {
+    const wand = this.equipment?.wand;
+    const hat = this.equipment?.hat;
+    const outfit = this.equipment?.outfit;
+
+    if (hat?.id === 'hat_pyro' || wand?.id === 'wand_ember' || wand?.element === 'fire') {
+      return 'pyro';
+    }
+    if (hat?.id === 'hat_frost' || wand?.element === 'ice') {
+      return 'frost';
+    }
+    if (wand?.id === 'wand_tidal' || wand?.element === 'water') {
+      return 'tidal';
+    }
+    if (wand?.id === 'wand_storm' || wand?.element === 'storm') {
+      return 'storm';
+    }
+    if (hat?.id === 'hat_scholar' || outfit?.id === 'outfit_traveler') {
+      return 'scholar';
+    }
+    if (outfit?.id === 'outfit_guardian' || wand?.id === 'wand_titanium') {
+      return 'shadow';
+    }
+    return this.wizardStyle || 'apprentice';
+  }
+
+  updateAvatarSprite() {
+    try {
+      const svgStr = AvatarRenderer.renderSvg({
+        hairStyle: this.hairStyle || 1,
+        hairColor: this.hairColor || 'Light Brown',
+        eyeColor: this.eyeColor || 'Dark Brown',
+        skinTone: this.skinTone || 1,
+        archetype: this.wizardStyle || 'apprentice',
+        size: 160
+      });
+      this.avatarSprite = `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+    } catch (e) {
+      console.warn('Avatar update fallback:', e);
+    }
+  }
+
+  setWizardStyle(themeId) {
+    if (themeId) {
+      this.wizardStyle = themeId;
+      this.updateAvatarSprite();
+      eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
+    }
   }
 
   recalculateStats() {
@@ -108,6 +164,14 @@ export class GameState {
     if (!this.hasOwnedItem(normalizedItem.id || normalizedItem.name)) {
       this.ownedEquipment.push(normalizedItem);
     }
+
+    // Auto-harmonize wizard outfit skin to match equipped elemental gear
+    const derivedTheme = this.determineThemeFromGear();
+    if (derivedTheme) {
+      this.wizardStyle = derivedTheme;
+    }
+    this.updateAvatarSprite();
+
     this.recalculateStats();
     eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
   }

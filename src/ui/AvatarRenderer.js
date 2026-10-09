@@ -34,6 +34,7 @@ export const EYE_COLORS = {
 
 export const ARCHETYPE_THEMES = {
   apprentice: {
+    name: '星光學徒 (Astral Apprentice)',
     robe: '#2e5cb8',
     robeTrim: '#f1c40f',
     cape: '#1b3770',
@@ -43,6 +44,7 @@ export const ARCHETYPE_THEMES = {
     sparkle: '#70a1ff'
   },
   pyro: {
+    name: '烈焰術士 (Pyromancer)',
     robe: '#c0392b',
     robeTrim: '#f39c12',
     cape: '#781e14',
@@ -51,7 +53,28 @@ export const ARCHETYPE_THEMES = {
     gem: '#ff6b6b',
     sparkle: '#ff9f43'
   },
+  tidal: {
+    name: '潮汐使者 (Tidal Caller)',
+    robe: '#0984e3',
+    robeTrim: '#74b9ff',
+    cape: '#0c2461',
+    hat: '#0984e3',
+    hatTrim: '#dff9fb',
+    gem: '#00cec9',
+    sparkle: '#81ecec'
+  },
+  frost: {
+    name: '極地冰皇 (Frostbringer)',
+    robe: '#00cec9',
+    robeTrim: '#ffffff',
+    cape: '#0984e3',
+    hat: '#00cec9',
+    hatTrim: '#ffffff',
+    gem: '#81ecec',
+    sparkle: '#dff9fb'
+  },
   scholar: {
+    name: '奧術學者 (Arcane Scholar)',
     robe: '#1b8a5a',
     robeTrim: '#2ed573',
     cape: '#0f5234',
@@ -61,6 +84,7 @@ export const ARCHETYPE_THEMES = {
     sparkle: '#10ac84'
   },
   storm: {
+    name: '風暴領主 (Stormbringer)',
     robe: '#d4a017',
     robeTrim: '#f1f2f6',
     cape: '#8c680a',
@@ -70,6 +94,7 @@ export const ARCHETYPE_THEMES = {
     sparkle: '#feca57'
   },
   shadow: {
+    name: '暗影魔導 (Shadow Mage)',
     robe: '#6c3483',
     robeTrim: '#a55eea',
     cape: '#3e1c4d',
