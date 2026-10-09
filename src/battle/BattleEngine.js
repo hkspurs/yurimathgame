@@ -30,6 +30,8 @@ export class BattleEngine {
       registerPetSpell(this.activePet);
     }
 
+    this.playerDamageTaken = 0;
+
     this.onMathCancelled = () => {
       this.isBusy = false;
       this.turnInProgress = false;
@@ -280,6 +282,22 @@ export class BattleEngine {
       bonusReasons.push('🧪 雙倍經驗魔藥效果 (XP x2.0)');
     }
 
+    // 4. Flawless Victory Bonus (No damage taken during this encounter)
+    if ((this.playerDamageTaken || 0) === 0) {
+      multiplier *= 1.25;
+      bonusReasons.push('🛡️ 完美無傷通關 (+25%)');
+    }
+
+    // 5. Underdog Level Bonus (Higher monster level than player)
+    const monsterLvl = this.monster?.level || 1;
+    const playerLvl = this.gameState?.level || 1;
+    if (monsterLvl > playerLvl) {
+      const diff = Math.min(3, monsterLvl - playerLvl);
+      const underdogBonus = diff * 0.15;
+      multiplier *= (1.0 + underdogBonus);
+      bonusReasons.push(`⚡ 越級挑戰 Lv.${monsterLvl} (+${Math.round(underdogBonus * 100)}%)`);
+    }
+
     const finalXp = Math.round(baseXp * multiplier);
     return { finalXp, bonusReasons };
   }
@@ -379,6 +397,7 @@ export class BattleEngine {
         }, 1300);
       } else {
         // Monster attacks wizard
+        this.playerDamageTaken = (this.playerDamageTaken || 0) + damage;
         this.gameState.takeDamage(damage);
         eventBus.emit('BATTLE_LOG', `${skill.text} 造成了 ${damage} 點傷害！`);
         eventBus.emit('BATTLE_DAMAGE_DEALT', {

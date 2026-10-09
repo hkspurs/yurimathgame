@@ -1108,6 +1108,47 @@ export class WorldScene {
       }
     }
 
+    // 8b. Off-screen Creature Radar Indicators (Essential for narrow iPhone portrait views)
+    const margin = 28;
+    const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
+    this.roamingMonsters.forEach(m => {
+      const isOffScreen = m.x < 10 || m.x > w - 10 || m.y < 50 || m.y > h - 40;
+      if (isOffScreen) {
+        const clampedX = Math.max(margin, Math.min(w - margin, m.x));
+        const clampedY = Math.max(75, Math.min(h - margin - 20, m.y));
+        const angle = Math.atan2(m.y - clampedY, m.x - clampedX);
+        const isUnowned = !ownedPetIds.includes(m.id);
+
+        ctx.save();
+        ctx.translate(clampedX, clampedY);
+        ctx.rotate(angle);
+
+        // Radar Arrow Pointer
+        ctx.fillStyle = isUnowned ? '#f1c40f' : '#2ed573';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(-8, -10);
+        ctx.lineTo(-3, 0);
+        ctx.lineTo(-8, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+
+        // Off-screen Mini Badge
+        ctx.save();
+        ctx.font = 'bold 9px ProdigySans, sans-serif';
+        ctx.fillStyle = isUnowned ? '#fff3cd' : '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 4;
+        ctx.textAlign = 'center';
+        ctx.fillText(isUnowned ? `✨${m.name.split(' ')[0]}` : m.name.split(' ')[0], clampedX, clampedY + 16);
+        ctx.restore();
+      }
+    });
+
     // 9. Floating Golden Fireflies
     this.fireflies.forEach(p => {
       const currentAlpha = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));

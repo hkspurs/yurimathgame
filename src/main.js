@@ -768,6 +768,28 @@ class GameApp {
       });
     }
 
+    const streakBadge = document.getElementById('battle-streak-badge');
+    if (streakBadge) {
+      const streak = this.gameState.winStreak || 0;
+      if (streak > 0) {
+        streakBadge.textContent = `🔥 ${streak} 連勝 (+${Math.min(75, streak * 15)}%)`;
+        streakBadge.classList.remove('hidden');
+      } else {
+        streakBadge.classList.add('hidden');
+      }
+    }
+
+    const elixirBadge = document.getElementById('battle-elixir-badge');
+    if (elixirBadge) {
+      const battles = this.gameState.xpBoostBattles || 0;
+      if (battles > 0) {
+        elixirBadge.textContent = `🧪 雙倍XP (${battles}場)`;
+        elixirBadge.classList.remove('hidden');
+      } else {
+        elixirBadge.classList.add('hidden');
+      }
+    }
+
     const btnRescue = document.getElementById('btn-rescue-monster');
     if (btnRescue && this.battleEngine) {
       if (this.battleEngine.monster.isBoss) {
