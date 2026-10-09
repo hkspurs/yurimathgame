@@ -1,5 +1,6 @@
 // CharacterCreatorModal.js - Official Prodigy "What does your wizard look like?" Stylist
 import { eventBus } from '../core/EventBus.js';
+import { AvatarRenderer } from './AvatarRenderer.js';
 
 export const WIZARD_STYLES = [
   {
@@ -199,7 +200,23 @@ export class CharacterCreatorModal {
     const style = WIZARD_STYLES.find(s => s.id === this.selectedStyleId) || WIZARD_STYLES[0];
     const fullName = this.getFullName();
 
-    if (this.previewImg) this.previewImg.src = style.sprite;
+    // Dynamically render live wizard doll matching chosen hairstyle, hair color, eye color, skin tone & archetype
+    const svgStr = AvatarRenderer.renderSvg({
+      hairStyle: this.selectedHairStyle,
+      hairColor: this.selectedHairColor,
+      eyeColor: this.selectedEyeColor,
+      skinTone: this.selectedSkinTone,
+      archetype: this.selectedStyleId,
+      size: 160
+    });
+
+    const platform = document.querySelector('.char-avatar-platform');
+    if (platform) {
+      platform.innerHTML = svgStr;
+    } else if (this.previewImg) {
+      this.previewImg.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+    }
+
     if (this.previewNameEl) this.previewNameEl.textContent = fullName;
     if (this.previewStyleEl) this.previewStyleEl.textContent = style.name;
     if (this.previewAttrsEl) {
@@ -224,13 +241,25 @@ export class CharacterCreatorModal {
     const style = WIZARD_STYLES.find(s => s.id === this.selectedStyleId) || WIZARD_STYLES[0];
     const fullName = this.getFullName();
 
+    // Generate permanent customized avatar sprite for player crest & overworld
+    const svgStr = AvatarRenderer.renderSvg({
+      hairStyle: this.selectedHairStyle,
+      hairColor: this.selectedHairColor,
+      eyeColor: this.selectedEyeColor,
+      skinTone: this.selectedSkinTone,
+      archetype: this.selectedStyleId,
+      size: 128
+    });
+    const customDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+
     this.gameState.name = fullName;
     this.gameState.wizardStyle = style.id;
     this.gameState.hairStyle = this.selectedHairStyle;
     this.gameState.hairColor = this.selectedHairColor;
     this.gameState.eyeColor = this.selectedEyeColor;
     this.gameState.skinTone = this.selectedSkinTone;
-    this.gameState.avatarSprite = style.sprite;
+    this.gameState.avatarSprite = customDataUrl;
+    this.gameState.avatarSvg = svgStr;
     this.gameState.hasCreatedCharacter = true;
 
     eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
