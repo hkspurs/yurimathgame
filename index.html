@@ -116,42 +116,46 @@
         <span id="mode-badge-text">在學校</span>
       </div>
 
-      <!-- Top-Right Fantasy Metal Badges -->
+      <!-- Top-Right Fantasy Metal Badges & Action Toolbar -->
       <div class="hud-badges-group">
-        <div class="rpg-badge gold-badge">
-          <span class="rpg-badge-icon">🪙</span>
-          <span id="hud-gold" class="rpg-badge-val">150</span>
+        <div class="hud-currency-bar">
+          <div class="rpg-badge gold-badge">
+            <span class="rpg-badge-icon">🪙</span>
+            <span id="hud-gold" class="rpg-badge-val">150</span>
+          </div>
+          <div class="rpg-badge star-badge">
+            <span class="rpg-badge-icon">⭐</span>
+            <span id="hud-stars" class="rpg-badge-val">3</span>
+          </div>
+          <!-- 5 Warden Keystones Mini Tracker -->
+          <div id="hud-keystones-tracker" class="hud-keystones-tracker" title="五大元素守護神石收集進度 (Earth, Water, Fire, Ice, Storm)">
+            <span class="hud-ks-dot missing" data-stone="earth" title="🌱 大地神石">🌱</span>
+            <span class="hud-ks-dot missing" data-stone="water" title="💧 海洋神石">💧</span>
+            <span class="hud-ks-dot missing" data-stone="fire" title="🔥 烈焰神石">🔥</span>
+            <span class="hud-ks-dot missing" data-stone="ice" title="❄️ 冰霜神石">❄️</span>
+            <span class="hud-ks-dot missing" data-stone="storm" title="⚡ 風暴神石">⚡</span>
+          </div>
         </div>
-        <div class="rpg-badge star-badge">
-          <span class="rpg-badge-icon">⭐</span>
-          <span id="hud-stars" class="rpg-badge-val">3</span>
+        <div class="hud-actions-bar">
+          <button id="btn-town-shop" class="rpg-ctrl-btn" title="燈火主城 (布洛克裝備店 & 每日轉盤)">
+            <span>🏛️</span>
+          </button>
+          <button id="btn-backpack" class="rpg-ctrl-btn" title="冒險背包與守護神石">
+            <span>🎒</span>
+          </button>
+          <button id="btn-pet-book" class="rpg-ctrl-btn" title="正統精靈圖鑑 (Pet Book)">
+            <span>📖</span>
+          </button>
+          <button id="btn-world-map" class="rpg-ctrl-btn" title="世界大地圖">
+            <span>🧭</span>
+          </button>
+          <button id="btn-sound" class="rpg-ctrl-btn" title="音效切換">
+            <span>🔊</span>
+          </button>
+          <button id="btn-leave-prodigy" class="rpg-ctrl-btn" title="離開學院 (Leave Prodigy?)">
+            <span>🚪</span>
+          </button>
         </div>
-        <!-- 5 Warden Keystones Mini Tracker -->
-        <div id="hud-keystones-tracker" class="hud-keystones-tracker" title="五大元素守護神石收集進度 (Earth, Water, Fire, Ice, Storm)">
-          <span class="hud-ks-dot missing" data-stone="earth" title="🌱 大地神石">🌱</span>
-          <span class="hud-ks-dot missing" data-stone="water" title="💧 海洋神石">💧</span>
-          <span class="hud-ks-dot missing" data-stone="fire" title="🔥 烈焰神石">🔥</span>
-          <span class="hud-ks-dot missing" data-stone="ice" title="❄️ 冰霜神石">❄️</span>
-          <span class="hud-ks-dot missing" data-stone="storm" title="⚡ 風暴神石">⚡</span>
-        </div>
-        <button id="btn-town-shop" class="rpg-ctrl-btn" title="燈火主城 (布洛克裝備店 & 每日轉盤)">
-          <span>🏛️</span>
-        </button>
-        <button id="btn-backpack" class="rpg-ctrl-btn" title="冒險背包與守護神石">
-          <span>🎒</span>
-        </button>
-        <button id="btn-pet-book" class="rpg-ctrl-btn" title="正統精靈圖鑑 (Pet Book)">
-          <span>📖</span>
-        </button>
-        <button id="btn-world-map" class="rpg-ctrl-btn" title="世界大地圖">
-          <span>🧭</span>
-        </button>
-        <button id="btn-sound" class="rpg-ctrl-btn" title="音效切換">
-          <span>🔊</span>
-        </button>
-        <button id="btn-leave-prodigy" class="rpg-ctrl-btn" title="離開學院 (Leave Prodigy?)">
-          <span>🚪</span>
-        </button>
       </div>
     </div>
 
@@ -917,10 +921,12 @@
               <div class="char-avatar-platform">
                 <img id="char-preview-img" src="./assets/sprites/wizard_apprentice.png" alt="Wizard" class="char-preview-avatar">
               </div>
-              <div id="char-preview-name" class="char-preview-name">Alex Starweaver</div>
-              <div id="char-preview-style" class="char-preview-style">奧術學徒 (Arcane Apprentice)</div>
-              <div class="char-preview-attributes" id="char-preview-attributes">髮型 1 • 淺棕髮 • 深褐眸 • 膚色 1</div>
-              <div class="char-preview-crest">You can change this later. (可隨時修改)</div>
+              <div class="char-preview-details-box">
+                <div id="char-preview-name" class="char-preview-name">Alex Starweaver</div>
+                <div id="char-preview-style" class="char-preview-style">奧術學徒 (Arcane Apprentice)</div>
+                <div class="char-preview-attributes" id="char-preview-attributes">髮型 1 • 淺棕髮 • 深褐眸 • 膚色 1</div>
+                <div class="char-preview-crest">You can change this later. (可隨時修改)</div>
+              </div>
             </div>
           </div>
 

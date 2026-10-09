@@ -171,6 +171,10 @@ class GameApp {
     const displayW = Math.round(container.clientWidth || window.innerWidth || 800);
     const displayH = Math.round(container.clientHeight || window.innerHeight || 600);
 
+    // Keep container view locked against unintentional mobile browser shifts
+    if (container.scrollLeft !== 0) container.scrollLeft = 0;
+    if (container.scrollTop !== 0) container.scrollTop = 0;
+
     if (displayW > 0 && displayH > 0) {
       if (this.canvas.width !== displayW || this.canvas.height !== displayH) {
         this.canvas.width = displayW;

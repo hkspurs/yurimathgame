@@ -1406,7 +1406,7 @@ export class WorldScene {
 
         ctx.restore();
 
-        // Off-screen Mini Badge with distance!
+        // Off-screen Mini Badge with distance (safely clamped to viewport bounds)
         ctx.save();
         ctx.font = 'bold 9.5px ProdigySans, sans-serif';
         ctx.fillStyle = isUnowned ? '#fff3cd' : '#ffffff';
@@ -1414,7 +1414,9 @@ export class WorldScene {
         ctx.shadowBlur = 5;
         ctx.textAlign = 'center';
         const label = isUnowned ? `✨${m.name.split(' ')[0]} ${dist}m` : `${m.name.split(' ')[0]} ${dist}m`;
-        ctx.fillText(label, clampedX, clampedY + 16);
+        const labelW = ctx.measureText(label).width;
+        const safeLabelX = Math.max(labelW / 2 + 8, Math.min(screenW - labelW / 2 - 8, clampedX));
+        ctx.fillText(label, safeLabelX, clampedY + 16);
         ctx.restore();
       }
     });
@@ -1440,7 +1442,7 @@ export class WorldScene {
     const pillW = textW + 18;
     const pillH = 22;
     const pillX = Math.round((screenW - pillW) / 2);
-    const pillY = 106; // Below top realm badge
+    const pillY = screenW <= 550 ? 78 : 106; // Below top realm badge
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
     ctx.strokeStyle = 'rgba(241, 196, 15, 0.6)';
