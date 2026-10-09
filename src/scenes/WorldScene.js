@@ -130,6 +130,8 @@ export class WorldScene {
     this.treasureChest = null;
     this.keystoneAltar = null;
     this.signpost = null;
+    this.rustlingBushes = []; // Mystery bushes with animated shake and surprises!
+    this.petHearts = [];      // Floating heart particles when petting follower
 
     this.bindInputs();
     this.loadRealm(this.currentRealm);
@@ -394,6 +396,14 @@ export class WorldScene {
       text: signpostConfigs[this.currentRealm] || signpostConfigs['firefly_forest']
     };
 
+    // 4 Mystery Rustling Bushes distributed across explorer paths
+    this.rustlingBushes = [
+      { id: 'bush_nw', x: 240, y: 320, r: 24, shakeTimer: 0, shakePhase: 0, leafParticles: [], opened: false },
+      { id: 'bush_ne', x: 920, y: 340, r: 26, shakeTimer: 1.2, shakePhase: Math.PI * 0.4, leafParticles: [], opened: false },
+      { id: 'bush_sw', x: 420, y: 1120, r: 25, shakeTimer: 2.1, shakePhase: Math.PI * 0.9, leafParticles: [], opened: false },
+      { id: 'bush_se', x: 1040, y: 1240, r: 25, shakeTimer: 0.8, shakePhase: Math.PI * 1.5, leafParticles: [], opened: false }
+    ];
+
     // Props for current realm across 1400 x 1600 world
     this.environmentProps = this.generatePropsForRealm(this.currentRealm);
   }
@@ -615,6 +625,24 @@ export class WorldScene {
         }
       }
 
+      // Click on Follower Pet (Pet interaction & feeding!)
+      if (this.followerPet) {
+        const distToPet = Math.hypot(worldClickX - this.followerPet.x, worldClickY - this.followerPet.y);
+        if (distToPet < 55) {
+          this.interactWithFollowerPet();
+          return;
+        }
+      }
+
+      // Click on Rustling Bushes (Mystery encounter & surprises!)
+      for (const bush of this.rustlingBushes) {
+        const distToBush = Math.hypot(worldClickX - bush.x, worldClickY - bush.y);
+        if (distToBush < 50) {
+          this.interactWithBush(bush);
+          return;
+        }
+      }
+
       // Click on Signpost
       if (this.signpost) {
         const distToSign = Math.hypot(worldClickX - this.signpost.x, worldClickY - this.signpost.y);
@@ -625,6 +653,7 @@ export class WorldScene {
       }
 
       // Tap to move in world space
+      this.isDraggingMove = true;
       this.player.targetX = Math.max(60, Math.min(this.worldWidth - 60, worldClickX));
       this.player.targetY = Math.max(90, Math.min(this.worldHeight - 70, worldClickY));
       this.tapIndicator = {
@@ -634,6 +663,26 @@ export class WorldScene {
         alpha: 1.0
       };
     });
+
+    this.canvas.addEventListener('pointermove', (e) => {
+      if (!this.isDraggingMove || !this.isActive || window.gameApp?.currentScene !== 'world') return;
+      if (document.querySelector('.tome-overlay:not(.hidden)')) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const worldClickX = (e.clientX - rect.left) * scaleX + this.camera.x;
+      const worldClickY = (e.clientY - rect.top) * scaleY + this.camera.y;
+
+      this.player.targetX = Math.max(60, Math.min(this.worldWidth - 60, worldClickX));
+      this.player.targetY = Math.max(90, Math.min(this.worldHeight - 70, worldClickY));
+    });
+
+    const stopDrag = () => {
+      this.isDraggingMove = false;
+    };
+    window.addEventListener('pointerup', stopDrag);
+    window.addEventListener('pointercancel', stopDrag);
   }
 
   interactWithChest() {
@@ -677,6 +726,105 @@ export class WorldScene {
       eventBus.emit('TRIGGER_ALTAR_BOSS_TRIAL', {
         realmId: this.currentRealm,
         altar: this.keystoneAltar
+      });
+    }
+  }
+
+  interactWithFollowerPet() {
+    const activePet = this.getActivePet();
+    if (!activePet) return;
+
+    // Jump up in joy
+    this.followerPet.hopTimer = Math.PI * 0.5;
+
+    // Burst 6 floating heart particles above pet
+    for (let i = 0; i < 6; i++) {
+      this.petHearts.push({
+        x: this.followerPet.x + (Math.random() - 0.5) * 16,
+        y: this.followerPet.y - 20,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -(Math.random() * 2 + 1.5),
+        alpha: 1.0,
+        size: Math.random() * 4 + 10,
+        symbol: ['💖', '✨', '🐾', '🍓'][Math.floor(Math.random() * 4)]
+      });
+    }
+
+    // Award +5 Pet Bond XP
+    if (this.gameState) {
+      this.gameState.addPetXp(activePet.id, 5);
+    }
+
+    const petName = (activePet.name || '夥伴').split(' ')[0];
+    const petSounds = ['喵嗚~ (蹭了蹭你的手)', '吱吱！(開心地跳了起來)', '汪！(搖了搖尾巴)', '咕嚕嚕~ (感到非常溫暖)'];
+    const chosenSound = petSounds[Math.floor(Math.random() * petSounds.length)];
+    eventBus.emit('SHOW_TOAST', {
+      message: `🐾 你摸了摸【${petName}】！${chosenSound} (+5 夥伴親密度)`,
+      type: 'success'
+    });
+  }
+
+  interactWithBush(bush) {
+    if (bush.opened) {
+      eventBus.emit('SHOW_TOAST', { message: '🌿 這裡的小草剛剛沙沙晃過，現在很安靜～', type: 'info' });
+      return;
+    }
+
+    // Leaf burst particles
+    for (let i = 0; i < 16; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = Math.random() * 4 + 2;
+      bush.leafParticles.push({
+        x: bush.x,
+        y: bush.y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd - 2,
+        alpha: 1.0,
+        size: Math.random() * 5 + 4,
+        color: ['#2ed573', '#7bed9f', '#26de81', '#f1c40f', '#ffa502'][Math.floor(Math.random() * 5)]
+      });
+    }
+
+    bush.opened = true;
+    const roll = Math.random();
+
+    if (roll < 0.50) {
+      // Surprise! A wild monster leaped out of the bush!
+      const pool = REALM_MONSTER_POOLS[this.currentRealm] || REALM_MONSTER_POOLS['firefly_forest'];
+      const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
+      const unownedPool = pool.filter(p => !ownedPetIds.includes(p.id));
+      const surpriseDef = unownedPool.length > 0
+        ? unownedPool[Math.floor(Math.random() * unownedPool.length)]
+        : pool[Math.floor(Math.random() * pool.length)];
+
+      eventBus.emit('SHOW_TOAST', {
+        message: `✨ 沙沙！一隻野生的【${surpriseDef.name}】從草叢跳了出來！`,
+        type: 'success'
+      });
+
+      setTimeout(() => {
+        if (window.gameApp && !this.isEncountering) {
+          this.isEncountering = true;
+          window.gameApp.startBattle(surpriseDef.id, `🌿 草叢奇遇 • 野生 ${surpriseDef.name}`);
+        }
+      }, 700);
+    } else if (roll < 0.85) {
+      // Golden coins and stars discovered!
+      const goldGain = Math.floor(Math.random() * 25) + 15;
+      const starGain = 1;
+      this.gameState?.addGold(goldGain);
+      this.gameState?.addStars(starGain);
+      eventBus.emit('SHOW_TOAST', {
+        message: `🍓 草叢裡藏著秘密寶物！獲得 +${goldGain} 金幣、+${starGain} 星石！`,
+        type: 'success'
+      });
+    } else {
+      // Recovering Magic Sweet Berry (Full heal + XP)
+      this.gameState?.heal(30);
+      this.gameState?.addXp(20);
+      eventBus.emit('SHOW_TOAST', {
+        message: `✨ 發現【魔法甜甜果】！巫師與精靈回復 30 體力，獲得 +20 XP！`,
+        type: 'success'
       });
     }
   }
@@ -891,6 +1039,31 @@ export class WorldScene {
       this.keystoneAltar.pulseTimer += dt * 2.5;
     }
 
+    // Update Rustling Bushes shake animation & leaves
+    this.rustlingBushes.forEach(b => {
+      if (!b.opened) {
+        b.shakeTimer += dt;
+        b.shakePhase = Math.sin(b.shakeTimer * 5) * 4;
+      } else {
+        b.shakePhase = 0;
+      }
+      b.leafParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += dt * 4;
+        p.alpha -= dt * 1.5;
+      });
+      b.leafParticles = b.leafParticles.filter(p => p.alpha > 0);
+    });
+
+    // Update Floating Pet Hearts
+    this.petHearts.forEach(h => {
+      h.x += h.vx;
+      h.y += h.vy;
+      h.alpha -= dt * 0.9;
+    });
+    this.petHearts = this.petHearts.filter(h => h.alpha > 0);
+
     // Follower Pet logic
     this.updateFollowerPet(dt);
   }
@@ -1003,6 +1176,72 @@ export class WorldScene {
     ctx.textBaseline = 'middle';
     ctx.fillText(tagText, this.followerPet.x, badgeY + badgeH / 2 + 0.5);
     ctx.restore();
+
+    // Render Floating Pet Hearts & Emojis
+    this.petHearts.forEach(h => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, h.alpha);
+      ctx.font = `${h.size}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(h.symbol, h.x, h.y);
+      ctx.restore();
+    });
+  }
+
+  renderRustlingBushes() {
+    const { ctx } = this;
+    this.rustlingBushes.forEach(bush => {
+      ctx.save();
+      const shakeX = Math.sin(Date.now() * 0.012 + (bush.shakeTimer || 0)) * (bush.opened ? 0 : 3.5);
+      const bx = bush.x + shakeX;
+      const by = bush.y;
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+      ctx.beginPath();
+      ctx.ellipse(bx, by + bush.r * 0.7, bush.r * 1.1, bush.r * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bush Cluster Body (3 overlapping lush foliage bubbles)
+      const bushBaseColor = bush.opened ? '#4a7c59' : '#27ae60';
+      const bushHighlightColor = bush.opened ? '#5d9c6f' : '#2ecc71';
+
+      ctx.fillStyle = bushBaseColor;
+      ctx.beginPath();
+      ctx.arc(bx - bush.r * 0.4, by, bush.r * 0.7, 0, Math.PI * 2);
+      ctx.arc(bx + bush.r * 0.4, by, bush.r * 0.7, 0, Math.PI * 2);
+      ctx.arc(bx, by - bush.r * 0.35, bush.r * 0.75, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = bushHighlightColor;
+      ctx.beginPath();
+      ctx.arc(bx - bush.r * 0.25, by - bush.r * 0.3, bush.r * 0.4, 0, Math.PI * 2);
+      ctx.arc(bx + bush.r * 0.25, by - bush.r * 0.2, bush.r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // If active and rustling, render sparkling mystery star and question mark
+      if (!bush.opened) {
+        const bounce = Math.abs(Math.sin(Date.now() * 0.008)) * 4;
+        ctx.fillStyle = '#f1c40f';
+        ctx.font = 'bold 13px "ProdigySans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowBlur = 4;
+        ctx.fillText('✨ ?', bx, by - bush.r - 4 - bounce);
+      }
+
+      // Leaf burst particles
+      bush.leafParticles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.restore();
+    });
   }
 
   render() {
@@ -1043,6 +1282,9 @@ export class WorldScene {
 
     // 5.6 Interactive Treasure Chest at (280, 1300)
     this.renderTreasureChest();
+
+    // 5.7 Mystery Rustling Bushes (Surprises & Wild Encounters)
+    this.renderRustlingBushes();
 
     // 5.8 Tap Indicator (Ripple)
     if (this.tapIndicator) {

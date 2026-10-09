@@ -8,4 +8,5 @@ test_screenshots
 .vite
 wai_*.png
 playtest_*.png
+*.png
 

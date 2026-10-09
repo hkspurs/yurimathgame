@@ -370,10 +370,25 @@
         <div class="level-up-body">
           <div class="level-up-emblem-wrap">
             <div class="level-up-sparkle-bg"></div>
-            <div class="level-up-emblem">⚡</div>
+            <div class="level-up-emblem" id="level-up-emblem">🎁</div>
           </div>
           <h2 class="level-up-title" id="level-up-title">等級提升至 LV. 2！</h2>
-          <p class="level-up-subtitle">你在算術與奧術的修行精進了一步！神聖之光洗滌了你的身心！</p>
+          <p class="level-up-subtitle" id="level-up-subtitle">學院長老為你的成長送來了一件【神秘升級大禮盒】！快點擊拆開！</p>
+          
+          <!-- Mystery Gift Box Unboxing Component -->
+          <div id="level-up-gift-box" class="level-up-gift-box">
+            <div class="gift-box-wrapper" id="btn-unbox-gift" title="點擊拆開大禮盒！">
+              <div class="gift-box-sparkles">✨</div>
+              <div class="gift-box-icon">🎁</div>
+              <span class="gift-box-prompt">點擊拆開大禮盒！</span>
+            </div>
+            <div id="gift-reward-reveal" class="gift-reward-reveal hidden">
+              <div class="revealed-icon" id="gift-reveal-icon">🪄</div>
+              <strong class="revealed-title" id="gift-reveal-title">獲得【星光見習魔杖】！</strong>
+              <span class="revealed-desc" id="gift-reveal-desc">魔法攻擊力永久提升！</span>
+            </div>
+          </div>
+
           <div class="level-up-bonuses-grid">
             <div class="bonus-card">
               <span class="bonus-icon">❤️</span>
@@ -393,12 +408,12 @@
               <span class="bonus-icon">💖</span>
               <div class="bonus-info">
                 <span class="bonus-label">體力狀態</span>
-                <strong class="bonus-value" style="color: #2ed573;">完全回復！</strong>
+                <strong class="bonus-value" style="color: #2ed573;">全隊完全回復！</strong>
               </div>
             </div>
           </div>
           <button id="btn-level-up-confirm" class="channel-magic-btn level-up-btn">
-            <span>榮耀晉升，繼續冒險！✨</span>
+            <span>榮耀晉升，領取獎勵！✨</span>
           </button>
         </div>
       </div>

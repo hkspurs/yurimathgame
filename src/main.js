@@ -113,6 +113,13 @@ class GameApp {
     this.levelUpTitleEl = document.getElementById('level-up-title');
     this.levelUpHpEl = document.getElementById('level-up-hp');
     this.btnLevelUpConfirm = document.getElementById('btn-level-up-confirm');
+    this.btnUnboxGift = document.getElementById('btn-unbox-gift');
+    this.giftRewardRevealEl = document.getElementById('gift-reward-reveal');
+    this.giftRevealIconEl = document.getElementById('gift-reveal-icon');
+    this.giftRevealTitleEl = document.getElementById('gift-reveal-title');
+    this.giftRevealDescEl = document.getElementById('gift-reveal-desc');
+    this.isLevelGiftUnboxed = false;
+    this.pendingLevelUpNumber = null;
 
     this.keystoneModalEl = document.getElementById('keystone-modal');
     this.keystoneIconEl = document.getElementById('keystone-large-icon');
@@ -562,8 +569,75 @@ class GameApp {
       }
     });
 
+    if (this.btnUnboxGift) {
+      this.btnUnboxGift.addEventListener('click', () => {
+        if (this.isLevelGiftUnboxed) return;
+        this.isLevelGiftUnboxed = true;
+
+        const lvl = this.pendingLevelUpNumber || this.gameState.level;
+        let rewardTitle = '獲得【學院星光禮讚】！';
+        let rewardDesc = '金幣 +60 • 璀璨星石 +2';
+        let rewardIcon = '✨';
+
+        if (lvl <= 2) {
+          rewardTitle = '獲得【學徒星芒魔杖】！';
+          rewardDesc = '奧術威力提升！金幣 +50 • 璀璨星石 +1';
+          rewardIcon = '🪄';
+          this.gameState.gold += 50;
+          this.gameState.stars += 1;
+        } else if (lvl === 3) {
+          rewardTitle = '獲得【睿智學者兜帽】！';
+          rewardDesc = '耐力提升！金幣 +80 • 璀璨星石 +2';
+          rewardIcon = '🎓';
+          this.gameState.gold += 80;
+          this.gameState.stars += 2;
+        } else if (lvl === 4) {
+          rewardTitle = '獲得【大地守護法袍】！';
+          rewardDesc = '防禦提升！金幣 +100 • 璀璨星石 +2';
+          rewardIcon = '🛡️';
+          this.gameState.gold += 100;
+          this.gameState.stars += 2;
+        } else {
+          rewardTitle = '獲得【傳奇奧術寶盒】！';
+          rewardDesc = '金幣 +120 • 璀璨星石 +3 • 全體大補丸 x1';
+          rewardIcon = '👑';
+          this.gameState.gold += 120;
+          this.gameState.stars += 3;
+          this.gameState.potionsCount += 1;
+        }
+        if (this.hud) this.hud.update(this.gameState.getSnapshot());
+
+        if (this.giftRevealIconEl) this.giftRevealIconEl.textContent = rewardIcon;
+        if (this.giftRevealTitleEl) this.giftRevealTitleEl.textContent = rewardTitle;
+        if (this.giftRevealDescEl) this.giftRevealDescEl.textContent = rewardDesc;
+
+        if (this.btnUnboxGift) this.btnUnboxGift.classList.add('hidden');
+        if (this.giftRewardRevealEl) this.giftRewardRevealEl.classList.remove('hidden');
+
+        if (this.btnLevelUpConfirm) {
+          this.btnLevelUpConfirm.disabled = false;
+          this.btnLevelUpConfirm.style.opacity = '1';
+          this.btnLevelUpConfirm.innerHTML = '<span>領取榮耀，繼續冒險！✨</span>';
+        }
+
+        eventBus.emit('SHOW_TOAST', {
+          icon: rewardIcon,
+          title: '驚喜大禮盒拆開！',
+          text: `${rewardTitle} ${rewardDesc}`
+        });
+      });
+    }
+
     if (this.btnLevelUpConfirm) {
       this.btnLevelUpConfirm.addEventListener('click', () => {
+        if (!this.isLevelGiftUnboxed) {
+          eventBus.emit('SHOW_TOAST', {
+            icon: '🎁',
+            title: '尚未拆開禮盒',
+            text: '請先點擊上方神秘大禮盒拆開驚喜！'
+          });
+          return;
+        }
         if (this.levelUpModalEl) this.levelUpModalEl.classList.add('hidden');
         if (this.pendingPetEvolution) {
           const petId = this.pendingPetEvolution;
@@ -682,8 +756,20 @@ class GameApp {
 
   showLevelUpModal({ level, maxHp }) {
     if (!this.levelUpModalEl) return;
+    this.pendingLevelUpNumber = level;
+    this.isLevelGiftUnboxed = false;
     if (this.levelUpTitleEl) this.levelUpTitleEl.textContent = `等級提升至 LV. ${level}！`;
     if (this.levelUpHpEl) this.levelUpHpEl.textContent = `${maxHp} Hearts (+20)`;
+
+    if (this.btnUnboxGift) this.btnUnboxGift.classList.remove('hidden');
+    if (this.giftRewardRevealEl) this.giftRewardRevealEl.classList.add('hidden');
+
+    if (this.btnLevelUpConfirm) {
+      this.btnLevelUpConfirm.disabled = true;
+      this.btnLevelUpConfirm.style.opacity = '0.6';
+      this.btnLevelUpConfirm.innerHTML = '<span>🎁 請先點擊上方拆開大禮盒！</span>';
+    }
+
     this.levelUpModalEl.classList.remove('hidden');
   }
 
