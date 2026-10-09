@@ -37,12 +37,25 @@ export class GameState {
     this.keystones = initialData?.keystones || []; // 5 Warden Keystones
     this.bounties = initialData?.bounties || JSON.parse(JSON.stringify(DEFAULT_BOUNTIES));
     this.equipment = initialData?.equipment || {
-      hat: { name: '學徒巫師帽 (Apprentice Hat)', heartsBonus: 15 },
-      outfit: { name: '星月法袍 (Star Cloak)', heartsBonus: 20 },
-      wand: { name: '訓練魔杖 (Training Wand)', powerBonus: 10 },
-      boots: { name: '冒險皮靴 (Leather Boots)', heartsBonus: 10 },
-      relic: { name: '元素護符 (Elemental Relic)', element: 'astral' }
+      hat: { id: 'hat_apprentice', name: 'Apprentice Hat (學徒帽)', hearts: 15, slot: 'hat' },
+      outfit: { id: 'outfit_apprentice', name: 'Apprentice Robe (學徒法袍)', hearts: 20, slot: 'outfit' },
+      wand: { id: 'wand_training', name: 'Training Wand (訓練魔杖)', power: 12, slot: 'wand' },
+      boots: { id: 'boots_apprentice', name: 'Apprentice Boots (學徒皮靴)', hearts: 10, slot: 'boots' },
+      relic: { id: 'relic_elemental', name: 'Elemental Relic (元素護符)', element: 'astral', slot: 'relic' }
     };
+    this.ownedEquipment = initialData?.ownedEquipment || [
+      this.equipment.hat,
+      this.equipment.outfit,
+      this.equipment.wand,
+      this.equipment.boots,
+      this.equipment.relic
+    ].filter(Boolean);
+    // Ensure all currently equipped items are present in ownedEquipment
+    Object.values(this.equipment).forEach(item => {
+      if (item && !this.ownedEquipment.some(i => (i.id && i.id === item.id) || i.name === item.name)) {
+        this.ownedEquipment.push(item);
+      }
+    });
     this.stagesProgress = initialData?.stagesProgress || {
       'forest_1': { stars: 3, cleared: true }
     };
@@ -55,6 +68,61 @@ export class GameState {
     this.currentRealm = initialData?.currentRealm || 'firefly_forest';
     this.lastWheelSpinDate = initialData?.lastWheelSpinDate || null;
     this.openedChests = initialData?.openedChests || [];
+    this.recalculateStats();
+  }
+
+  recalculateStats() {
+    const baseMaxHp = 100 + (this.level - 1) * 20;
+    const baseAttack = 15 + (this.level - 1) * 5;
+
+    let gearHpBonus = 0;
+    let gearAtkBonus = 0;
+
+    if (this.equipment) {
+      if (this.equipment.hat) gearHpBonus += (this.equipment.hat.hearts || this.equipment.hat.heartsBonus || 0);
+      if (this.equipment.outfit) gearHpBonus += (this.equipment.outfit.hearts || this.equipment.outfit.heartsBonus || 0);
+      if (this.equipment.boots) gearHpBonus += (this.equipment.boots.hearts || this.equipment.boots.heartsBonus || 0);
+      if (this.equipment.wand) gearAtkBonus += (this.equipment.wand.power || this.equipment.wand.powerBonus || 0);
+    }
+
+    this.maxHp = baseMaxHp + gearHpBonus;
+    this.attack = baseAttack + gearAtkBonus;
+    if (this.hp > this.maxHp) this.hp = this.maxHp;
+    if (!this.hp || this.hp <= 0) this.hp = this.maxHp;
+  }
+
+  equipItem(item) {
+    if (!item) return;
+    const slotMap = {
+      wands: 'wand', wand: 'wand',
+      hats: 'hat', hat: 'hat',
+      outfits: 'outfit', outfit: 'outfit',
+      boots: 'boots',
+      relics: 'relic', relic: 'relic'
+    };
+    const slot = item.slot || slotMap[item.cat] || slotMap[item.category];
+    if (!slot) return;
+
+    const normalizedItem = { ...item, slot };
+    this.equipment[slot] = normalizedItem;
+    if (!this.hasOwnedItem(normalizedItem.id || normalizedItem.name)) {
+      this.ownedEquipment.push(normalizedItem);
+    }
+    this.recalculateStats();
+    eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
+  }
+
+  hasOwnedItem(idOrName) {
+    if (!idOrName) return false;
+    return this.ownedEquipment.some(i => (i.id && i.id === idOrName) || i.name === idOrName);
+  }
+
+  addOwnedItem(item) {
+    if (!item) return;
+    if (!this.hasOwnedItem(item.id || item.name)) {
+      this.ownedEquipment.push(item);
+      eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
+    }
   }
 
   setGrade(grade) {
@@ -345,6 +413,7 @@ export class GameState {
       keystones: [...this.keystones],
       bounties: JSON.parse(JSON.stringify(this.bounties)),
       equipment: { ...this.equipment },
+      ownedEquipment: [...this.ownedEquipment],
       stagesProgress: { ...this.stagesProgress },
       unlockedSpells: [...this.unlockedSpells],
       grade: this.grade,

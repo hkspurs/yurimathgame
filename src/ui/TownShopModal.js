@@ -134,6 +134,42 @@ export class TownShopModal {
   }
 
   buyItem(category, item) {
+    if (category === 'potions') {
+      if (this.gameState.gold < item.price) {
+        const msg = `🪙 金幣不足！需要 ${item.price} 金幣，當前僅有 ${this.gameState.gold} 金幣！`;
+        this.showNotice(msg);
+        eventBus.emit('SHOW_TOAST', { message: msg, type: 'warning' });
+        return;
+      }
+
+      this.gameState.gold -= item.price;
+      this.gameState.potionsCount += 1;
+      eventBus.emit('SHOW_TOAST', {
+        message: `🧪 購買成功！獲得 1 瓶 ${item.name}！`,
+        type: 'success'
+      });
+      eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
+      this.renderShop();
+      return;
+    }
+
+    const slotMap = { wands: 'wand', hats: 'hat', outfits: 'outfit', boots: 'boots' };
+    const slot = slotMap[category];
+    const gearItem = { ...item, slot };
+
+    // If already owned, switch equipment for free without spending gold!
+    if (this.gameState.hasOwnedItem(item.id || item.name)) {
+      this.gameState.equipItem(gearItem);
+      this.showNotice(`🔄 已免費切換裝備為【${item.name}】！`);
+      eventBus.emit('SHOW_TOAST', {
+        message: `🔄 已免費切換裝備為【${item.name}】！`,
+        type: 'success'
+      });
+      this.renderShop();
+      return;
+    }
+
+    // Otherwise must purchase with gold
     if (this.gameState.gold < item.price) {
       const msg = `🪙 金幣不足！需要 ${item.price} 金幣，當前僅有 ${this.gameState.gold} 金幣！`;
       this.showNotice(msg);
@@ -142,33 +178,13 @@ export class TownShopModal {
     }
 
     this.gameState.gold -= item.price;
-    if (category === 'potions') {
-      this.gameState.potionsCount += 1;
-      eventBus.emit('SHOW_TOAST', {
-        message: `🧪 購買成功！獲得 1 瓶 ${item.name}！`,
-        type: 'success'
-      });
-    } else {
-      // Equip gear
-      const slotMap = { wands: 'wand', hats: 'hat', outfits: 'outfit', boots: 'boots' };
-      const slot = slotMap[category];
-      if (slot) {
-        this.gameState.equipment[slot] = item;
-        if (item.hearts) {
-          this.gameState.maxHp = 100 + item.hearts;
-          this.gameState.hp = Math.min(this.gameState.maxHp, this.gameState.hp + item.hearts);
-        }
-        if (item.power) {
-          this.gameState.attack = 15 + item.power;
-        }
-        eventBus.emit('SHOW_TOAST', {
-          message: `✨ 購買並已裝備【${item.name}】！能力值提升！`,
-          type: 'success'
-        });
-      }
-    }
+    this.gameState.addOwnedItem(gearItem);
+    this.gameState.equipItem(gearItem);
 
-    eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
+    eventBus.emit('SHOW_TOAST', {
+      message: `✨ 購買成功並已裝備【${item.name}】！已永久存入法師行囊！`,
+      type: 'success'
+    });
     this.renderShop();
   }
 
@@ -189,7 +205,18 @@ export class TownShopModal {
     ];
 
     allShopItems.forEach(item => {
-      const isEquipped = Object.values(this.gameState.equipment).some(e => e?.name === item.name);
+      const isEquipped = Object.values(this.gameState.equipment).some(e => e?.name === item.name || (e?.id && e.id === item.id));
+      const isOwned = item.cat !== 'potions' && this.gameState.hasOwnedItem(item.id || item.name);
+
+      let btnHtml = '';
+      if (isEquipped) {
+        btnHtml = `<button class="ware-buy-btn" disabled>已裝備 ✓</button>`;
+      } else if (isOwned) {
+        btnHtml = `<button class="ware-buy-btn ware-equip-btn" style="background:#2980b9;">換裝 🔄 (已擁有)</button>`;
+      } else {
+        btnHtml = `<button class="ware-buy-btn">購買 🛍️</button>`;
+      }
+
       const card = document.createElement('div');
       card.className = 'ware-card';
       card.innerHTML = `
@@ -197,11 +224,9 @@ export class TownShopModal {
         <div class="ware-info">
           <div class="ware-name">${item.name}</div>
           <div class="ware-desc">${item.desc}</div>
-          <div class="ware-price">🪙 ${item.price} 金幣</div>
+          <div class="ware-price">${isOwned ? '<span style="color:#27ae60; font-weight:bold;">已永久擁有</span>' : `🪙 ${item.price} 金幣`}</div>
         </div>
-        <button class="ware-buy-btn" ${isEquipped ? 'disabled' : ''}>
-          ${isEquipped ? '已裝備 ✓' : '購買 🛍️'}
-        </button>
+        ${btnHtml}
       `;
 
       card.querySelector('.ware-buy-btn').addEventListener('click', () => {

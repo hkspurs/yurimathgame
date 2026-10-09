@@ -90,26 +90,77 @@ export class InventoryModal {
       }
     }
 
-    // 3. Equipment
+    // 3. Equipment & Owned Gear
     if (this.gearEl) {
       const gear = snap.equipment;
       const slots = [
-        { icon: '🧙‍♂️', slot: '帽子 (Hat)', item: gear.hat?.name || '無' },
-        { icon: '🥋', slot: '法袍 (Outfit)', item: gear.outfit?.name || '無' },
-        { icon: '🪄', slot: '魔杖 (Wand)', item: gear.wand?.name || '無' },
-        { icon: '👢', slot: '靴子 (Boots)', item: gear.boots?.name || '無' },
-        { icon: '📿', slot: '遺物護符 (Relic)', item: gear.relic?.name || '無' }
+        { icon: '🧙‍♂️', slotKey: 'hat', slot: '帽子 (Hat)', item: gear.hat?.name || '無' },
+        { icon: '🥋', slotKey: 'outfit', slot: '法袍 (Outfit)', item: gear.outfit?.name || '無' },
+        { icon: '🪄', slotKey: 'wand', slot: '魔杖 (Wand)', item: gear.wand?.name || '無' },
+        { icon: '👢', slotKey: 'boots', slot: '靴子 (Boots)', item: gear.boots?.name || '無' },
+        { icon: '📿', slotKey: 'relic', slot: '遺物護符 (Relic)', item: gear.relic?.name || '無' }
       ];
 
-      this.gearEl.innerHTML = slots.map(s => `
-        <div class="gear-slot">
-          <div class="gear-slot-icon">${s.icon}</div>
-          <div>
-            <div class="gear-slot-title">${s.slot}</div>
-            <div class="gear-slot-val">${s.item}</div>
+      const equippedHtml = `
+        <div style="margin-bottom: 12px;">
+          <h4 style="font-size: 12.5px; color: #5d4037; margin: 0 0 8px 0; font-weight: bold;">🛡️ 當前全身穿戴 (Current Loadout)</h4>
+          <div class="gear-pedestals">
+            ${slots.map(s => `
+              <div class="gear-slot">
+                <div class="gear-slot-icon">${s.icon}</div>
+                <div>
+                  <div class="gear-slot-title">${s.slot}</div>
+                  <div class="gear-slot-val">${s.item}</div>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
-      `).join('');
+      `;
+
+      const ownedItems = snap.ownedEquipment || [];
+      const ownedHtml = `
+        <div style="margin-top: 14px;">
+          <h4 style="font-size: 12.5px; color: #5d4037; margin: 0 0 8px 0; font-weight: bold;">📦 已擁有裝備行囊 (Owned Gear Storage - ${ownedItems.length} 件)</h4>
+          <div class="owned-gear-grid">
+            ${ownedItems.map(item => {
+              const itemSlot = item.slot || (item.cat ? { wands: 'wand', hats: 'hat', outfits: 'outfit', boots: 'boots' }[item.cat] : null);
+              const isEquipped = itemSlot && gear[itemSlot]?.name === item.name;
+              const bonusText = item.power ? `⚡ 威力 +${item.power}` : (item.hearts ? `❤️ 生命 +${item.hearts}` : '');
+
+              return `
+                <div class="owned-gear-card ${isEquipped ? 'is-equipped' : ''}">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <strong style="font-size: 12px; color: #2f3542;">${item.name}</strong>
+                      ${isEquipped ? '<span style="font-size: 10px; background: #2ed573; color: #fff; padding: 1px 6px; border-radius: 8px; font-weight: bold;">穿戴中</span>' : ''}
+                    </div>
+                    ${bonusText ? `<div style="font-size: 11px; color: #e67e22; margin-top: 2px;">${bonusText}</div>` : ''}
+                  </div>
+                  <button class="btn-equip-gear" data-item-id="${item.id || item.name}" ${isEquipped ? 'disabled' : ''}>
+                    ${isEquipped ? '✓ 已穿戴' : '換裝 🔄'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      this.gearEl.innerHTML = equippedHtml + ownedHtml;
+
+      // Bind equip buttons
+      const equipBtns = this.gearEl.querySelectorAll('.btn-equip-gear:not([disabled])');
+      equipBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.itemId;
+          const targetItem = ownedItems.find(i => (i.id && i.id === id) || i.name === id);
+          if (targetItem) {
+            this.gameState.equipItem(targetItem);
+            this.render();
+          }
+        });
+      });
     }
   }
 }

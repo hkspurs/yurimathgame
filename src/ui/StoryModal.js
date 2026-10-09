@@ -190,7 +190,8 @@ export class StoryModal {
 
     if (this.btnWearWand) {
       this.btnWearWand.addEventListener('click', () => {
-        this.gameState.equipment.wand = { id: 'wand_training', name: '訓練魔杖 (Training Wand)', powerBonus: 12 };
+        const wandItem = { id: 'wand_training', name: 'Training Wand (訓練魔杖)', power: 12, slot: 'wand' };
+        this.gameState.equipItem(wandItem);
         if (!this.gameState.unlockedSpells.includes('starbit')) {
           this.gameState.unlockedSpells.push('starbit');
         }
