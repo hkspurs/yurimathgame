@@ -44,6 +44,9 @@ class GameApp {
     this.eventBus = eventBus;
     window.eventBus = eventBus;
     window.QuestionGenerator = QuestionGenerator;
+    this.audioManager = audioManager;
+    window.audioManager = audioManager;
+    audioManager.init(this.gameState);
 
     // UI Controllers
     this.hud = new HUD(this.gameState);
@@ -915,6 +918,8 @@ class GameApp {
       this.worldScene.respawnAfterBattle(this.currentBattlingMonsterId);
     }
     this.currentBattlingMonsterId = null;
+    this.audioManager.playRealmBgm(this.gameState.currentRealm);
+    eventBus.emit('RETURNED_TO_WORLD');
   }
 
   setupMobileControls() {

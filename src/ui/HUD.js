@@ -58,6 +58,14 @@ export class HUD {
     if (titleEl && stats.name) {
       titleEl.textContent = stats.name;
     }
+    if (this.soundBtn && stats.soundEnabled !== undefined) {
+      const span = this.soundBtn.querySelector('span');
+      if (span) {
+        span.textContent = stats.soundEnabled ? '🔊' : '🔇';
+      } else {
+        this.soundBtn.textContent = stats.soundEnabled ? '🔊' : '🔇';
+      }
+    }
   }
 
   bindEvents() {
@@ -78,12 +86,12 @@ export class HUD {
         msg = payload;
       } else if (payload && typeof payload === 'object') {
         type = payload.type || 'info';
-        if (payload.message) {
-          msg = payload.message;
-        } else {
-          const parts = [payload.icon, payload.title, payload.text].filter(Boolean);
-          msg = parts.join(' ') || '';
-        }
+      }
+      if (payload?.message) {
+        msg = payload.message;
+      } else if (payload && typeof payload === 'object') {
+        const parts = [payload.icon, payload.title, payload.text].filter(Boolean);
+        msg = parts.join(' ') || '';
       }
       if (msg) {
         this.showToast(msg, type);
@@ -97,7 +105,12 @@ export class HUD {
     if (this.soundBtn) {
       this.soundBtn.addEventListener('click', () => {
         this.gameState.soundEnabled = !this.gameState.soundEnabled;
-        this.soundBtn.textContent = this.gameState.soundEnabled ? '🔊' : '🔇';
+        const icon = this.gameState.soundEnabled ? '🔊' : '🔇';
+        const span = this.soundBtn.querySelector('span');
+        if (span) span.textContent = icon;
+        else this.soundBtn.textContent = icon;
+        eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
+        this.showToast(this.gameState.soundEnabled ? '🔊 音樂與音效已開啟' : '🔇 遊戲已靜音', 'info');
       });
     }
   }
