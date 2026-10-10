@@ -35,8 +35,8 @@ export const REALM_MONSTER_POOLS = {
   ],
   'bonfire_spire': [
     ...SPIRE_AI,
-    { id: 'magmay', name: 'Magmay (熔岩巨獸)', sprite: './assets/sprites/magmay.png', balloonMsg: '🌋 黑曜石山道 • 點擊戰鬥！', isBoss: false },
-    { id: 'pyropup', name: 'Pyropup (火犬獸)', sprite: './assets/sprites/pyropup.png', balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false }
+    { id: 'magmay', name: 'Magmay (熔岩幼龍)', sprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/magmay.png'), balloonMsg: '🌋 黑曜石山道 • 點擊戰鬥！', isBoss: false },
+    { id: 'pyropup', name: 'Pyropup (烈焰柴犬)', sprite: getPetAssetUrl('pyropup', 'overworld', 'enemy', './assets/sprites/pyropup.png'), balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false }
   ],
   'shiverchill_mountains': [
     ...SHIVER_AI,
@@ -265,7 +265,7 @@ export class WorldScene {
       'bonfire_spire': {
         monsterId: 'magmay',
         monsterName: '熔岩獸 (Magmay)',
-        monsterSprite: './assets/sprites/magmay.png',
+        monsterSprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/magmay.png'),
         balloonMsg: '🌋 熔火黑曜石 • 點擊戰鬥！',
         skyTop: '#2f3542',
         skyBottom: '#1e272e',
