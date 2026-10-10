@@ -9,4 +9,6 @@ test_screenshots
 wai_*.png
 playtest_*.png
 *.png
-
+!public/assets/**
+__pycache__/
+playtest_portrait/

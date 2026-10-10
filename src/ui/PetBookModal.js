@@ -122,9 +122,10 @@ export class PetBookModal {
 
     filtered.forEach(monster => {
       const isOwned = ownedPetIds.has(monster.id);
-      const habitat = MONSTER_HABITATS[monster.id] || '神秘荒野';
+      const habitat = MONSTER_HABITATS[monster.id] || monster.habitat || '神秘荒野';
+      const familyBadge = monster.familyName ? ` • ${monster.familyName}` : '';
       const card = document.createElement('div');
-      card.className = `dex-card ${isOwned ? 'unlocked' : 'locked'}`;
+      card.className = `pet-dex-card dex-card ${isOwned ? 'unlocked' : 'locked'}`;
 
       if (isOwned) {
         const activeIds = snap.activePetIds || [snap.activePetId].filter(Boolean);
@@ -135,9 +136,9 @@ export class PetBookModal {
 
         card.innerHTML = `
           <div class="dex-avatar-wrap">
-            <img src="${monster.sprite}" alt="${monster.name}" class="dex-sprite-img">
+            <img src="${monster.sprite}" alt="${monster.name}" class="dex-sprite-img" loading="lazy">
           </div>
-          <div class="dex-badge element-badge-${monster.element}">${this.getElementLabel(monster.element)}</div>
+          <div class="dex-badge element-badge-${monster.element}">${this.getElementLabel(monster.element)}${familyBadge}</div>
           <h4 class="dex-pet-name">${monster.name}</h4>
           <div class="dex-stats-row">
             <span>❤️ 生命: ${monster.maxHp}</span>
@@ -184,9 +185,9 @@ export class PetBookModal {
         // Locked Silhouette
         card.innerHTML = `
           <div class="dex-avatar-wrap silhouette">
-            <img src="${monster.sprite}" alt="???" class="dex-sprite-img silhouette-img">
+            <img src="${monster.sprite}" alt="???" class="dex-sprite-img silhouette-img" loading="lazy">
           </div>
-          <div class="dex-badge locked-badge">🔒 未解鎖</div>
+          <div class="dex-badge locked-badge">🔒 未解鎖${familyBadge}</div>
           <h4 class="dex-pet-name locked-name">??? (暗影未淨化)</h4>
           <p class="dex-clue-text">📍 出沒地帶：<br><strong>${habitat}</strong></p>
           <div class="dex-hint-tag">在冒險戰鬥中將體力削弱至45%後使用【💖 Rescue】淨化</div>

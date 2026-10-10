@@ -1,4 +1,5 @@
 // CanonDatabase.js - Official Prodigy Math Game Canon Items, Monsters, and Shop Database
+import { PETS_500_DATABASE } from './PetDatabase500.js';
 
 export const CANON_ITEMS = {
   wands: [
@@ -32,7 +33,7 @@ export const CANON_ITEMS = {
 };
 
 // Canon Prodigy Monsters with exact official names and elemental affiliations
-export const CANON_MONSTERS = {
+export const BASE_CANON_MONSTERS = {
   // Firefly Forest
   hotpot: {
     id: 'hotpot',
@@ -495,6 +496,12 @@ export const CANON_MONSTERS = {
     skills: [{ name: 'Practice Sparks (練習火花)', power: 2, text: 'Theo Addiwise 揮動魔杖施展溫和的練習法術！' }],
     rewards: { xp: 50, gold: 30 }
   }
+};
+
+// Merged Canon Monsters + 500 Animal Family Star Pets
+export const CANON_MONSTERS = {
+  ...BASE_CANON_MONSTERS,
+  ...PETS_500_DATABASE
 };
 
 // Canon Prodigy Pet Evolutions (Stage 1 -> Stage 2 -> Stage 3)
