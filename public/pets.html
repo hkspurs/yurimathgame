@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini AI 比卡超風精靈圖鑑 (AI Pokemon Style Pets)</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #f1c40f;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    p.sub {
+      color: #8b949e;
+      margin-top: 0;
+      margin-bottom: 24px;
+      text-align: center;
+      max-width: 600px;
+    }
+    .back-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #58a6ff;
+    }
+    .avatar-wrap {
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .avatar-wrap img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .fire { background: #e74c3c; color: #fff; }
+    .water { background: #3498db; color: #fff; }
+    .earth { background: #2ecc71; color: #fff; }
+    .ice { background: #1abc9c; color: #fff; }
+    .storm { background: #f39c12; color: #fff; }
+    .name {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 4px 0;
+      color: #fff;
+    }
+    .feature {
+      color: #8b949e;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <h1>✨ Gemini AI 比卡超風精靈展示館</h1>
+  <p class="sub">擺脫 SVG 幾何感！採用比卡超 / 寶可夢生動手繪立體風格，具備專屬特色與自然屬性。</p>
+  <a href="index.html" class="back-btn">🎮 返回遊戲主程式</a>
+  <div class="grid">
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_fire_1.png" alt="BlazePup (烈火幼犬)">
+      </div>
+      <span class="badge fire">烈焰系</span>
+      <div class="name">BlazePup (烈火幼犬)</div>
+      <div class="feature">燃燒火焰之耳、明亮大眼、火尾與小肉爪</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_water_2.png" alt="TidalHound (浪花獵犬)">
+      </div>
+      <span class="badge water">水流系</span>
+      <div class="name">TidalHound (浪花獵犬)</div>
+      <div class="feature">湛藍水紋毛色、水滴垂耳、奔馳浪花旋渦尾</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_earth_3.png" alt="FloraCorgi (青苔柯基)">
+      </div>
+      <span class="badge earth">大地系</span>
+      <div class="name">FloraCorgi (青苔柯基)</div>
+      <div class="feature">短腿大葉耳、頭頂小嫩芽、青苔綠配色</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_ice_4.png" alt="FrostWolf (玄冰灰狼)">
+      </div>
+      <span class="badge ice">冰霜系</span>
+      <div class="name">FrostWolf (玄冰灰狼)</div>
+      <div class="feature">冰晶藍白絨毛、耳尖冰錐與晶透長尾</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_storm_5.png" alt="VoltPug (電光八哥)">
+      </div>
+      <span class="badge storm">風暴系</span>
+      <div class="name">VoltPug (電光八哥)</div>
+      <div class="feature">呆萌圓臉、臉頰比卡超式閃電斑紋、金色電弧卷尾</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_fire_6.png" alt="CinderHusky (熾熱哈士奇)">
+      </div>
+      <span class="badge fire">烈焰系</span>
+      <div class="name">CinderHusky (熾熱哈士奇)</div>
+      <div class="feature">哈士奇面譜配烈火雙色、熱情笑容</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_water_7.png" alt="AquaShiba (波紋柴犬)">
+      </div>
+      <span class="badge water">水流系</span>
+      <div class="name">AquaShiba (波紋柴犬)</div>
+      <div class="feature">微笑柴犬臉、水滴卷尾與水紋項圈</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_earth_8.png" alt="MossFox (繁花狐仙)">
+      </div>
+      <span class="badge earth">大地系</span>
+      <div class="name">MossFox (繁花狐仙)</div>
+      <div class="feature">伊貝/花仙子式大長耳、百花盛開巨尾</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_ice_9.png" alt="GlacioDingo (晶瑩野犬)">
+      </div>
+      <span class="badge ice">冰霜系</span>
+      <div class="name">GlacioDingo (晶瑩野犬)</div>
+      <div class="feature">矯健冰原犬、冰晶圍領與靈動姿態</div>
+    </div>
+
+    <div class="card">
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_storm_10.png" alt="ThunderSpaniel (雷暴獵犬)">
+      </div>
+      <span class="badge storm">風暴系</span>
+      <div class="name">ThunderSpaniel (雷暴獵犬)</div>
+      <div class="feature">長卷垂耳閃爍電光、胸口雷雲絨毛</div>
+    </div>
+
+  </div>
+</body>
+</html>
