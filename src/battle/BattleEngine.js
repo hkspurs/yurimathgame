@@ -163,6 +163,7 @@ export class BattleEngine {
         this.handleRescueSuccess();
       } else {
         eventBus.emit('BATTLE_LOG', `回答錯誤！拯救法陣失控，未能成功淨化！`);
+        this.handlePetSnatchedPenalty();
         setTimeout(() => this.nextTurn(), 1400);
       }
       return;
@@ -181,9 +182,37 @@ export class BattleEngine {
       const missSubject = attacker === 'pet' ? `🐾 ${this.activePet?.name || '精靈'}` : '巫師';
       eventBus.emit('BATTLE_LOG', `回答錯誤！【Miss!】${missSubject}的 ${spell.name} 魔法未能命中！`);
       eventBus.emit('BATTLE_SPELL_FIZZLE', { spell });
+      this.handlePetSnatchedPenalty();
       setTimeout(() => {
         this.nextTurn();
       }, 1500);
+    }
+  }
+
+  handlePetSnatchedPenalty() {
+    const petToSnatch = this.activePet || (this.activePets && this.activePets[0]);
+    if (petToSnatch) {
+      const snatchedName = petToSnatch.name;
+      const snatchedId = petToSnatch.id;
+
+      // Remove from GameState
+      this.gameState.removePet(snatchedId);
+
+      // Refresh battle active pets list
+      this.activePets = this.gameState.getActivePets ? this.gameState.getActivePets() : [];
+      this.activePet = this.activePets[0] || null;
+      this.activePetB = this.activePets[1] || null;
+
+      // Emit dramatic theatrical events
+      eventBus.emit('BATTLE_PET_SNATCHED', {
+        petId: snatchedId,
+        petName: snatchedName
+      });
+      eventBus.emit('BATTLE_LOG', `😱 答錯懲罰！Puppet Master 的暗影巨爪破空伸出，將【${snatchedName}】硬生生捉走擄回了暗影領域！`);
+      eventBus.emit('SHOW_TOAST', {
+        message: `⚠️ 答錯題目！手持精靈【${snatchedName}】已被暗影之爪捉走！需重新在野外淨化拯救！`,
+        type: 'danger'
+      });
     }
   }
 

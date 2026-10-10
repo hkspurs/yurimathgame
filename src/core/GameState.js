@@ -264,6 +264,29 @@ export class GameState {
     }
   }
 
+  removePet(petId) {
+    const idx = this.pets.findIndex(p => p.id === petId);
+    if (idx === -1) return null;
+    const removedPet = this.pets.splice(idx, 1)[0];
+
+    // Remove from active companion roster
+    this.activePetIds = (this.activePetIds || []).filter(id => id !== petId);
+    if (this.activePetId === petId) {
+      this.activePetId = this.activePetIds[0] || (this.pets[0]?.id || null);
+    }
+    // If activePetIds is empty but other pets exist, default to first remaining pet
+    if (this.activePetIds.length === 0 && this.pets.length > 0) {
+      this.activePetIds = [this.pets[0].id];
+      this.activePetId = this.pets[0].id;
+    }
+
+    if (typeof this.save === 'function') {
+      this.save();
+    }
+    eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
+    return removedPet;
+  }
+
   getActivePet() {
     return this.pets.find(p => p.id === this.activePetId) || this.pets[0] || null;
   }

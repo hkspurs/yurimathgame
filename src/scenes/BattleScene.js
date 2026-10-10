@@ -39,6 +39,10 @@ export class BattleScene {
     this.petMaxHp = 0;
     this.petIsFainted = false;
 
+    // Puppet Master shadow hand snatch animation timer
+    this.snatchedAnimTimer = 0;
+    this.snatchedPetName = '';
+
     this.bindEvents();
   }
 
@@ -262,6 +266,38 @@ export class BattleScene {
         });
       }
     });
+
+    eventBus.on('BATTLE_PET_SNATCHED', ({ petId, petName }) => {
+      this.triggerPetSnatchedAnimation(petName);
+    });
+  }
+
+  triggerPetSnatchedAnimation(petName) {
+    this.screenShake = 18;
+    this.snatchedAnimTimer = 1.6;
+    this.snatchedPetName = petName;
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const isPortrait = w < 600 || w / h < 1.0;
+    const petX = isPortrait ? w * 0.36 : w * 0.32;
+    const petY = isPortrait ? h * 0.58 : h * 0.50;
+
+    for (let i = 0; i < 30; i++) {
+      this.particles.push({
+        x: petX + (Math.random() - 0.5) * 50,
+        y: petY + (Math.random() - 0.5) * 35,
+        vx: (Math.random() - 0.5) * 110,
+        vy: -Math.random() * 150 - 40,
+        radius: Math.random() * 8 + 4,
+        color: ['#2c003e', '#511281', '#8854d0', '#2d3436', '#eb3b5a'][Math.floor(Math.random() * 5)],
+        alpha: 1
+      });
+    }
+
+    // Immediately remove primary companion visual so it's visibly gone from the field
+    this.activePet = null;
+    this.petHp = 0;
+    this.petMaxHp = 0;
   }
 
   spawnSpellProjectile(startX, startY, targetX, targetY, onHit) {
@@ -345,6 +381,11 @@ export class BattleScene {
       d.alpha -= dt * 0.85;
     });
     this.damageTexts = this.damageTexts.filter(d => d.alpha > 0);
+
+    // Update Snatched Pet Animation Timer
+    if (this.snatchedAnimTimer > 0) {
+      this.snatchedAnimTimer = Math.max(0, this.snatchedAnimTimer - dt);
+    }
   }
 
   render() {
@@ -558,6 +599,37 @@ export class BattleScene {
       ctx.fill();
     });
     ctx.globalAlpha = 1;
+
+    // 8.5 Puppet Master Shadow Claw Snatch FX
+    if (this.snatchedAnimTimer > 0) {
+      const progress = Math.max(0, this.snatchedAnimTimer / 1.6);
+      const clawY = groundY - 120 + (1 - progress) * 50;
+      const clawX = isPortrait ? w * 0.36 : w * 0.32;
+
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const glow = ctx.createRadialGradient(clawX, clawY, 10, clawX, clawY, 80);
+      glow.addColorStop(0, 'rgba(81, 18, 129, 0.85)');
+      glow.addColorStop(0.6, 'rgba(44, 0, 62, 0.5)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(clawX, clawY, 80, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = '54px sans-serif';
+      ctx.shadowColor = '#511281';
+      ctx.shadowBlur = 22;
+      ctx.fillText('🖐️', clawX, clawY);
+
+      ctx.font = 'bold 15px ProdigySans, sans-serif';
+      ctx.fillStyle = '#ff4757';
+      ctx.shadowColor = '#000000';
+      ctx.shadowBlur = 8;
+      ctx.fillText(`😱【${this.snatchedPetName}】被暗影抓走！`, clawX, clawY - 45);
+      ctx.restore();
+    }
 
     // 9. Diegetic RPG Battle Plates
     // In portrait mode, place plates neatly in the top quarter under HUD (y=78)

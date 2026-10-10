@@ -62,11 +62,52 @@ export const REALM_MONSTER_POOLS = {
   ]
 };
 
+export const REALM_ADJACENCY = {
+  'firefly_forest': {
+    north: 'shiverchill_mountains',
+    south: 'shipwreck_shore',
+    east: 'bonfire_spire',
+    west: 'skywatch'
+  },
+  'shipwreck_shore': {
+    north: 'firefly_forest',
+    south: 'bonfire_spire',
+    east: 'bonfire_spire',
+    west: 'skywatch'
+  },
+  'bonfire_spire': {
+    north: 'shiverchill_mountains',
+    south: 'shipwreck_shore',
+    east: 'skywatch',
+    west: 'firefly_forest'
+  },
+  'shiverchill_mountains': {
+    north: 'skywatch',
+    south: 'firefly_forest',
+    east: 'bonfire_spire',
+    west: 'skywatch'
+  },
+  'skywatch': {
+    north: 'shiverchill_mountains',
+    south: 'shipwreck_shore',
+    east: 'firefly_forest',
+    west: 'bonfire_spire'
+  }
+};
+
 export class WorldScene {
   constructor(canvas, gameState = null) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.gameState = gameState;
+
+    // 5-minute spot respawn cooldown tracking: { [realm_slot]: { slotIndex, realm, respawnTimer } }
+    this.zoneCooldowns = {};
+
+    // Seamless border transition states
+    this.isTransitioningRealm = false;
+    this.realmTransitionCooldown = 0;
+    this.fadeAlpha = 0;
 
     // World Dimensions & Dynamic Viewport Camera
     this.worldWidth = 1400;
@@ -202,7 +243,7 @@ export class WorldScene {
     }
   }
 
-  loadRealm(realmId) {
+  loadRealm(realmId, spawnX = 700, spawnY = 800) {
     this.currentRealm = realmId || 'firefly_forest';
     const realmConfigs = {
       'firefly_forest': {
@@ -357,18 +398,26 @@ export class WorldScene {
     };
     m3.img.src = monster3Def.sprite;
 
-    this.roamingMonsters = [m1, m2, m3];
+    // Check if any slot is currently on a 5-minute respawn cooldown
+    const cd0 = this.zoneCooldowns?.[`${this.currentRealm}_slot_0`]?.respawnTimer > 0;
+    const cd1 = this.zoneCooldowns?.[`${this.currentRealm}_slot_1`]?.respawnTimer > 0;
+    const cd2 = this.zoneCooldowns?.[`${this.currentRealm}_slot_2`]?.respawnTimer > 0;
+    this.roamingMonsters = [cd0 ? null : m1, cd1 ? null : m2, cd2 ? null : m3];
+
     this.monsterImg.src = m1.img.src;
     this.isEncountering = false;
     this.encounterCooldown = 0;
 
-    // Reset player position to Central Crossroads
-    this.player.x = 700;
-    this.player.y = 800;
+    // Position player and follower companions at designated spawn coordinates
+    this.player.x = spawnX;
+    this.player.y = spawnY;
     this.player.targetX = null;
     this.player.targetY = null;
-    this.followerPet.x = 660;
-    this.followerPet.y = 820;
+    this.player.isMoving = false;
+    this.followerPet.x = spawnX - 35;
+    this.followerPet.y = spawnY + 20;
+    this.followerPetB.x = spawnX + 35;
+    this.followerPetB.y = spawnY + 20;
 
     // Center camera on player
     this.centerCameraOnPlayer(true);
@@ -616,6 +665,7 @@ export class WorldScene {
 
       // Click on monster (Checks all active roaming monsters in realm)
       for (const monster of this.roamingMonsters) {
+        if (!monster) continue;
         const distToMonster = Math.hypot(worldClickX - monster.x, worldClickY - monster.y);
         if (distToMonster < 75 && !this.isEncountering && this.encounterCooldown <= 0) {
           this.isEncountering = true;
@@ -686,8 +736,8 @@ export class WorldScene {
 
       // Tap to move in world space
       this.isDraggingMove = true;
-      this.player.targetX = Math.max(60, Math.min(this.worldWidth - 60, worldClickX));
-      this.player.targetY = Math.max(90, Math.min(this.worldHeight - 70, worldClickY));
+      this.player.targetX = Math.max(25, Math.min(this.worldWidth - 25, worldClickX));
+      this.player.targetY = Math.max(25, Math.min(this.worldHeight - 25, worldClickY));
       this.tapIndicator = {
         x: this.player.targetX,
         y: this.player.targetY,
@@ -706,8 +756,8 @@ export class WorldScene {
       const worldClickX = (e.clientX - rect.left) * scaleX + this.camera.x;
       const worldClickY = (e.clientY - rect.top) * scaleY + this.camera.y;
 
-      this.player.targetX = Math.max(60, Math.min(this.worldWidth - 60, worldClickX));
-      this.player.targetY = Math.max(90, Math.min(this.worldHeight - 70, worldClickY));
+      this.player.targetX = Math.max(25, Math.min(this.worldWidth - 25, worldClickX));
+      this.player.targetY = Math.max(25, Math.min(this.worldHeight - 25, worldClickY));
     });
 
     const stopDrag = () => {
@@ -1016,8 +1066,8 @@ export class WorldScene {
 
       const stepX = dx * this.player.speed;
       const stepY = dy * this.player.speed;
-      const targetX = Math.max(60, Math.min(this.worldWidth - 60, this.player.x + stepX));
-      const targetY = Math.max(90, Math.min(this.worldHeight - 70, this.player.y + stepY));
+      const targetX = Math.max(25, Math.min(this.worldWidth - 25, this.player.x + stepX));
+      const targetY = Math.max(25, Math.min(this.worldHeight - 25, this.player.y + stepY));
 
       const obstacles = this.getObstacles();
       const isColliding = (px, py) => {
@@ -1053,8 +1103,68 @@ export class WorldScene {
     }
 
     // Universal boundary safety clamp
-    this.player.x = Math.max(60, Math.min(this.worldWidth - 60, this.player.x));
-    this.player.y = Math.max(90, Math.min(this.worldHeight - 70, this.player.y));
+    this.player.x = Math.max(25, Math.min(this.worldWidth - 25, this.player.x));
+    this.player.y = Math.max(25, Math.min(this.worldHeight - 25, this.player.y));
+
+    // Update border transition cooldown and check border crossing
+    if (this.realmTransitionCooldown > 0) {
+      this.realmTransitionCooldown -= dt;
+    } else if (!this.isTransitioningRealm && !this.isEncountering && window.gameApp?.currentScene === 'world') {
+      const adj = REALM_ADJACENCY[this.currentRealm] || REALM_ADJACENCY['firefly_forest'];
+
+      // North Border (y <= 48): avoid central Town Gate at (700, 80)
+      if (this.player.y <= 48 && Math.abs(this.player.x - 700) >= 65) {
+        if (adj.north) {
+          const spawnX = Math.max(90, Math.min(this.worldWidth - 90, this.player.x));
+          const spawnY = this.worldHeight - 120;
+          this.transitionToRealm(adj.north, spawnX, spawnY, '⬆️ 穿越北境邊界');
+        }
+      }
+      // South Border (y >= this.worldHeight - 48)
+      else if (this.player.y >= this.worldHeight - 48) {
+        if (adj.south) {
+          const spawnX = Math.max(90, Math.min(this.worldWidth - 90, this.player.x));
+          const spawnY = 120;
+          this.transitionToRealm(adj.south, spawnX, spawnY, '⬇️ 跨越南境邊界');
+        }
+      }
+      // West Border (x <= 48)
+      else if (this.player.x <= 48) {
+        if (adj.west) {
+          const spawnX = this.worldWidth - 120;
+          const spawnY = Math.max(100, Math.min(this.worldHeight - 100, this.player.y));
+          this.transitionToRealm(adj.west, spawnX, spawnY, '⬅️ 穿過西側峽谷');
+        }
+      }
+      // East Border (x >= this.worldWidth - 48)
+      else if (this.player.x >= this.worldWidth - 48) {
+        if (adj.east) {
+          const spawnX = 120;
+          const spawnY = Math.max(100, Math.min(this.worldHeight - 100, this.player.y));
+          this.transitionToRealm(adj.east, spawnX, spawnY, '➡️ 越過東側山徑');
+        }
+      }
+    }
+
+    // Update 5-minute spot respawn cooldown timers
+    if (this.zoneCooldowns) {
+      for (const [key, cd] of Object.entries(this.zoneCooldowns)) {
+        if (cd.respawnTimer > 0) {
+          cd.respawnTimer -= dt;
+          if (cd.respawnTimer <= 0) {
+            if (cd.realm === this.currentRealm && this.roamingMonsters[cd.slotIndex] === null) {
+              this.spawnMonsterForSlot(cd.slotIndex);
+            }
+            delete this.zoneCooldowns[key];
+          }
+        }
+      }
+    }
+
+    // Update Screen Fade Alpha
+    if (this.fadeAlpha > 0) {
+      this.fadeAlpha = Math.max(0, this.fadeAlpha - dt * 2.2);
+    }
 
     // Walking through North Lamplight Gate Archway at (700, 80)
     if (this.player.y <= 95 && Math.abs(this.player.x - 700) < 60) {
@@ -1100,6 +1210,7 @@ export class WorldScene {
 
     // Update all roaming monsters in the realm
     for (const monster of this.roamingMonsters) {
+      if (!monster) continue;
       monster.bobTimer += dt * 3.5;
 
       // Gentle ecological roaming around home area
@@ -1638,42 +1749,108 @@ export class WorldScene {
     // Headmaster Speech Balloon
     this.renderNpcBalloon(this.npcHeadmaster.x, this.npcHeadmaster.y - 42 + npcBob);
 
-    // 8. Roaming Monsters Shadow & Character (All active wild monsters)
-    for (const monster of this.roamingMonsters) {
-      const monsterBob = Math.sin(monster.bobTimer) * 5;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-      ctx.beginPath();
-      ctx.ellipse(monster.x, monster.y + 28, 26, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
+    // 8. Roaming Monsters Shadow & Character (All active wild monsters or Tranquil Nature spots)
+    const slotBasePositions = [
+      { x: 320, y: 380, name: '西北林地' },
+      { x: 1120, y: 820, name: '東境廢墟' },
+      { x: 780, y: 1380, name: '南境深谷' }
+    ];
 
-      // Monster flame trail particles
-      monster.flameParticles.forEach(f => {
-        ctx.fillStyle = `rgba(255, 118, 117, ${f.alpha})`;
+    for (let i = 0; i < this.roamingMonsters.length; i++) {
+      const monster = this.roamingMonsters[i];
+      if (monster) {
+        const monsterBob = Math.sin(monster.bobTimer) * 5;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
         ctx.beginPath();
-        ctx.arc(f.x, f.y + monsterBob, f.r, 0, Math.PI * 2);
+        ctx.ellipse(monster.x, monster.y + 28, 26, 10, 0, 0, Math.PI * 2);
         ctx.fill();
-      });
 
-      ctx.save();
-      ctx.imageSmoothingEnabled = false;
-      const mImg = monster.img || this.monsterImg;
-      ctx.drawImage(
-        mImg,
-        monster.x - monster.size / 2,
-        monster.y - monster.size / 2 + monsterBob,
-        monster.size,
-        monster.size
-      );
-      ctx.restore();
+        // Monster flame trail particles
+        monster.flameParticles.forEach(f => {
+          ctx.fillStyle = `rgba(255, 118, 117, ${f.alpha})`;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y + monsterBob, f.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
 
-      // Cute Monster Speech Balloon
-      this.renderMonsterBalloon(monster, monster.x, monster.y - 48 + monsterBob);
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        const mImg = monster.img || this.monsterImg;
+        ctx.drawImage(
+          mImg,
+          monster.x - monster.size / 2,
+          monster.y - monster.size / 2 + monsterBob,
+          monster.size,
+          monster.size
+        );
+        ctx.restore();
 
-      // Monster Alert (!) Bubble when triggered
-      if (monster.alert) {
-        this.renderMonsterAlertBubble(monster.x, monster.y - monster.size / 2 - 20 + monsterBob);
+        // Cute Monster Speech Balloon
+        this.renderMonsterBalloon(monster, monster.x, monster.y - 48 + monsterBob);
+
+        // Monster Alert (!) Bubble when triggered
+        if (monster.alert) {
+          this.renderMonsterAlertBubble(monster.x, monster.y - monster.size / 2 - 20 + monsterBob);
+        }
+      } else {
+        // Monster slot in 5-minute Tranquil Nature Cooldown
+        const cdKey = `${this.currentRealm}_slot_${i}`;
+        const cdInfo = this.zoneCooldowns?.[cdKey];
+        const remainingSec = cdInfo ? Math.max(0, Math.ceil(cdInfo.respawnTimer)) : 0;
+        const mins = Math.floor(remainingSec / 60);
+        const secs = String(remainingSec % 60).padStart(2, '0');
+        const pos = slotBasePositions[i] || { x: 500, y: 500 };
+
+        ctx.save();
+        // Soft sanctuary green clover aura
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.003);
+        const auraGrad = ctx.createRadialGradient(pos.x, pos.y, 10, pos.x, pos.y, 55);
+        auraGrad.addColorStop(0, `rgba(46, 213, 115, ${0.25 + pulse * 0.15})`);
+        auraGrad.addColorStop(0.7, `rgba(46, 213, 115, 0.08)`);
+        auraGrad.addColorStop(1, 'rgba(46, 213, 115, 0)');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 55, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tranquil flower ring
+        ctx.strokeStyle = `rgba(46, 213, 115, ${0.4 + pulse * 0.3})`;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 34, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Sanctuary emblem
+        ctx.font = '22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🌿', pos.x, pos.y - 4 + Math.sin(Date.now() * 0.002) * 2);
+
+        // Pill badge with cooldown
+        const badgeW = 120;
+        const badgeH = 22;
+        const badgeX = pos.x - badgeW / 2;
+        const badgeY = pos.y + 20;
+
+        ctx.fillStyle = 'rgba(12, 22, 16, 0.85)';
+        ctx.strokeStyle = '#2ed573';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect?.(badgeX, badgeY, badgeW, badgeH, 11);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#a8e6cf';
+        ctx.font = 'bold 10px ProdigySans, sans-serif';
+        ctx.fillText(`清幽寧靜 • ${mins}:${secs}`, pos.x, badgeY + badgeH / 2 + 0.5);
+        ctx.restore();
       }
     }
+
+    // 8.5 Seamless Realm Border Exit Portals / Directional Indicators in World Space
+    this.renderBorderPortals();
 
     // 9. Floating Golden Fireflies in World Space
     this.fireflies.forEach(p => {
@@ -1706,6 +1883,12 @@ export class WorldScene {
 
     // 12. Diegetic World Guide Ribbon (Bottom Center)
     this.renderWorldGuideBanner(screenW, screenH);
+
+    // 13. Screen Transition Fade Overlay
+    if (this.fadeAlpha > 0) {
+      ctx.fillStyle = `rgba(6, 9, 14, ${this.fadeAlpha})`;
+      ctx.fillRect(0, 0, screenW, screenH);
+    }
   }
 
   renderTerrain(w, h) {
@@ -1874,6 +2057,7 @@ export class WorldScene {
     const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
 
     this.roamingMonsters.forEach(m => {
+      if (!m) return;
       // Calculate monster position in current screen viewport
       const screenX = m.x - this.camera.x;
       const screenY = m.y - this.camera.y;
@@ -2158,37 +2342,52 @@ export class WorldScene {
 
   respawnAfterBattle(lastFoughtMonsterId) {
     this.isEncountering = false;
-    this.encounterCooldown = 1.5; // 1.5s grace period so player isn't instantly re-trapped
+    this.encounterCooldown = 2.0; // 2s grace period
     
-    // Clear alert flags on all monsters
-    this.roamingMonsters.forEach(m => m.alert = false);
-
-    const pool = REALM_MONSTER_POOLS[this.currentRealm] || REALM_MONSTER_POOLS['firefly_forest'];
-    if (!pool || pool.length === 0) return;
+    // Clear alert flags on all active monsters
+    this.roamingMonsters.forEach(m => {
+      if (m) m.alert = false;
+    });
 
     // Find which monster slot was fought
-    let targetIndex = this.roamingMonsters.findIndex(m => m.id === lastFoughtMonsterId);
+    let targetIndex = this.roamingMonsters.findIndex(m => m && m.id === lastFoughtMonsterId);
     if (targetIndex === -1) {
-      // If a boss was fought (or external stage), refresh slot 0 or slot 1 safely if it was alerted
       targetIndex = 0;
     }
 
-    // Get the monster ID currently occupying the other slot to avoid having identical duplicates on screen
-    const otherSlotMonsterId = this.roamingMonsters[targetIndex === 0 ? 1 : 0]?.id;
+    // Set 5-minute (300 seconds) respawn cooldown on this spot!
+    const cooldownSeconds = 300;
+    this.zoneCooldowns = this.zoneCooldowns || {};
+    const cdKey = `${this.currentRealm}_slot_${targetIndex}`;
+    this.zoneCooldowns[cdKey] = {
+      slotIndex: targetIndex,
+      realm: this.currentRealm,
+      respawnTimer: cooldownSeconds
+    };
 
-    // Filter candidate wild monsters to ensure constant rotation and variety
-    const activeMonsterIds = this.roamingMonsters.map(m => m.id);
+    // Clear monster from this roaming slot so spot is tranquil
+    this.roamingMonsters[targetIndex] = null;
+
+    eventBus.emit('SHOW_TOAST', {
+      icon: '🌿',
+      title: '此地重歸寧靜',
+      text: `野外精靈已被收服/退散！此區域將保持寧靜 5 分鐘，可安心探索！`
+    });
+  }
+
+  spawnMonsterForSlot(targetIndex) {
+    const pool = REALM_MONSTER_POOLS[this.currentRealm] || REALM_MONSTER_POOLS['firefly_forest'];
+    if (!pool || pool.length === 0) return;
+
+    const activeMonsterIds = this.roamingMonsters.filter(Boolean).map(m => m.id);
     const ownedPetIds = (this.gameState?.pets || []).map(p => p.id);
 
-    let candidates = pool.filter(p => p.id !== lastFoughtMonsterId && !activeMonsterIds.includes(p.id));
-    if (candidates.length === 0) {
-      candidates = pool.filter(p => p.id !== lastFoughtMonsterId);
-    }
+    let candidates = pool.filter(p => !activeMonsterIds.includes(p.id));
     if (candidates.length === 0) {
       candidates = pool;
     }
 
-    // Prioritize candidates not yet collected in player's Pet Book
+    // Prioritize uncollected pets
     const unownedCandidates = candidates.filter(p => !ownedPetIds.includes(p.id));
     const nextDef = unownedCandidates.length > 0 
       ? unownedCandidates[Math.floor(Math.random() * unownedCandidates.length)]
@@ -2221,11 +2420,129 @@ export class WorldScene {
 
     this.roamingMonsters[targetIndex] = newMonster;
 
-    // Trigger toast notifying player of newly appeared wild creature
     eventBus.emit('SHOW_TOAST', {
       icon: '🐾',
       title: '野生新物怪出沒！',
-      text: `${nextDef.name} 穿梭到了 ${this.getRealmDisplayName(this.currentRealm)}！`
+      text: `5 分鐘已過，野生【${nextDef.name}】重新遊蕩到了 ${this.getRealmDisplayName(this.currentRealm)}！`
+    });
+  }
+
+  transitionToRealm(targetRealm, spawnX, spawnY, dirText) {
+    if (this.isTransitioningRealm || this.realmTransitionCooldown > 0) return;
+    this.isTransitioningRealm = true;
+    this.realmTransitionCooldown = 2.0;
+
+    // Stop player movement
+    this.player.targetX = null;
+    this.player.targetY = null;
+    this.player.isMoving = false;
+    this.keys = {};
+
+    // Trigger visual fade transition
+    this.fadeAlpha = 1.0;
+
+    // Update GameState and emit REALM_CHANGED
+    if (this.gameState) {
+      this.gameState.currentRealm = targetRealm;
+      if (typeof this.gameState.save === 'function') {
+        this.gameState.save();
+      }
+    }
+    eventBus.emit('REALM_CHANGED', { realmId: targetRealm });
+
+    // Load new realm
+    this.loadRealm(targetRealm, spawnX, spawnY);
+
+    // Toast notification
+    const realmName = this.getRealmDisplayName(targetRealm);
+    eventBus.emit('SHOW_TOAST', {
+      icon: '🧭',
+      title: '無縫邊界探索',
+      text: `${dirText} • 抵達【${realmName}】！`
+    });
+
+    setTimeout(() => {
+      this.isTransitioningRealm = false;
+    }, 1200);
+  }
+
+  renderBorderPortals() {
+    const { ctx } = this;
+    const adj = REALM_ADJACENCY[this.currentRealm] || REALM_ADJACENCY['firefly_forest'];
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.004);
+
+    const portals = [
+      {
+        id: 'north',
+        target: adj.north,
+        x: 700,
+        y: 35,
+        arrow: '⬆️',
+        w: 160,
+        h: 28,
+        label: `北境 • ${this.getRealmDisplayName(adj.north)}`
+      },
+      {
+        id: 'south',
+        target: adj.south,
+        x: 700,
+        y: this.worldHeight - 35,
+        arrow: '⬇️',
+        w: 160,
+        h: 28,
+        label: `南境 • ${this.getRealmDisplayName(adj.south)}`
+      },
+      {
+        id: 'west',
+        target: adj.west,
+        x: 35,
+        y: 800,
+        arrow: '⬅️',
+        w: 160,
+        h: 28,
+        label: `西境 • ${this.getRealmDisplayName(adj.west)}`
+      },
+      {
+        id: 'east',
+        target: adj.east,
+        x: this.worldWidth - 35,
+        y: 800,
+        arrow: '➡️',
+        w: 160,
+        h: 28,
+        label: `東境 • ${this.getRealmDisplayName(adj.east)}`
+      }
+    ];
+
+    portals.forEach(p => {
+      if (!p.target) return;
+      ctx.save();
+      // Glowing aura
+      const auraGrad = ctx.createRadialGradient(p.x, p.y, 5, p.x, p.y, 45);
+      auraGrad.addColorStop(0, `rgba(241, 196, 15, ${0.3 + pulse * 0.2})`);
+      auraGrad.addColorStop(1, 'rgba(241, 196, 15, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Border pill banner
+      ctx.fillStyle = 'rgba(10, 15, 25, 0.82)';
+      ctx.strokeStyle = `rgba(241, 196, 15, ${0.6 + pulse * 0.4})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect?.(p.x - p.w / 2, p.y - p.h / 2, p.w, p.h, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      // Text label
+      ctx.fillStyle = '#fff9d2';
+      ctx.font = 'bold 11px ProdigySans, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${p.arrow} ${p.label}`, p.x, p.y + 0.5);
+
+      ctx.restore();
     });
   }
 

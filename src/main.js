@@ -536,6 +536,16 @@ class GameApp {
       });
     });
 
+    eventBus.on('BATTLE_PET_SNATCHED', ({ petId, petName }) => {
+      this.showBattleBanner({
+        type: 'fizzle',
+        icon: '🖐️',
+        main: 'PET SNATCHED!',
+        sub: `😱 Puppet Master 暗影之爪抓走了【${petName}】！`
+      });
+      this.renderBattleSpellButtons();
+    });
+
     eventBus.on('BATTLE_MONSTER_TURN', ({ monster }) => {
       this.showBattleBanner({
         type: 'opponent',
