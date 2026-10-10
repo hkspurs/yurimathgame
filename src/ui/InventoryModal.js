@@ -2,11 +2,11 @@
 import { eventBus } from '../core/EventBus.js';
 
 const KEYSTONE_DEFS = [
-  { id: 'earth', name: '大地神石 (Earth Keystone)', icon: '🌱' },
-  { id: 'water', name: '海洋神石 (Water Keystone)', icon: '💧' },
-  { id: 'fire', name: '烈焰神石 (Fire Keystone)', icon: '🔥' },
-  { id: 'ice', name: '冰霜神石 (Ice Keystone)', icon: '❄️' },
-  { id: 'storm', name: '風暴神石 (Storm Keystone)', icon: '⚡' }
+  { id: 'earth', name: '大地神石 (Earth Keystone)', sprite: './assets/sprites/keystone_earth.png', icon: '🌱' },
+  { id: 'water', name: '海洋神石 (Water Keystone)', sprite: './assets/sprites/keystone_water.png', icon: '💧' },
+  { id: 'fire', name: '烈焰神石 (Fire Keystone)', sprite: './assets/sprites/keystone_fire.png', icon: '🔥' },
+  { id: 'ice', name: '冰霜神石 (Ice Keystone)', sprite: './assets/sprites/keystone_ice.png', icon: '❄️' },
+  { id: 'storm', name: '風暴神石 (Storm Keystone)', sprite: './assets/sprites/keystone_storm.png', icon: '⚡' }
 ];
 
 export class InventoryModal {
@@ -49,8 +49,8 @@ export class InventoryModal {
       this.keystonesEl.innerHTML = KEYSTONE_DEFS.map(k => {
         const has = snap.keystones.includes(k.id);
         return `
-          <div class="keystone-chip ${has ? 'obtained' : 'missing'}">
-            <span>${k.icon}</span>
+          <div class="keystone-chip ${has ? 'obtained' : 'missing'}" style="display:flex; align-items:center; gap:8px;">
+            <img src="${k.sprite}" style="width:26px; height:26px; object-fit:contain; filter: ${has ? 'drop-shadow(0 0 6px rgba(255,215,0,0.8))' : 'grayscale(100%) opacity(0.35)'};" alt="${k.name}" onerror="this.style.display='none'">
             <span>${k.name} ${has ? '✓' : '(未尋獲)'}</span>
           </div>
         `;

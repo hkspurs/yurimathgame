@@ -46,9 +46,21 @@ export class BattleScene {
     this.bindEvents();
   }
 
-  setCombatants(player, monster) {
+  setCombatants(player, monster, worldId = null) {
     this.player = player;
     this.monster = monster;
+    const worldBgMap = {
+      firefly_forest: './assets/backgrounds/battle_forest.png',
+      shipwreck_shore: './assets/backgrounds/battle_shipwreck.png',
+      shiverchill_mountain: './assets/backgrounds/battle_shiverchill.png',
+      bonfire_spire: './assets/backgrounds/battle_bonfire.png',
+      skywatch: './assets/backgrounds/battle_skywatch.png',
+      lamplight_town: './assets/backgrounds/town_lamplight.png'
+    };
+    const targetWorld = worldId || monster?.worldId || player?.currentWorld || 'firefly_forest';
+    if (worldBgMap[targetWorld]) {
+      this.bgImg.src = worldBgMap[targetWorld];
+    }
     if (player && player.avatarSprite) {
       this.playerImg.src = player.avatarSprite;
     }

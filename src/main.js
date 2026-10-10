@@ -17,6 +17,7 @@ import { TownShopModal } from './ui/TownShopModal.js';
 import { StoryModal } from './ui/StoryModal.js';
 import { CharacterCreatorModal } from './ui/CharacterCreatorModal.js';
 import { PetBookModal } from './ui/PetBookModal.js';
+import { resolvePetRewardRows, rewardNoticeState } from './ui/RewardRows.js';
 import { SchoolOrHomeModal } from './ui/SchoolOrHomeModal.js';
 import { PetEvolutionModal } from './ui/PetEvolutionModal.js';
 import { TapToLoginModal } from './ui/TapToLoginModal.js';
@@ -98,6 +99,8 @@ class GameApp {
     this.rewardPetSlotEl = document.getElementById('reward-pet-slot');
     this.rewardPetXpEl = document.getElementById('reward-pet-xp');
     this.rewardPetLvlupBannerEl = document.getElementById('reward-pet-lvlup-banner');
+    this.rewardPetRowsEl = document.getElementById('reward-pet-rows');
+    this.rewardNewPetNoticeEl = document.getElementById('reward-newpet-notice');
     this.mobileControlsEl = document.getElementById('mobile-controls');
 
     // Battle Announcement Banner
@@ -442,27 +445,14 @@ class GameApp {
       this.rewardXpEl.textContent = `+${rewards.xp} XP`;
       this.rewardGoldEl.textContent = `+${rewards.gold} 金幣`;
 
-      if (rewards.activePet && this.rewardPetXpEl) {
-        if (this.rewardPetSlotEl) this.rewardPetSlotEl.classList.remove('hidden');
-        this.rewardPetXpEl.textContent = `+${rewards.petXp || rewards.xp} ${rewards.activePet.name.split(' ')[0]} XP`;
-      } else if (this.rewardPetSlotEl) {
-        this.rewardPetSlotEl.classList.add('hidden');
-      }
-
-      if (this.rewardPetLvlupBannerEl) {
-        if (rewards.petLeveledUp && rewards.activePet) {
-          this.rewardPetLvlupBannerEl.textContent = `🎉 守護精靈 ${rewards.activePet.name} 升級至 LV. ${rewards.activePet.level}！(Max HP +15, 攻擊 +3)`;
-          this.rewardPetLvlupBannerEl.classList.remove('hidden');
-        } else {
-          this.rewardPetLvlupBannerEl.classList.add('hidden');
-        }
-      }
+      const victoryRows = this.renderPetRewardRows(rewards);
+      this.setRewardNotices(rewardNoticeState({ rows: victoryRows }));
 
       this.rewardModalEl.classList.remove('hidden');
     });
 
     // Battle Rescue Victory
-    eventBus.on('BATTLE_RESCUE_VICTORY', ({ monster, rewards }) => {
+    eventBus.on('BATTLE_RESCUE_VICTORY', ({ monster, rewards, isNewPet }) => {
       if (this.currentStageId) {
         this.gameState.recordStageClear(this.currentStageId, 3);
       }
@@ -474,24 +464,14 @@ class GameApp {
       this.rewardXpEl.textContent = `+${rewards.xp} XP ${bonusStr}`;
       this.rewardGoldEl.textContent = `+${rewards.gold} 金幣`;
 
-      if (rewards.activePet && this.rewardPetXpEl) {
-        if (this.rewardPetSlotEl) this.rewardPetSlotEl.classList.remove('hidden');
-        this.rewardPetXpEl.textContent = `+${rewards.petXp || rewards.xp} ${rewards.activePet.name.split(' ')[0]} XP`;
-      } else if (this.rewardPetSlotEl) {
-        this.rewardPetSlotEl.classList.add('hidden');
-      }
-
-      if (this.rewardPetLvlupBannerEl) {
-        if (rewards.petLeveledUp && rewards.activePet) {
-          this.rewardPetLvlupBannerEl.textContent = `🎉 守護精靈 ${rewards.activePet.name} 升級至 LV. ${rewards.activePet.level}！(Max HP +15, 攻擊 +3)`;
-          this.rewardPetLvlupBannerEl.classList.remove('hidden');
-        } else if (rewards.isNewPet) {
-          this.rewardPetLvlupBannerEl.textContent = `🌟 【新夥伴入隊】${monster.name} 已成功解鎖登錄至精靈圖鑑！`;
-          this.rewardPetLvlupBannerEl.classList.remove('hidden');
-        } else {
-          this.rewardPetLvlupBannerEl.classList.add('hidden');
-        }
-      }
+      const rescueRows = this.renderPetRewardRows(rewards);
+      // The level-up banner and the new-companion notice are separate elements
+      // and coexist: a rescued new pet does not suppress companion level-ups.
+      this.setRewardNotices(rewardNoticeState({
+        rows: rescueRows,
+        isNewPet,
+        monsterName: monster ? monster.name : null
+      }));
 
       this.rewardModalEl.classList.remove('hidden');
     });
@@ -841,6 +821,72 @@ class GameApp {
     }
   }
 
+  // Per-companion reward rows (Dual Pets reward visibility). One compact row
+  // for every pet that actually earned this encounter's XP. When the row
+  // container renders, the legacy single pet slot is hidden; zero companions
+  // leaves the pet section empty/hidden.
+  renderPetRewardRows(rewards) {
+    const rowsEl = this.rewardPetRowsEl;
+    const rows = resolvePetRewardRows(rewards);
+    if (!rowsEl) {
+      // Defensive fallback when the row container is unavailable (older markup):
+      // keep the incumbent single-slot behavior.
+      if (rewards && rewards.activePet && this.rewardPetXpEl && this.rewardPetSlotEl) {
+        this.rewardPetSlotEl.classList.remove('hidden');
+        this.rewardPetXpEl.textContent = `+${rewards.petXp || rewards.xp} ${rewards.activePet.name.split(' ')[0]} XP`;
+      } else if (this.rewardPetSlotEl) {
+        this.rewardPetSlotEl.classList.add('hidden');
+      }
+      return rows;
+    }
+    rowsEl.innerHTML = '';
+    for (const row of rows) {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'reward-pet-row';
+      const img = document.createElement('img');
+      img.className = 'reward-pet-row-img';
+      img.src = row.sprite || '';
+      img.alt = row.petName || '';
+      const name = document.createElement('div');
+      name.className = 'reward-pet-row-name';
+      name.textContent = row.petName || row.petId || 'Pet';
+      const detail = document.createElement('div');
+      detail.className = 'reward-pet-row-detail';
+      detail.textContent = row.leveledUp
+        ? `+${row.gainedXp} XP · 升級至 LV.${row.level}`
+        : `+${row.gainedXp} XP · LV.${row.level}`;
+      if (row.canEvolve) detail.textContent += ' · 可進化！';
+      rowEl.appendChild(img);
+      rowEl.appendChild(name);
+      rowEl.appendChild(detail);
+      rowsEl.appendChild(rowEl);
+    }
+    if (this.rewardPetSlotEl) this.rewardPetSlotEl.classList.add('hidden');
+    return rows;
+  }
+
+  // Show/hide the level-up banner and the new-companion notice as one unit.
+  // Called by every reward render (victory and rescue) so neither element can
+  // retain a stale message — a normal victory clears any previous notice.
+  setRewardNotices({ levelBannerText, newPetNoticeText }) {
+    if (this.rewardPetLvlupBannerEl) {
+      if (levelBannerText) {
+        this.rewardPetLvlupBannerEl.textContent = levelBannerText;
+        this.rewardPetLvlupBannerEl.classList.remove('hidden');
+      } else {
+        this.rewardPetLvlupBannerEl.classList.add('hidden');
+      }
+    }
+    if (this.rewardNewPetNoticeEl) {
+      if (newPetNoticeText) {
+        this.rewardNewPetNoticeEl.textContent = newPetNoticeText;
+        this.rewardNewPetNoticeEl.classList.remove('hidden');
+      } else {
+        this.rewardNewPetNoticeEl.classList.add('hidden');
+      }
+    }
+  }
+
   showLevelUpModal({ level, maxHp }) {
     if (!this.levelUpModalEl) return;
     this.pendingLevelUpNumber = level;
@@ -949,7 +995,7 @@ class GameApp {
     });
 
     this.battleEngine = new BattleEngine(this.gameState, monsterDef);
-    this.battleScene.setCombatants(this.gameState.getSnapshot(), this.battleEngine.monster);
+    this.battleScene.setCombatants(this.gameState.getSnapshot(), this.battleEngine.monster, this.currentWorldId);
 
     this.renderBattleSpellButtons();
     this.battleEngine.start();

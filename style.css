@@ -1454,6 +1454,48 @@ html, body {
   font-size: 15px;
 }
 
+/* Per-companion reward rows (Dual Pets reward visibility) */
+.reward-pet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.reward-pet-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #efebe9;
+  border: 1.5px solid #d7ccc8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.reward-pet-row-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.reward-pet-row-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #4e342e;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reward-pet-row-detail {
+  font-size: 13px;
+  color: #5d4037;
+  flex: 0 0 auto;
+}
+
 .reward-pet-lvlup-banner {
   margin-top: 10px;
   padding: 6px 14px;
@@ -1465,6 +1507,22 @@ html, body {
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   box-shadow: 0 2px 8px rgba(241, 196, 15, 0.4);
+}
+
+/* New-companion notice (rescue path). Sits below the level-up banner so the
+   two coexist when a rescue both levels a companion and unlocks a new pet. */
+.reward-newpet-notice {
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: #fff8e1;
+  border: 1.5px solid #d7ccc8;
+  border-radius: 20px;
+  color: #4e342e;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ================= 7. STORY PROLOGUE & MENTOR DIALOGUE MODAL ================= */

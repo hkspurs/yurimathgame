@@ -12,6 +12,7 @@ export class BattleEngine {
     this.isPlayerTurn = true;
     this.isBusy = false;
     this.turnInProgress = false;
+    this.isFinished = false;
     this.pendingAction = null; // { type: 'spell' | 'rescue', spell?: object, attacker?: 'player' | 'pet' }
 
     // Initialize battle energy
@@ -36,6 +37,7 @@ export class BattleEngine {
     this.playerDamageTaken = 0;
 
     this.onMathCancelled = () => {
+      if (this.isFinished) return;
       this.isBusy = false;
       this.turnInProgress = false;
       this.pendingAction = null;
@@ -65,12 +67,12 @@ export class BattleEngine {
 
   canRescue() {
     // Canonical Prodigy rule: Realm Bosses guarding Warden Keystones cannot be captured / rescued
-    if (this.monster.isBoss) return false;
-    return this.monster.hp <= Math.floor(this.monster.maxHp * 0.45);
+    if (this.isFinished || this.monster.isBoss) return false;
+    return this.monster.hp > 0 && this.monster.hp <= Math.floor(this.monster.maxHp * 0.45);
   }
 
   selectSpell(spellId) {
-    if (!this.isPlayerTurn || this.isBusy || this.turnInProgress) return;
+    if (this.isFinished || !this.isPlayerTurn || this.isBusy || this.turnInProgress) return;
     const spell = SPELLS[spellId];
     if (!spell) return;
 
@@ -133,7 +135,7 @@ export class BattleEngine {
   }
 
   attemptRescue() {
-    if (!this.isPlayerTurn || this.isBusy || this.turnInProgress) return;
+    if (this.isFinished || !this.isPlayerTurn || this.isBusy || this.turnInProgress) return;
     if (this.monster.isBoss) {
       eventBus.emit('BATTLE_LOG', `⚠️ 區域首領怪獸受到暗影結界庇護，無法被淨化收服！必須擊敗它奪回神石！`);
       return;
@@ -154,7 +156,7 @@ export class BattleEngine {
   }
 
   handleMathResult(isCorrect) {
-    if (!this.pendingAction) return;
+    if (this.isFinished || !this.pendingAction) return;
     this.isBusy = true;
     this.turnInProgress = true;
 
@@ -360,7 +362,11 @@ export class BattleEngine {
   }
 
   handleRescueSuccess() {
-    this.isBusy = false;
+    if (this.isFinished) return;
+    this.isFinished = true;
+    this.isPlayerTurn = false;
+    this.pendingAction = null;
+    this.isBusy = true;
     this.turnInProgress = false;
     this.gameState.winStreak = (this.gameState.winStreak || 0) + 1;
     this.gameState.progressBounty('monster_rescue', 1);
@@ -376,19 +382,27 @@ export class BattleEngine {
     this.gameState.addGold(rescueGold);
 
     let petReward = null;
+    const petRewards = [];
     if (this.activePets && this.activePets.length) {
       this.activePets.forEach(pet => {
+        const prevLevel = pet.level || 1;
         const r = this.gameState.addPetXp(pet.id, finalXp);
         pet.hp = pet.maxHp;
         pet.isFainted = false;
         if (!petReward || r?.leveledUp) petReward = r;
+        if (r) petRewards.push(this.buildPetRewardEntry(r, prevLevel));
       });
     } else if (this.activePet) {
+      const prevLevel = this.activePet.level || 1;
       petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
+      if (petReward) petRewards.push(this.buildPetRewardEntry(petReward, prevLevel));
     }
 
+    // XP updates emit before the final companion is healed; publish the final
+    // squad state so auto-save retains every companion's restored HP.
+    eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
     const bonusMsg = bonusReasons.length > 0 ? ` [${bonusReasons.join(', ')}]` : '';
     eventBus.emit('BATTLE_LOG', `🎉 成功拯救！暗影魔力被淨化，${this.monster.name} 加入了你的寵物隊伍！獲得 +${finalXp} XP${bonusMsg}！`);
 
@@ -403,13 +417,30 @@ export class BattleEngine {
           petXp: finalXp,
           activePet: this.activePet,
           petLeveledUp: petReward?.leveledUp || false,
-          canEvolve: petReward?.canEvolve || false
+          canEvolve: petReward?.canEvolve || false,
+          petRewards
         }
       });
     }, 1000);
   }
 
+  // Per-recipient reward snapshot for the reward UI (Dual Pets visibility).
+  buildPetRewardEntry(r, prevLevel) {
+    return {
+      petId: r.pet.id,
+      petName: r.pet.name,
+      sprite: r.pet.sprite,
+      element: r.pet.element,
+      prevLevel,
+      gainedXp: r.gainedXp,
+      level: r.pet.level,
+      leveledUp: r.leveledUp,
+      canEvolve: r.canEvolve
+    };
+  }
+
   nextTurn() {
+    if (this.isFinished) return;
     this.isPlayerTurn = false;
     this.isBusy = true;
     this.turnInProgress = true;
@@ -518,7 +549,11 @@ export class BattleEngine {
   }
 
   handleVictory() {
-    this.isBusy = false;
+    if (this.isFinished) return;
+    this.isFinished = true;
+    this.isPlayerTurn = false;
+    this.pendingAction = null;
+    this.isBusy = true;
     this.turnInProgress = false;
     this.gameState.winStreak = (this.gameState.winStreak || 0) + 1;
     this.gameState.progressBounty('monster_defeat', 1);
@@ -530,19 +565,25 @@ export class BattleEngine {
     this.gameState.addGold(rawRewards.gold);
 
     let petReward = null;
+    const petRewards = [];
     if (this.activePets && this.activePets.length) {
       this.activePets.forEach(pet => {
+        const prevLevel = pet.level || 1;
         const r = this.gameState.addPetXp(pet.id, finalXp);
         pet.hp = pet.maxHp;
         pet.isFainted = false;
         if (!petReward || r?.leveledUp) petReward = r;
+        if (r) petRewards.push(this.buildPetRewardEntry(r, prevLevel));
       });
     } else if (this.activePet) {
+      const prevLevel = this.activePet.level || 1;
       petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
+      if (petReward) petRewards.push(this.buildPetRewardEntry(petReward, prevLevel));
     }
 
+    eventBus.emit('PLAYER_STATS_CHANGED', this.gameState.getSnapshot());
     eventBus.emit('BATTLE_VICTORY', {
       monster: this.monster,
       bonusReasons,
@@ -552,13 +593,18 @@ export class BattleEngine {
         petXp: finalXp,
         activePet: this.activePet,
         petLeveledUp: petReward?.leveledUp || false,
-        canEvolve: petReward?.canEvolve || false
+        canEvolve: petReward?.canEvolve || false,
+        petRewards
       }
     });
   }
 
   handleDefeat() {
-    this.isBusy = false;
+    if (this.isFinished) return;
+    this.isFinished = true;
+    this.isPlayerTurn = false;
+    this.pendingAction = null;
+    this.isBusy = true;
     this.turnInProgress = false;
     this.gameState.winStreak = 0; // Reset streak on loss
     this.gameState.revive();
@@ -570,7 +616,10 @@ export class BattleEngine {
   }
 
   flee() {
-    if (!this.isPlayerTurn || this.isBusy) return;
+    if (this.isFinished || !this.isPlayerTurn || this.isBusy) return;
+    this.isFinished = true;
+    this.isPlayerTurn = false;
+    this.pendingAction = null;
     this.isBusy = true;
     eventBus.emit('BATTLE_LOG', '🏃 你迅速施展煙霧法術，成功脫離了戰鬥！');
     setTimeout(() => {

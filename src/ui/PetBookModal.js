@@ -1,6 +1,17 @@
 // PetBookModal.js - Official Canon Prodigy 5-Element Pet Book (精靈圖鑑)
 import { eventBus } from '../core/EventBus.js';
 import { CANON_MONSTERS } from '../battle/CanonDatabase.js';
+import { getAcquisitionHint } from './PetAcquisition.js';
+
+// Escape hint copy before it is injected into card innerHTML (names come from
+// catalog data, but treat all text as untrusted).
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export const MONSTER_HABITATS = {
   // Fire
@@ -182,7 +193,9 @@ export class PetBookModal {
           });
         }
       } else {
-        // Locked Silhouette
+        // Locked Silhouette — acquisition hint derived from real metadata
+        // (isBoss flag, evolution predecessors, stage/pool encounters).
+        const hint = getAcquisitionHint(monster.id);
         card.innerHTML = `
           <div class="dex-avatar-wrap silhouette">
             <img src="${monster.sprite}" alt="???" class="dex-sprite-img silhouette-img" loading="lazy">
@@ -190,7 +203,7 @@ export class PetBookModal {
           <div class="dex-badge locked-badge">🔒 未解鎖${familyBadge}</div>
           <h4 class="dex-pet-name locked-name">??? (暗影未淨化)</h4>
           <p class="dex-clue-text">📍 出沒地帶：<br><strong>${habitat}</strong></p>
-          <div class="dex-hint-tag">在冒險戰鬥中將體力削弱至45%後使用【💖 Rescue】淨化</div>
+          <div class="dex-hint-tag">${escapeHtml(hint.text)}</div>
         `;
       }
 

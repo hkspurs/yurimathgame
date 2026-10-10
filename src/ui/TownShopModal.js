@@ -218,6 +218,22 @@ export class TownShopModal {
       ...CANON_ITEMS.potions.map(i => ({ ...i, cat: 'potions', icon: '🧪' }))
     ];
 
+    const spriteMap = {
+      potion_health: './assets/icons/01_health_potion_red.png',
+      potion_xp: './assets/icons/03_mystic_elixir_purple.png',
+      pet_treat: './assets/icons/02_mana_potion_blue.png',
+      wand_ember: './assets/icons/02_wand_flame_jewel.png',
+      wand_tidal: './assets/icons/03_wand_frost_crystal.png',
+      wand_storm: './assets/icons/01_wand_wooden_star.png',
+      wand_titanium: './assets/icons/04_wand_nature_flower.png',
+      hat_scholar: './assets/icons/06_hat_bear_ears_apprentice.png',
+      hat_pyro: './assets/icons/05_hat_floppy_purple_star.png',
+      hat_frost: './assets/icons/07_hat_sleepy_pompom.png',
+      outfit_traveler: './assets/icons/11_robe_warm_knitted_poncho.png',
+      outfit_guardian: './assets/icons/10_robe_starry_night.png',
+      boots_winged: './assets/icons/14_boots_winged_floating.png'
+    };
+
     allShopItems.forEach(item => {
       const isEquipped = Object.values(this.gameState.equipment).some(e => e?.name === item.name || (e?.id && e.id === item.id));
       const isOwned = item.cat !== 'potions' && this.gameState.hasOwnedItem(item.id || item.name);
@@ -231,10 +247,15 @@ export class TownShopModal {
         btnHtml = `<button class="ware-buy-btn">購買 🛍️</button>`;
       }
 
+      const itemSprite = item.sprite || spriteMap[item.id];
+      const iconDisplay = itemSprite
+        ? `<div class="ware-icon" style="background:transparent;"><img src="${itemSprite}" style="width:38px; height:38px; object-fit:contain;" alt="${item.name}"></div>`
+        : `<div class="ware-icon">${item.icon}</div>`;
+
       const card = document.createElement('div');
       card.className = 'ware-card';
       card.innerHTML = `
-        <div class="ware-icon">${item.icon}</div>
+        ${iconDisplay}
         <div class="ware-info">
           <div class="ware-name">${item.name}</div>
           <div class="ware-desc">${item.desc}</div>
