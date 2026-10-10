@@ -93,15 +93,17 @@ const deduplicator = new QuestionDeduplicator(80);
 export class QuestionGenerator {
   static lastModuleIndex = -1;
 
-  static generate(grade = 1, realm = 'firefly_forest') {
+  static generate(grade = 1, realm = 'firefly_forest', level = 1) {
     const g = Number(grade) || 1;
+    const playerLevel = Math.max(1, Number(level) || 1);
+
     if (g !== 1) {
-      return this.generateHigherGrades(g);
+      return this.generateHigherGrades(g, playerLevel);
     }
 
     // Try up to 45 times to ensure complete uniqueness from recent memory
     for (let attempt = 0; attempt < 45; attempt++) {
-      const q = this.generateGrade1Internal(realm);
+      const q = this.generateGrade1Internal(realm, playerLevel);
       const cleanPrompt = q.prompt.replace(/\s+/g, ' ').trim();
       const sig = `${q.topic}::${q.correctAnswer}::${cleanPrompt.slice(0, 35)}`;
       if (!deduplicator.isDuplicate(sig, q.prompt)) {
@@ -111,7 +113,7 @@ export class QuestionGenerator {
     }
 
     // Fallback if saturated
-    const fallback = this.generateGrade1Internal(realm);
+    const fallback = this.generateGrade1Internal(realm, playerLevel);
     deduplicator.record(`fallback::${fallback.correctAnswer}`, fallback.prompt);
     return fallback;
   }
@@ -231,33 +233,48 @@ export class QuestionGenerator {
 
   // --- Grade 1 Authentic Curriculum Modules ---
 
-  static generateGrade1Internal(realm) {
+  static generateGrade1Internal(realm, playerLevel = 1) {
     // 12 Authentic Units from 躍思 & 新思維
-    const modules = [
-      () => this.genUnitCounting20(),       // 1. 20以內的數與數數
-      () => this.genUnitSequences(),        // 2. 順數與倒數規律 (9大題型)
-      () => this.genUnitParity(),           // 3. 奇數與偶數
-      () => this.genUnitComparison(),       // 4. 比較數量與相差
-      () => this.genUnitOrdinal(),          // 5. 排次序 (序數)
-      () => this.genUnitNumberBonds(),      // 6. 數的分解與合成 (2至18)
-      () => this.genUnitAdditionBasic(),    // 7. 基本加法
-      () => this.genUnitAdditionApplied(),  // 8. 加法的應用 (湊十法/交換律/情境)
-      () => this.genUnitSubtractionBasic(), // 9. 基本減法
-      () => this.genUnitSubtractionApplied(),// 10. 減法的應用 (還剩下/還有/連減)
-      () => this.genUnitZeroConcepts(),     // 11. 0的認識與加減運算
-      () => this.genUnit3DShapes()          // 12. 立體圖形性質 (滾動/堆疊)
+    const allModules = [
+      { fn: () => this.genUnitCounting20(), minLvl: 1, maxLvl: 3, weight: 3 },       // 0. 20以內的數與數數
+      { fn: () => this.genUnitSequences(), minLvl: 1, maxLvl: 6, weight: 2 },        // 1. 順數與倒數規律 (9大題型)
+      { fn: () => this.genUnitZeroConcepts(), minLvl: 1, maxLvl: 4, weight: 2 },     // 2. 0的認識與加減運算
+      { fn: () => this.genUnitParity(), minLvl: 2, maxLvl: 8, weight: 2 },           // 3. 奇數與偶數
+      { fn: () => this.genUnitOrdinal(), minLvl: 2, maxLvl: 6, weight: 2 },          // 4. 排次序 (序數)
+      { fn: () => this.genUnit3DShapes(), minLvl: 2, maxLvl: 6, weight: 1 },         // 5. 立體圖形性質 (滾動/堆疊)
+      { fn: () => this.genUnitNumberBonds(), minLvl: 3, maxLvl: 10, weight: 3 },     // 6. 數的分解與合成 (2至18)
+      { fn: () => this.genUnitAdditionBasic(), minLvl: 3, maxLvl: 10, weight: 3 },   // 7. 基本加法
+      { fn: () => this.genUnitSubtractionBasic(), minLvl: 3, maxLvl: 10, weight: 3 },// 8. 基本減法
+      { fn: () => this.genUnitComparison(), minLvl: 4, maxLvl: 10, weight: 3 },      // 9. 比較數量與相差
+      { fn: () => this.genUnitAdditionApplied(), minLvl: 5, maxLvl: 10, weight: 4 }, // 10. 加法的應用 (湊十法/交換律/情境)
+      { fn: () => this.genUnitSubtractionApplied(), minLvl: 5, maxLvl: 10, weight: 4 }// 11. 減法的應用 (還剩下/還有/連減)
     ];
 
-    // Ensure module rotation so no unit repeats consecutively
-    let moduleIdx;
+    // Filter available modules tailored to current player level
+    const candidates = [];
+    allModules.forEach((m, idx) => {
+      // If player level matches module bracket, add with weighting
+      const isEligible = (playerLevel >= m.minLvl && (playerLevel <= m.maxLvl || playerLevel >= 7));
+      if (isEligible) {
+        // Boost weight if player level is in prime bracket
+        const w = (playerLevel >= m.minLvl && playerLevel <= m.maxLvl) ? m.weight * 2 : 1;
+        for (let i = 0; i < w; i++) {
+          candidates.push({ idx, fn: m.fn });
+        }
+      }
+    });
+
+    const pool = candidates.length > 0 ? candidates : allModules.map((m, idx) => ({ idx, fn: m.fn }));
+
+    let chosen;
     let attempts = 0;
     do {
-      moduleIdx = Math.floor(Math.random() * modules.length);
+      chosen = pool[Math.floor(Math.random() * pool.length)];
       attempts++;
-    } while (moduleIdx === this.lastModuleIndex && attempts < 10);
-    this.lastModuleIndex = moduleIdx;
+    } while (chosen.idx === this.lastModuleIndex && attempts < 10);
+    this.lastModuleIndex = chosen.idx;
 
-    return modules[moduleIdx].call(this);
+    return chosen.fn.call(this);
   }
 
   // Unit 1: 20以內的數與數數 (新思維 P2, 躍思 P2)

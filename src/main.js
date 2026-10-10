@@ -1001,13 +1001,17 @@ class GameApp {
 
   renderBattleSpellButtons() {
     this.spellGridEl.innerHTML = '';
-    const activePet = this.gameState.getActivePet();
+    const activePets = this.gameState.getActivePets ? this.gameState.getActivePets() : [this.gameState.getActivePet()].filter(Boolean);
     const spellList = [...this.gameState.unlockedSpells];
 
-    if (activePet) {
-      const petSpell = registerPetSpell(activePet);
-      if (petSpell) {
-        spellList.unshift(petSpell.id);
+    // Prepend pet skills in reverse order so Pet 1 is first, Pet 2 is second
+    for (let i = activePets.length - 1; i >= 0; i--) {
+      const p = activePets[i];
+      if (p) {
+        const petSpell = registerPetSpell(p);
+        if (petSpell && !spellList.includes(petSpell.id)) {
+          spellList.unshift(petSpell.id);
+        }
       }
     }
 
@@ -1017,7 +1021,8 @@ class GameApp {
 
       const isPet = !!spell.isPetSpell;
       const isPotion = spell.id === 'potion';
-      const isPetFainted = isPet && (this.battleEngine?.activePet?.isFainted || (this.battleEngine?.activePet?.hp !== undefined && this.battleEngine.activePet.hp <= 0));
+      const petObj = isPet && this.battleEngine?.activePets?.find(p => p.id === spell.petId);
+      const isPetFainted = isPet && (petObj ? (petObj.isFainted || petObj.hp <= 0) : (this.battleEngine?.activePet?.isFainted));
 
       let costBadge = 'FREE';
       if (isPet) {

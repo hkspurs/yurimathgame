@@ -122,13 +122,17 @@ export class PetBookModal {
 
     filtered.forEach(monster => {
       const isOwned = ownedPetIds.has(monster.id);
-      const isFollower = snap.activePetId === monster.id;
-      const habitat = MONSTER_HABITATS[monster.id] || '神秘未知海域';
-
+      const habitat = MONSTER_HABITATS[monster.id] || '神秘荒野';
       const card = document.createElement('div');
-      card.className = `pet-dex-card element-${monster.element} ${isOwned ? 'unlocked' : 'locked'}`;
+      card.className = `dex-card ${isOwned ? 'unlocked' : 'locked'}`;
 
       if (isOwned) {
+        const activeIds = snap.activePetIds || [snap.activePetId].filter(Boolean);
+        const isSlot1 = activeIds[0] === monster.id;
+        const isSlot2 = activeIds[1] === monster.id;
+        const isFollower = isSlot1 || isSlot2;
+        const followLabel = isSlot1 ? '🐾 1號夥伴' : (isSlot2 ? '🐾 2號夥伴' : '召喚同行');
+
         card.innerHTML = `
           <div class="dex-avatar-wrap">
             <img src="${monster.sprite}" alt="${monster.name}" class="dex-sprite-img">
@@ -145,7 +149,7 @@ export class PetBookModal {
           </div>
           <div class="dex-actions-row" style="display: flex; gap: 4px; margin-top: 6px;">
             <button class="channel-magic-btn btn-dex-follow ${isFollower ? 'active' : ''}" data-id="${monster.id}" style="flex: 1; padding: 4px 6px; font-size: 11px;">
-              ${isFollower ? '🐾 跟隨中' : '召喚跟隨'}
+              ${followLabel}
             </button>
             ${this.gameState.canEvolvePet(monster.id) ? `
               <button class="channel-magic-btn btn-dex-evolve" data-id="${monster.id}" style="background: linear-gradient(135deg, #e67e22, #f39c12); border-color: #d35400; flex: 1; padding: 4px 6px; font-size: 11px;">
@@ -158,7 +162,11 @@ export class PetBookModal {
         const btnFollow = card.querySelector('.btn-dex-follow');
         if (btnFollow) {
           btnFollow.addEventListener('click', () => {
-            this.gameState.setActivePet(monster.id);
+            if (this.gameState.toggleActivePet) {
+              this.gameState.toggleActivePet(monster.id);
+            } else {
+              this.gameState.setActivePet(monster.id);
+            }
             this.renderGrid();
           });
         }

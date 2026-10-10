@@ -71,12 +71,19 @@ export class WorldScene {
       dustParticles: []
     };
 
-    // Follower Pet companion behind wizard
+    // Follower Pet companion squad (Dual pets: Pet A on left, Pet B on right)
     this.followerPet = {
       x: 660,
       y: 820,
       size: 46,
       hopTimer: 0,
+      img: new Image()
+    };
+    this.followerPetB = {
+      x: 740,
+      y: 820,
+      size: 46,
+      hopTimer: Math.PI * 0.6,
       img: new Image()
     };
     this.petGoofyMode = null;
@@ -1191,21 +1198,34 @@ export class WorldScene {
     return this.gameState.pets.find(p => p.id === activeId) || this.gameState.pets[0] || null;
   }
 
-  updateFollowerPet(dt) {
-    const activePet = this.getActivePet();
-    if (!activePet) return;
+  getActivePets() {
+    if (!this.gameState || !this.gameState.pets) return [];
+    if (this.gameState.getActivePets) {
+      return this.gameState.getActivePets();
+    }
+    const activeId = this.gameState.activePetId || this.gameState.pets[0]?.id;
+    const p = this.gameState.pets.find(pet => pet.id === activeId) || this.gameState.pets[0];
+    return p ? [p] : [];
+  }
 
-    const spritePath = activePet.sprite || './assets/sprites/hotpot.png';
-    if (!this.followerPet.img.src || !this.followerPet.img.src.includes(spritePath.replace('./', ''))) {
-      this.followerPet.img.src = spritePath;
+  updateFollowerPet(dt) {
+    const activePets = this.getActivePets();
+    if (!activePets || !activePets.length) return;
+
+    const petA = activePets[0];
+    const petB = activePets[1] || null;
+
+    // --- Pet A (Left companion) ---
+    const spritePathA = petA.sprite || './assets/sprites/hotpot.png';
+    if (!this.followerPet.img.src || !this.followerPet.img.src.includes(spritePathA.replace('./', ''))) {
+      this.followerPet.img.src = spritePathA;
     }
 
-    // Goofy Pet Behaviors
+    // Goofy Pet Behaviors on Pet A
     if (this.petGoofyMode) {
       this.petGoofyTimer -= dt;
       if (this.petGoofyTimer <= 0) {
         if (this.petGoofyMode === 'ice') {
-          // Burst 12 snowflakes when ice thaws
           for (let i = 0; i < 12; i++) {
             const angle = Math.random() * Math.PI * 2;
             const spd = Math.random() * 3 + 1.5;
@@ -1222,7 +1242,6 @@ export class WorldScene {
         }
         this.petGoofyMode = null;
       } else if (this.petGoofyMode === 'chili') {
-        // High speed fire rocket orbit around wizard
         this.petGoofyAngle += dt * 7.5;
         this.followerPet.x = this.player.x + Math.cos(this.petGoofyAngle) * 58;
         this.followerPet.y = this.player.y + Math.sin(this.petGoofyAngle) * 45;
@@ -1238,30 +1257,41 @@ export class WorldScene {
             symbol: '🔥'
           });
         }
-        return;
       }
     }
 
-    let targetX = this.player.x;
-    let targetY = this.player.y;
+    let targetAX = this.player.x;
+    let targetAY = this.player.y;
+    let targetBX = this.player.x;
+    let targetBY = this.player.y;
 
     if (this.player.direction === 'left') {
-      targetX += 42;
-      targetY += 12;
+      targetAX += 42;
+      targetAY += 14;
+      targetBX += 68;
+      targetBY -= 12;
     } else if (this.player.direction === 'right') {
-      targetX -= 42;
-      targetY += 12;
+      targetAX -= 42;
+      targetAY += 14;
+      targetBX -= 68;
+      targetBY -= 12;
     } else if (this.player.direction === 'up') {
-      targetX += 26;
-      targetY += 38;
+      targetAX -= 32;
+      targetAY += 38;
+      targetBX += 32;
+      targetBY += 38;
     } else { // 'down'
-      targetX -= 28;
-      targetY -= 26;
+      targetAX -= 36;
+      targetAY -= 26;
+      targetBX += 36;
+      targetBY -= 26;
     }
 
     const lerpSpeed = this.player.isMoving ? 0.14 : 0.08;
-    this.followerPet.x += (targetX - this.followerPet.x) * lerpSpeed;
-    this.followerPet.y += (targetY - this.followerPet.y) * lerpSpeed;
+    if (!this.petGoofyMode || this.petGoofyMode !== 'chili') {
+      this.followerPet.x += (targetAX - this.followerPet.x) * lerpSpeed;
+      this.followerPet.y += (targetAY - this.followerPet.y) * lerpSpeed;
+    }
 
     this.followerPet.hopTimer += dt * (this.player.isMoving ? 12 : 3.5);
 
@@ -1270,95 +1300,41 @@ export class WorldScene {
     } else if (this.player.x < this.followerPet.x - 3) {
       this.followerPet.facing = 'left';
     }
+
+    // --- Pet B (Right companion, if equipped) ---
+    if (petB) {
+      const spritePathB = petB.sprite || './assets/sprites/squiddle.png';
+      if (!this.followerPetB.img.src || !this.followerPetB.img.src.includes(spritePathB.replace('./', ''))) {
+        this.followerPetB.img.src = spritePathB;
+      }
+
+      this.followerPetB.x += (targetBX - this.followerPetB.x) * (lerpSpeed * 0.92);
+      this.followerPetB.y += (targetBY - this.followerPetB.y) * (lerpSpeed * 0.92);
+      this.followerPetB.hopTimer += dt * (this.player.isMoving ? 11 : 3.2);
+
+      if (this.player.x > this.followerPetB.x + 3) {
+        this.followerPetB.facing = 'right';
+      } else if (this.player.x < this.followerPetB.x - 3) {
+        this.followerPetB.facing = 'left';
+      }
+    }
   }
 
   renderFollowerPet() {
-    const activePet = this.getActivePet();
-    if (!activePet) return;
+    const activePets = this.getActivePets();
+    if (!activePets || !activePets.length) return;
 
     const { ctx } = this;
-    let hopBob = Math.abs(Math.sin(this.followerPet.hopTimer)) * (this.player.isMoving ? 8 : 3.5);
-    let petRot = 0;
-    let scaleX = 1;
-    let scaleY = 1;
+    const petA = activePets[0];
+    const petB = activePets[1] || null;
 
-    if (this.petGoofyMode === 'bean') {
-      // Jumping bean spring bounce
-      hopBob = Math.abs(Math.sin(Date.now() * 0.008)) * 36;
-      scaleX = hopBob < 5 ? 1.3 : 0.85;
-      scaleY = hopBob < 5 ? 0.7 : 1.25;
-    } else if (this.petGoofyMode === 'tickle') {
-      // Tummy tickle roll
-      petRot = Math.sin(Date.now() * 0.012) * 0.75;
-      hopBob = 2;
+    // Render Pet A (Left)
+    this.renderSinglePet(this.followerPet, petA, '1號');
+
+    // Render Pet B (Right, if present)
+    if (petB && this.followerPetB) {
+      this.renderSinglePet(this.followerPetB, petB, '2號');
     }
-
-    // Follower shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
-    ctx.beginPath();
-    ctx.ellipse(this.followerPet.x, this.followerPet.y + 16, 16 * scaleX, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Follower sprite
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.translate(this.followerPet.x, this.followerPet.y - hopBob);
-    if (this.followerPet.facing === 'left') {
-      ctx.scale(-scaleX, scaleY);
-    } else {
-      ctx.scale(scaleX, scaleY);
-    }
-    if (petRot !== 0) {
-      ctx.rotate(petRot);
-    }
-
-    if (this.petGoofyMode === 'chili') {
-      ctx.filter = 'drop-shadow(0 0 10px #ff4757)';
-    }
-
-    ctx.drawImage(
-      this.followerPet.img,
-      -this.followerPet.size / 2,
-      -this.followerPet.size / 2,
-      this.followerPet.size,
-      this.followerPet.size
-    );
-    ctx.restore();
-
-    // Ice cube overlay if frozen
-    if (this.petGoofyMode === 'ice') {
-      ctx.save();
-      ctx.font = '36px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('🧊', this.followerPet.x, this.followerPet.y - hopBob);
-      ctx.restore();
-    }
-
-    // Cute Follower Pill Name Tag
-    ctx.save();
-    const shortName = (activePet.name || '夥伴').split(' ')[0];
-    ctx.font = 'bold 10px "ProdigySans", sans-serif';
-    const tagText = `🐾 ${shortName}`;
-    const textWidth = ctx.measureText(tagText).width;
-    const badgeW = Math.max(50, textWidth + 14);
-    const badgeH = 16;
-    const badgeX = this.followerPet.x - badgeW / 2;
-    const badgeY = this.followerPet.y - this.followerPet.size / 2 - hopBob - 18;
-
-    ctx.fillStyle = 'rgba(26, 18, 11, 0.78)';
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 8);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(241, 196, 15, 0.6)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.fillStyle = '#fffae6';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(tagText, this.followerPet.x, badgeY + badgeH / 2 + 0.5);
-    ctx.restore();
 
     // Render Floating Pet Hearts & Emojis
     this.petHearts.forEach(h => {
@@ -1370,6 +1346,82 @@ export class WorldScene {
       ctx.fillText(h.symbol, h.x, h.y);
       ctx.restore();
     });
+  }
+
+  renderSinglePet(followerObj, petData, slotLabel) {
+    const { ctx } = this;
+    let hopBob = Math.abs(Math.sin(followerObj.hopTimer)) * (this.player.isMoving ? 8 : 3.5);
+    let petRot = 0;
+    let scaleX = 1;
+    let scaleY = 1;
+
+    if (followerObj === this.followerPet && this.petGoofyMode === 'bean') {
+      hopBob = Math.abs(Math.sin(Date.now() * 0.008)) * 36;
+      scaleX = hopBob < 5 ? 1.3 : 0.85;
+      scaleY = hopBob < 5 ? 0.7 : 1.25;
+    } else if (followerObj === this.followerPet && this.petGoofyMode === 'tickle') {
+      petRot = Math.sin(Date.now() * 0.012) * 0.75;
+      hopBob = 2;
+    }
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(followerObj.x, followerObj.y + 16, 16 * scaleX, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sprite
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(followerObj.x, followerObj.y - hopBob);
+    if (followerObj.facing === 'left') {
+      ctx.scale(-scaleX, scaleY);
+    } else {
+      ctx.scale(scaleX, scaleY);
+    }
+    if (petRot !== 0) {
+      ctx.rotate(petRot);
+    }
+
+    if (followerObj === this.followerPet && this.petGoofyMode === 'chili') {
+      ctx.filter = 'drop-shadow(0 0 10px #ff4757)';
+    }
+
+    if (followerObj.img.complete && followerObj.img.naturalWidth > 0) {
+      ctx.drawImage(
+        followerObj.img,
+        -followerObj.size / 2,
+        -followerObj.size / 2,
+        followerObj.size,
+        followerObj.size
+      );
+    }
+    ctx.restore();
+
+    // Cute Pill Tag
+    ctx.save();
+    const shortName = (petData.name || '夥伴').split(' ')[0];
+    ctx.font = 'bold 9.5px "ProdigySans", sans-serif';
+    const tagText = `🐾 ${shortName}`;
+    const textWidth = ctx.measureText(tagText).width;
+    const badgeW = Math.max(46, textWidth + 12);
+    const badgeH = 15;
+    const badgeX = followerObj.x - badgeW / 2;
+    const badgeY = followerObj.y - followerObj.size / 2 - hopBob - 17;
+
+    ctx.fillStyle = 'rgba(26, 18, 11, 0.78)';
+    ctx.beginPath();
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 7);
+    ctx.fill();
+    ctx.strokeStyle = slotLabel === '1號' ? 'rgba(241, 196, 15, 0.7)' : 'rgba(46, 213, 115, 0.7)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#fffae6';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tagText, followerObj.x, badgeY + badgeH / 2 + 0.5);
+    ctx.restore();
   }
 
   renderRustlingBushes() {

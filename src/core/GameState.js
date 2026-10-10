@@ -37,7 +37,15 @@ export class GameState {
     this.petTreatsCount = initialData?.petTreatsCount || 1;
     this.winStreak = initialData?.winStreak || 0;
     this.pets = initialData?.pets || [];
-    this.activePetId = initialData?.activePetId || (this.pets[0]?.id || null);
+    // Support dual companion pet squad: activePetIds = [petId1, petId2]
+    if (initialData?.activePetIds && Array.isArray(initialData.activePetIds)) {
+      this.activePetIds = [...initialData.activePetIds].slice(0, 2);
+    } else if (initialData?.activePetId) {
+      this.activePetIds = [initialData.activePetId];
+    } else {
+      this.activePetIds = this.pets.slice(0, 2).map(p => p.id);
+    }
+    this.activePetId = this.activePetIds[0] || null;
     this.keystones = initialData?.keystones || []; // 5 Warden Keystones
     this.bounties = initialData?.bounties || JSON.parse(JSON.stringify(DEFAULT_BOUNTIES));
     this.equipment = initialData?.equipment || {
@@ -246,8 +254,11 @@ export class GameState {
         hp: monster.hp || baseHp,
         attack: baseAtk
       });
-      if (!this.activePetId) {
+      if (!this.activePetIds || !this.activePetIds.length) {
+        this.activePetIds = [monster.id];
         this.activePetId = monster.id;
+      } else if (this.activePetIds.length < 2 && !this.activePetIds.includes(monster.id)) {
+        this.activePetIds.push(monster.id);
       }
       eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
     }
@@ -255,6 +266,35 @@ export class GameState {
 
   getActivePet() {
     return this.pets.find(p => p.id === this.activePetId) || this.pets[0] || null;
+  }
+
+  getActivePets() {
+    if (!this.activePetIds || !this.activePetIds.length) {
+      const fallback = this.getActivePet();
+      return fallback ? [fallback] : [];
+    }
+    const list = this.activePetIds.map(id => this.pets.find(p => p.id === id)).filter(Boolean);
+    return list.length ? list : (this.pets[0] ? [this.pets[0]] : []);
+  }
+
+  toggleActivePet(petId) {
+    if (!this.activePetIds) this.activePetIds = [];
+    const idx = this.activePetIds.indexOf(petId);
+    if (idx !== -1) {
+      // If already active and have more than 1, can deselect
+      if (this.activePetIds.length > 1) {
+        this.activePetIds.splice(idx, 1);
+      }
+    } else {
+      if (this.activePetIds.length >= 2) {
+        // Replace second pet if already 2
+        this.activePetIds[1] = petId;
+      } else {
+        this.activePetIds.push(petId);
+      }
+    }
+    this.activePetId = this.activePetIds[0] || null;
+    eventBus.emit('PLAYER_STATS_CHANGED', this.getSnapshot());
   }
 
   canEvolvePet(petId) {
@@ -489,6 +529,7 @@ export class GameState {
       winStreak: this.winStreak,
       pets: [...this.pets],
       activePetId: this.activePetId,
+      activePetIds: [...(this.activePetIds || [this.activePetId].filter(Boolean))],
       keystones: [...this.keystones],
       bounties: JSON.parse(JSON.stringify(this.bounties)),
       equipment: { ...this.equipment },

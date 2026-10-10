@@ -48,7 +48,12 @@ export class BattleScene {
     if (player && player.avatarSprite) {
       this.playerImg.src = player.avatarSprite;
     }
-    this.activePet = player?.pets?.find(p => p.id === player.activePetId) || (player?.pets?.[0] || null);
+    const activePets = player?.pets?.filter(p => (player.activePetIds || [player.activePetId]).includes(p.id)) || (player?.pets?.slice(0, 2) || []);
+    this.activePet = activePets[0] || null;
+    this.activePetB = activePets[1] || null;
+
+    if (!this.petImgB) this.petImgB = new Image();
+
     if (this.activePet) {
       if (this.activePet.sprite) {
         this.petImg.src = this.activePet.sprite;
@@ -60,6 +65,19 @@ export class BattleScene {
       this.petHp = 0;
       this.petMaxHp = 0;
       this.petIsFainted = false;
+    }
+
+    if (this.activePetB) {
+      if (this.activePetB.sprite) {
+        this.petImgB.src = this.activePetB.sprite;
+      }
+      this.petMaxHpB = this.activePetB.maxHp || (60 + ((this.activePetB.level || 1) - 1) * 15);
+      this.petHpB = this.activePetB.hp !== undefined ? this.activePetB.hp : this.petMaxHpB;
+      this.petIsFaintedB = !!this.activePetB.isFainted;
+    } else {
+      this.petHpB = 0;
+      this.petMaxHpB = 0;
+      this.petIsFaintedB = false;
     }
     if (monster && monster.sprite) {
       this.monsterImg.src = monster.sprite;
@@ -413,21 +431,20 @@ export class BattleScene {
     );
     ctx.restore();
 
-    // 5.1 Render Active Companion Pet (beside wizard)
+    // 5.1 Render Active Companion Pet A (beside wizard, front-left)
     if (this.activePet && this.petImg.complete && this.petImg.naturalWidth > 0) {
       const isFainted = this.petIsFainted || this.petHp <= 0;
       let petBob = Math.sin(this.timer * 1.3 + 1.2) * 2.5;
       let jumpOffsetX = 0;
       let jumpOffsetY = 0;
       if (this.petJumpTimer > 0) {
-        // Pet leap forward when attacking
         const jumpProgress = (0.45 - this.petJumpTimer) / 0.45;
         jumpOffsetX = Math.sin(jumpProgress * Math.PI) * (isPortrait ? 26 : 36);
         jumpOffsetY = -Math.sin(jumpProgress * Math.PI) * (isPortrait ? 16 : 22);
       }
 
-      const petSize = Math.round(playerSize * (isPortrait ? 0.60 : 0.65));
-      const petX = (isPortrait ? Math.round(w * 0.39) : Math.round(w * 0.33)) + jumpOffsetX;
+      const petSize = Math.round(playerSize * (isPortrait ? 0.56 : 0.62));
+      const petX = (isPortrait ? Math.round(w * 0.36) : Math.round(w * 0.32)) + jumpOffsetX;
       const petY = groundY - petSize + 10 + petBob + jumpOffsetY;
 
       ctx.save();
@@ -448,8 +465,35 @@ export class BattleScene {
       );
       ctx.restore();
 
-      // Render Pet Diegetic Health Bar & Name Plate (above pet)
       this.renderPetHpPlate(petX, petY - 6, this.activePet.name.split(' ')[0], this.petHp, this.petMaxHp, isFainted);
+    }
+
+    // 5.2 Render Active Companion Pet B (back-left or flank, if present)
+    if (this.activePetB && this.petImgB && this.petImgB.complete && this.petImgB.naturalWidth > 0) {
+      const isFaintedB = this.petIsFaintedB || this.petHpB <= 0;
+      let petBobB = Math.sin(this.timer * 1.4 + 2.5) * 2.5;
+
+      const petSizeB = Math.round(playerSize * (isPortrait ? 0.52 : 0.58));
+      const petXB = isPortrait ? Math.round(w * 0.48) : Math.round(w * 0.42);
+      const petYB = groundY - petSizeB - 14 + petBobB;
+
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (isFaintedB) {
+        ctx.globalAlpha = 0.42;
+        ctx.filter = 'grayscale(0.9)';
+      }
+
+      ctx.drawImage(
+        this.petImgB,
+        petXB - petSizeB / 2,
+        petYB,
+        petSizeB,
+        petSizeB
+      );
+      ctx.restore();
+
+      this.renderPetHpPlate(petXB, petYB - 6, this.activePetB.name.split(' ')[0], this.petHpB, this.petMaxHpB, isFaintedB);
     }
 
     // 6. Render Monster

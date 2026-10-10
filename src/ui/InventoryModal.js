@@ -62,8 +62,13 @@ export class InventoryModal {
       if (!snap.pets.length) {
         this.petsEl.innerHTML = `<p style="font-size:12px; color:#a4b0be; padding:6px;">尚未淨化拯救任何怪獸夥伴。在戰鬥中削弱怪獸體力即可使用【Rescue】法術！</p>`;
       } else {
+        const activeIds = snap.activePetIds || [snap.activePetId].filter(Boolean);
         this.petsEl.innerHTML = snap.pets.map(p => {
-          const isFollower = p.id === (snap.activePetId || snap.pets[0]?.id);
+          const isSlot1 = activeIds[0] === p.id;
+          const isSlot2 = activeIds[1] === p.id;
+          const isFollower = isSlot1 || isSlot2;
+          const badgeText = isSlot1 ? '🐾 1號夥伴 (首發)' : (isSlot2 ? '🐾 2號夥伴 (同行)' : '召喚同行 (帶上)');
+
           return `
             <div class="pet-card ${isFollower ? 'active-follower' : ''}">
               <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; margin: 0 auto 4px;">
@@ -71,8 +76,8 @@ export class InventoryModal {
               </div>
               <div class="pet-name">${p.name}</div>
               <div class="pet-tag">Lv.${p.level} • ${p.element}</div>
-              <button class="channel-magic-btn btn-set-follower" data-id="${p.id}" style="width:100%; min-height:32px; padding:4px 8px; font-size:11px; margin-top:6px; ${isFollower ? 'background:linear-gradient(180deg,#2ed573,#26af5f); border-color:#2ed573;' : ''}">
-                ${isFollower ? '🐾 跟隨中 (Active)' : '召喚跟隨 (Follow)'}
+              <button class="channel-magic-btn btn-set-follower" data-id="${p.id}" style="width:100%; min-height:32px; padding:4px 6px; font-size:10.5px; margin-top:6px; ${isFollower ? 'background:linear-gradient(180deg,#2ed573,#26af5f); border-color:#2ed573;' : ''}">
+                ${badgeText}
               </button>
             </div>
           `;
@@ -83,7 +88,11 @@ export class InventoryModal {
         followerBtns.forEach(btn => {
           btn.addEventListener('click', (e) => {
             const petId = e.currentTarget.dataset.id;
-            this.gameState.setActivePet(petId);
+            if (this.gameState.toggleActivePet) {
+              this.gameState.toggleActivePet(petId);
+            } else {
+              this.gameState.setActivePet(petId);
+            }
             this.render();
           });
         });

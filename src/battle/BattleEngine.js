@@ -17,18 +17,21 @@ export class BattleEngine {
     // Initialize battle energy
     this.gameState.energy = 1;
 
-    // Active companion pet setup
-    this.activePet = this.gameState.getActivePet();
-    if (this.activePet) {
-      if (!this.activePet.maxHp) {
-        this.activePet.maxHp = 60 + ((this.activePet.level || 1) - 1) * 15;
+    // Active companion pets squad (Dual Pets)
+    this.activePets = this.gameState.getActivePets ? this.gameState.getActivePets() : [this.gameState.getActivePet()].filter(Boolean);
+    this.activePet = this.activePets[0] || null;
+    this.activePetB = this.activePets[1] || null;
+
+    this.activePets.forEach(pet => {
+      if (!pet.maxHp) {
+        pet.maxHp = 60 + ((pet.level || 1) - 1) * 15;
       }
-      if (this.activePet.hp === undefined || this.activePet.hp <= 0) {
-        this.activePet.hp = this.activePet.maxHp;
+      if (pet.hp === undefined || pet.hp <= 0) {
+        pet.hp = pet.maxHp;
       }
-      this.activePet.isFainted = false;
-      registerPetSpell(this.activePet);
-    }
+      pet.isFainted = false;
+      registerPetSpell(pet);
+    });
 
     this.playerDamageTaken = 0;
 
@@ -124,7 +127,8 @@ export class BattleEngine {
     eventBus.emit('REQUEST_MATH_QUESTION', {
       spell,
       grade: this.gameState.grade || 1,
-      realm: this.gameState.currentRealm || 'firefly_forest'
+      realm: this.gameState.currentRealm || 'firefly_forest',
+      level: this.gameState.level || 1
     });
   }
 
@@ -144,7 +148,8 @@ export class BattleEngine {
     eventBus.emit('REQUEST_MATH_QUESTION', {
       spell: { name: '淨化拯救 (Rescue Spell)', icon: '💖' },
       grade: this.gameState.grade || 1,
-      realm: this.gameState.currentRealm || 'firefly_forest'
+      realm: this.gameState.currentRealm || 'firefly_forest',
+      level: this.gameState.level || 1
     });
   }
 
@@ -194,30 +199,37 @@ export class BattleEngine {
     let baseDmg = 0;
     let logMsg = '';
 
-    if (attacker === 'pet' && this.activePet) {
-      // Pet attack incorporates Pet Attack Stat + Spell Power
-      const petAtk = this.activePet.attack || 12;
-      baseDmg = spell.power + Math.floor(petAtk * 0.95);
-      const totalDmg = Math.round(baseDmg * mult);
-      this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
+    if (attacker === 'pet') {
+      const castingPet = (spell.petId && this.activePets)
+        ? (this.activePets.find(p => p.id === spell.petId) || this.activePet)
+        : this.activePet;
 
-      logMsg = mult > 1.0
-        ? `💥 屬性克制！🐾 守護精靈【${this.activePet.name}】的【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
-        : `🐾 守護精靈【${this.activePet.name}】挺身而出！發動了【${spell.name}】，造成了 ${totalDmg} 點傷害！`;
+      if (castingPet) {
+        // Pet attack incorporates Pet Attack Stat + Spell Power
+        const petAtk = castingPet.attack || 12;
+        baseDmg = spell.power + Math.floor(petAtk * 0.95);
+        const totalDmg = Math.round(baseDmg * mult);
+        this.monster.hp = Math.max(0, this.monster.hp - totalDmg);
 
-      eventBus.emit('BATTLE_LOG', logMsg);
-      if (mult > 1.0) {
-        eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+        logMsg = mult > 1.0
+          ? `💥 屬性克制！🐾 守護精靈【${castingPet.name}】的【${spell.name}】命中弱點！造成 ${totalDmg} 點暴擊傷害！`
+          : `🐾 守護精靈【${castingPet.name}】挺身而出！發動了【${spell.name}】，造成了 ${totalDmg} 點傷害！`;
+
+        eventBus.emit('BATTLE_LOG', logMsg);
+        if (mult > 1.0) {
+          eventBus.emit('BATTLE_CRITICAL_HIT', { spell, damage: totalDmg });
+        }
+        eventBus.emit('BATTLE_DAMAGE_DEALT', {
+          attacker: 'pet',
+          target: 'monster',
+          damage: totalDmg,
+          isCrit: mult > 1.0,
+          monsterHp: this.monster.hp,
+          monsterMaxHp: this.monster.maxHp,
+          petName: castingPet.name,
+          petId: castingPet.id
+        });
       }
-      eventBus.emit('BATTLE_DAMAGE_DEALT', {
-        attacker: 'pet',
-        target: 'monster',
-        damage: totalDmg,
-        isCrit: mult > 1.0,
-        monsterHp: this.monster.hp,
-        monsterMaxHp: this.monster.maxHp,
-        petName: this.activePet.name
-      });
     } else {
       let totalDmg = 0;
       if (spell.id === 'frogify') {
@@ -335,7 +347,14 @@ export class BattleEngine {
     this.gameState.addGold(rescueGold);
 
     let petReward = null;
-    if (this.activePet) {
+    if (this.activePets && this.activePets.length) {
+      this.activePets.forEach(pet => {
+        const r = this.gameState.addPetXp(pet.id, finalXp);
+        pet.hp = pet.maxHp;
+        pet.isFainted = false;
+        if (!petReward || r?.leveledUp) petReward = r;
+      });
+    } else if (this.activePet) {
       petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;
@@ -482,7 +501,14 @@ export class BattleEngine {
     this.gameState.addGold(rawRewards.gold);
 
     let petReward = null;
-    if (this.activePet) {
+    if (this.activePets && this.activePets.length) {
+      this.activePets.forEach(pet => {
+        const r = this.gameState.addPetXp(pet.id, finalXp);
+        pet.hp = pet.maxHp;
+        pet.isFainted = false;
+        if (!petReward || r?.leveledUp) petReward = r;
+      });
+    } else if (this.activePet) {
       petReward = this.gameState.addPetXp(this.activePet.id, finalXp);
       this.activePet.hp = this.activePet.maxHp;
       this.activePet.isFainted = false;

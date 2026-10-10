@@ -66,8 +66,8 @@ export class MathModal {
   }
 
   bindEvents() {
-    eventBus.on('REQUEST_MATH_QUESTION', ({ spell, grade, realm }) => {
-      this.open(spell, grade, realm);
+    eventBus.on('REQUEST_MATH_QUESTION', ({ spell, grade, realm, level }) => {
+      this.open(spell, grade, realm, level);
     });
 
     this.submitBtn.addEventListener('click', () => {
@@ -100,17 +100,21 @@ export class MathModal {
     });
   }
 
-  open(spell, grade, realm) {
+  open(spell, grade, realm, level) {
     const effectiveGrade = grade || this.gameState?.grade || window.gameApp?.gameState?.grade || 1;
     const effectiveRealm = realm || this.gameState?.currentRealm || window.gameApp?.gameState?.currentRealm || 'firefly_forest';
-    this.currentQuestion = QuestionGenerator.generate(effectiveGrade, effectiveRealm);
+    const effectiveLevel = level || this.gameState?.level || window.gameApp?.gameState?.level || 1;
+    this.currentQuestion = QuestionGenerator.generate(effectiveGrade, effectiveRealm, effectiveLevel);
     this.selectedAnswer = null;
 
     const icon = spell?.icon || '✨';
     const name = spell?.name || '奧術魔法 (Arcane Spell)';
     this.spellTagEl.textContent = `${icon} ${name} 施法詠唱中...`;
     this.topicEl.textContent = this.currentQuestion.topic;
-    this.promptEl.textContent = this.currentQuestion.prompt;
+    // Format prompt text with highlights for numbers and key symbols (WITHOUT changing question content)
+    const rawPrompt = this.currentQuestion.prompt || '';
+    const formattedPrompt = rawPrompt.replace(/(\b\d+\b|□|\?)/g, '<span class="math-num-glow">$1</span>');
+    this.promptEl.innerHTML = formattedPrompt;
 
     // Render visual diagram if provided
     if (this.visualContainer) {
@@ -127,12 +131,16 @@ export class MathModal {
     this.feedbackEl.textContent = '';
     this.submitBtn.disabled = true;
 
+    // Rune badge icons for aesthetic presentation
+    const runeSymbols = ['🔮', '✨', '⚡', '🌟'];
+
     // Render choice buttons as carved rune seals
     this.choicesContainer.innerHTML = '';
-    this.currentQuestion.options.forEach((opt) => {
+    this.currentQuestion.options.forEach((opt, idx) => {
       const btn = document.createElement('button');
       btn.className = 'rune-seal-btn';
-      btn.textContent = opt;
+      const symbol = runeSymbols[idx % runeSymbols.length];
+      btn.innerHTML = `<span class="rune-glyph">${symbol}</span><span class="rune-text">${opt}</span>`;
       btn.setAttribute('data-correct', String(opt).trim() === String(this.currentQuestion.correctAnswer).trim());
       btn.addEventListener('click', () => {
         document.querySelectorAll('.rune-seal-btn').forEach(b => b.classList.remove('selected'));
