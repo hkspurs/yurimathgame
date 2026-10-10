@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Prodigy Math Adventure - 日式冒險可愛風</title>
+  <script type="module" crossorigin src="./assets/index-BekOCVND.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-bJvLAhIS.css">
+</head>
+<body>
+  <!-- Full-Bleed Game Viewport -->
+  <div id="game-stage" class="game-stage">
+    
+    <!-- Official Authentic Cloud Loading Screen (Extracted from APK) -->
+    <div id="cloud-loading-screen" class="cloud-loading-screen">
+      <div class="cloud-loading-bg"></div>
+      <div class="cloud-loading-center">
+        <div class="magic-spinner-ring">
+          <svg class="prodigy-sun-gear-svg" viewBox="0 0 100 100" width="52" height="52" aria-label="Loading spinner">
+            <defs>
+              <radialGradient id="sunGemGrad" cx="35%" cy="35%">
+                <stop offset="0%" stop-color="#4bcffa" />
+                <stop offset="55%" stop-color="#1e3799" />
+                <stop offset="100%" stop-color="#0c2461" />
+              </radialGradient>
+              <linearGradient id="goldTeethGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffeaa7" />
+                <stop offset="50%" stop-color="#f6b93b" />
+                <stop offset="100%" stop-color="#e67e22" />
+              </linearGradient>
+            </defs>
+            <g class="gear-teeth-group">
+              <rect x="44" y="2" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" />
+              <rect x="44" y="80" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" />
+              <rect x="2" y="44" width="18" height="12" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" />
+              <rect x="80" y="44" width="18" height="12" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" />
+              <rect x="15" y="15" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" transform="rotate(45 21 24)" />
+              <rect x="69" y="69" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" transform="rotate(45 75 78)" />
+              <rect x="69" y="15" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" transform="rotate(-45 75 24)" />
+              <rect x="15" y="69" width="12" height="18" rx="3" fill="url(#goldTeethGrad)" stroke="#d35400" stroke-width="1.2" transform="rotate(-45 21 78)" />
+            </g>
+            <circle cx="50" cy="50" r="36" fill="#f6b93b" stroke="#e67e22" stroke-width="2.5" />
+            <circle cx="50" cy="50" r="26" fill="#0c2461" stroke="#f1c40f" stroke-width="2" />
+            <circle cx="50" cy="50" r="16" fill="url(#sunGemGrad)" stroke="#4bcffa" stroke-width="2" />
+            <polygon points="50,38 53,47 62,50 53,53 50,62 47,53 38,50 47,47" fill="#ffffff" />
+          </svg>
+        </div>
+        <div class="loading-game-title">PRODIGY MATH MAGIC</div>
+        <div class="loading-game-subtitle">燈火學院 • 奧術數學大冒險</div>
+        
+        <div class="loading-progress-container">
+          <div class="loading-progress-track">
+            <div id="loading-progress-bar" class="loading-progress-fill" style="width: 0%;"></div>
+          </div>
+          <div id="loading-progress-percent" class="loading-progress-text">0%</div>
+        </div>
+
+        <div class="loading-textbacker-container">
+          <img src="data:image/png;base64,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" class="loading-textbacker-img" alt="Ribbon">
+          <span id="loading-tip-text" class="loading-tip-text">正在喚醒魔法精靈...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wild Encounter Alert & Swirl Transition Overlay -->
+    <div id="encounter-overlay" class="encounter-overlay hidden">
+      <div class="encounter-vignette"></div>
+      <div class="encounter-swirl"></div>
+      <div class="encounter-banner">
+        <span class="encounter-icon">⚔️</span>
+        <div class="encounter-text" id="encounter-text">野生的怪獸出現了！</div>
+      </div>
+    </div>
+
+    <!-- Game Canvas Layer (World & Battle 2D Engine) -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Top Diegetic Game HUD (Non-intrusive RPG Corner Frames) -->
+    <div id="hud-layer" class="hud-layer">
+      <!-- Top-Left Player Crest & Vitality Bar -->
+      <div class="player-crest-group">
+        <div class="crest-frame" id="hud-crest-btn" style="cursor: pointer;" title="自訂巫師外觀與稱號">
+          <img id="hud-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAADB0lEQVR4nO3dsWoUURSA4VGCWGmthWAQH8HGylS+gVbaiY2NWIgIriBiIWlsxE4rfQOrpEqTRxDRzl4rsdHe3IF7Oblz7uT/v3o3M9n8XM7c3exMkyRJknBOZZ/A3reff7PPIdPO9vnUv8HpzIMrnwHAGQCcAcAZAFyXCTQ62d+4fO64TmUo+99/hZ7f44rBFQDOAOAMAM4A4MJDRcvAVzvcRYelUfX4/aODoSsAnAHAGQCcAcBt9fihc8NO7XDzYrN7nKczjs3DqodFX78WrgBwBgBnAHAGAGcAcE3biLXbvi1T7Imd+Cs9LVwZRK8CWraHXQHgDADOAOAMAC48BJYGlrlhJTrwvXm9CT1/KQ8ebULPLw2G01T/WjsEqpoBwBkAnAHAdfk8QNRahr05c+cfHQ57cAWAMwA4A4AzADgDgBvyKmDOwZff2adQ5frVs9mnUM0VAM4A4AwAzgDghhwC1zLszVnT+bsCwBkAnAHAGQDckENg1KeX96sfe+vJ245nMj5XADgDgDMAOAOAMwA4A4AzADgDgDMAOAOAO5FbwfTt3RauAHAGAGcAcAYAt6ohsPZ9/pYhkP7ZAVcAOAOAMwA4A4AzALhFrwJKX4Hq/QLq7iTWiysAnAHAGQCcAcCFh8DS99X3uvVpj63YEbd3vXWsFmMAcAYAZwBwTTeNKqm9kdQ0xYeYrz/OVD0u+z3+Kxf/hJ7f8vq13CCqxBUAzgDgDADOAOAMAK7LVcCcuen2fz22PEfQ4/f3KkAhBgBnAHAGABceAktaBsOS2mFpbaLDbXTgK3EFgDMAOAOAMwC4LkPgnJ07z44Mh9n/GZOt9J9Rex+eL/Z3cQWAMwA4A4AzADgDgEv/lrDSFHz73uOEM+nv47tX2adwhCsAnAHAGQCcAcClbwW3uHbzbuj4h5/fD3WcaVp227fEFQDOAOAMAM4A4BbdCSwNPC2D4falC6HjHw52nBG4AsAZAJwBwBkAnAHApX8eoOXKoPR+evZnB1re48/e9i1xBYAzADgDgDMAuH9pbqoTH/7mfgAAAABJRU5ErkJggg==" alt="Wizard" class="crest-avatar">
+          <div id="hud-level" class="crest-level-badge">Lv.1</div>
+        </div>
+        <div class="crest-bars">
+          <div class="crest-name-row">
+            <span class="crest-player-title">見習法師</span>
+          </div>
+          <!-- Hearts / Vitality Bar -->
+          <div class="vitality-bar-outer">
+            <span class="bar-icon">❤️</span>
+            <div class="vitality-track">
+              <div id="hud-hp-bar" class="vitality-fill" style="width: 100%;"></div>
+            </div>
+            <span id="hud-hp-text" class="vitality-text">100/100</span>
+          </div>
+          <!-- XP Bar -->
+          <div class="xp-bar-outer">
+            <span class="bar-icon">🌟</span>
+            <div class="xp-track">
+              <div id="hud-xp-bar" class="xp-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center-Top Realm Banner -->
+      <div id="hud-realm-badge" class="hud-realm-badge" style="cursor: pointer;" title="點擊開啟世界地圖">
+        <span id="realm-badge-icon">🌲</span>
+        <span id="realm-badge-name">螢火蟲森林 (Firefly Forest)</span>
+      </div>
+
+      <!-- Play Location / Mode Badge -->
+      <div id="hud-mode-badge" class="hud-mode-badge" style="cursor: pointer;" title="點擊切換學校/家庭模式 (Where are you playing?)">
+        <span id="mode-badge-icon">🏫</span>
+        <span id="mode-badge-text">在學校</span>
+      </div>
+
+      <!-- Top-Right Fantasy Metal Badges & Action Toolbar -->
+      <div class="hud-badges-group">
+        <div class="hud-currency-bar">
+          <div class="rpg-badge gold-badge">
+            <span class="rpg-badge-icon">🪙</span>
+            <span id="hud-gold" class="rpg-badge-val">150</span>
+          </div>
+          <div class="rpg-badge star-badge">
+            <span class="rpg-badge-icon">⭐</span>
+            <span id="hud-stars" class="rpg-badge-val">3</span>
+          </div>
+          <!-- 5 Warden Keystones Mini Tracker -->
+          <div id="hud-keystones-tracker" class="hud-keystones-tracker" title="五大元素守護神石收集進度 (Earth, Water, Fire, Ice, Storm)">
+            <span class="hud-ks-dot missing" data-stone="earth" title="🌱 大地神石">🌱</span>
+            <span class="hud-ks-dot missing" data-stone="water" title="💧 海洋神石">💧</span>
+            <span class="hud-ks-dot missing" data-stone="fire" title="🔥 烈焰神石">🔥</span>
+            <span class="hud-ks-dot missing" data-stone="ice" title="❄️ 冰霜神石">❄️</span>
+            <span class="hud-ks-dot missing" data-stone="storm" title="⚡ 風暴神石">⚡</span>
+          </div>
+        </div>
+        <div class="hud-actions-bar">
+          <button id="btn-town-shop" class="rpg-ctrl-btn" title="燈火主城 (布洛克裝備店 & 每日轉盤)">
+            <span>🏛️</span>
+          </button>
+          <button id="btn-backpack" class="rpg-ctrl-btn" title="冒險背包與守護神石">
+            <span>🎒</span>
+          </button>
+          <button id="btn-pet-book" class="rpg-ctrl-btn" title="正統精靈圖鑑 (Pet Book)">
+            <span>📖</span>
+          </button>
+          <button id="btn-world-map" class="rpg-ctrl-btn" title="世界大地圖">
+            <span>🧭</span>
+          </button>
+          <button id="btn-sound" class="rpg-ctrl-btn" title="音效切換">
+            <span>🔊</span>
+          </button>
+          <button id="btn-leave-prodigy" class="rpg-ctrl-btn" title="離開學院 (Leave Prodigy?)">
+            <span>🚪</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-screen Tactile Directional D-Pad for Mobile -->
+    <div id="mobile-controls" class="mobile-controls">
+      <div class="dpad-grid">
+        <button class="dpad-btn dpad-up" data-dir="up">▲</button>
+        <button class="dpad-btn dpad-left" data-dir="left">◀</button>
+        <div class="dpad-core"></div>
+        <button class="dpad-btn dpad-right" data-dir="right">▶</button>
+        <button class="dpad-btn dpad-down" data-dir="down">▼</button>
+      </div>
+    </div>
+
+    <!-- Diegetic RPG Battle Action Dock (Bottom-Anchored Arcane Pedestal) -->
+    <div id="battle-ui" class="battle-dock hidden">
+      <!-- Upper Console Status Bar -->
+      <div class="dock-status-arch">
+        <div class="dock-energy-cluster">
+          <span class="dock-energy-label">⚡ 魔力水晶</span>
+          <div id="battle-energy-pips" class="mana-pips">
+            <div class="mana-crystal active"></div>
+            <div class="mana-crystal"></div>
+            <div class="mana-crystal"></div>
+            <div class="mana-crystal"></div>
+            <div class="mana-crystal"></div>
+          </div>
+        </div>
+
+        <div class="dock-combat-log" id="battle-message">
+          野生的炎尾小狐狸出現了！請引導奧術力量迎戰！
+        </div>
+
+        <div id="battle-buffs-cluster" class="dock-buffs-cluster">
+          <span id="battle-streak-badge" class="battle-buff-badge streak-badge hidden" title="連勝經驗加成">🔥 0 連勝</span>
+          <span id="battle-elixir-badge" class="battle-buff-badge elixir-badge hidden" title="雙倍經驗魔藥啟動中">🧪 雙倍XP</span>
+        </div>
+
+        <button id="btn-rescue-monster" class="dock-rescue-btn" disabled title="當怪獸體力低於45%時可淨化捕捉">
+          <span class="rescue-heart">💖</span>
+          <span class="rescue-text">淨化拯救 (Rescue)</span>
+        </button>
+
+        <button id="btn-flee-battle" class="dock-flee-btn" title="脫離戰鬥逃跑">
+          <span>🏃 逃跑</span>
+        </button>
+      </div>
+
+      <!-- Action Spells Carousel (Circular Arcane Spell Orbs) -->
+      <div class="dock-spells-carousel" id="spell-action-grid">
+        <!-- Rendered as tactile Arcane Rune Orbs -->
+      </div>
+    </div>
+
+    <!-- The Ancient Grimoire / Spellcasting Tome (Pedagogical Math Challenge) -->
+    <div id="math-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire">
+        <!-- Book Bookmark Ribbon Header -->
+        <div class="grimoire-ribbon">
+          <div class="grimoire-incantation-title">
+            <span class="incantation-spark">✨</span>
+            <span id="math-spell-tag" class="incantation-tag">奧術詠唱儀式</span>
+          </div>
+          <button id="btn-close-math" class="grimoire-cancel-seal" title="中斷詠唱">&times;</button>
+        </div>
+
+        <!-- Single Parchment Tablet Body -->
+        <div class="grimoire-single-body">
+          <div class="chapter-label" id="math-topic">一年級 • 數的分解與合成</div>
+          <div class="runic-problem-box">
+            <div class="plinth-header">⚡ 破解咒語封印 ⚡</div>
+            <div id="math-visual-container" class="math-visual-container hidden"></div>
+            <h2 class="runic-math-prompt" id="math-prompt">計算下列算式： 7 × 8 = ?</h2>
+          </div>
+          
+          <div class="answer-runes-container" id="choices-container">
+            <!-- Choices rendered as carved stone seals -->
+          </div>
+
+          <div class="cast-seal-wrapper">
+            <button id="btn-submit-answer" class="channel-magic-btn" disabled>
+              <span>🔥 釋放魔法攻擊！ (CAST SPELL) 🔥</span>
+            </button>
+          </div>
+
+          <div id="math-feedback" class="incantation-feedback hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Adventurer's Map Tome (World Select) -->
+    <div id="world-map-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire map-scroll-frame">
+        <div class="grimoire-ribbon">
+          <span class="incantation-tag">🗺️ 冒險王國大地圖 (Canon Realms)</span>
+          <span id="map-total-stars" class="total-stars-pill">⭐ 冒險星數：3</span>
+          <button id="btn-close-map" class="grimoire-cancel-seal">&times;</button>
+        </div>
+        <div class="map-scroll-content" id="world-cards-container">
+          <!-- Rendered as illustrated travel regions -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Lamplight Town & Shop Frame -->
+    <div id="town-shop-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire shop-frame">
+        <div class="grimoire-ribbon">
+          <span class="incantation-tag">🏛️ 燈火主城 (Lamplight Town & Academy)</span>
+          <button id="btn-close-shop" class="grimoire-cancel-seal">&times;</button>
+        </div>
+
+        <div class="town-tabs-bar">
+          <button class="town-tab active" data-tab="wheel">🎡 每日奇蹟轉盤</button>
+          <button class="town-tab" data-tab="shop">🛍️ 布洛克裝備店</button>
+          <button class="town-tab" data-tab="bounty">📜 警長懸賞布告欄</button>
+        </div>
+
+        <div class="shop-scroll-content">
+          <!-- Wheel of Wonder -->
+          <div id="chamber-wheel" class="wheel-chamber">
+            <div class="chamber-header">
+              <h3>🎡 每日奇蹟大轉盤 (Wheel of Wonder)</h3>
+              <p>轉動古代黃金輪盤，抽取學院長老藏寶！</p>
+            </div>
+            <div class="wheel-action-row">
+              <button id="btn-spin-wheel" class="channel-magic-btn spin-btn">轉動奇蹟之輪 🎯</button>
+              <div id="wheel-result" class="wheel-award-banner"></div>
+            </div>
+          </div>
+
+          <!-- Brocc's Shop -->
+          <div id="chamber-shop" class="shop-chamber hidden">
+            <h3 class="chamber-title">🛍️ 布洛克的工匠法杖與裝備店</h3>
+            <div id="shop-items-grid" class="shop-wares-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Sheriff Broadbark's Bounty Board -->
+          <div id="chamber-bounty" class="shop-chamber bounty-chamber hidden">
+            <div class="chamber-header">
+              <h3>📜 樹人警長每日懸賞布告欄 (Sheriff Broadbark's Bounty Board)</h3>
+              <p>接受學院警長的每日懸賞通緝令，完成算術與探索任務獲取豐厚賞金！</p>
+            </div>
+            <div id="bounty-items-grid" class="bounty-items-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adventurer's Satchel (Inventory, Keystones, Gear) -->
+    <div id="inventory-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire satchel-frame">
+        <div class="grimoire-ribbon">
+          <span class="incantation-tag">🎒 法師行囊與五大守護神石</span>
+          <button id="btn-close-inv" class="grimoire-cancel-seal">&times;</button>
+        </div>
+        <div class="satchel-scroll-content">
+          <!-- 5 Warden Keystones -->
+          <div class="satchel-section">
+            <h3 class="chamber-title">💎 5 大區域守護神石 (Warden Keystones)</h3>
+            <div id="keystones-container" class="keystones-pedestals"></div>
+          </div>
+
+          <!-- Rescued Pets -->
+          <div class="satchel-section">
+            <h3 class="chamber-title">🐾 淨化歸隊的怪獸夥伴 (Rescued Pets)</h3>
+            <div id="pets-container" class="pets-roster"></div>
+          </div>
+
+          <!-- Equipment -->
+          <div class="satchel-section">
+            <h3 class="chamber-title">🧙‍♂️ 法師全身裝備 (Wizard Gear)</h3>
+            <div id="gear-container" class="gear-pedestals"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Celebration Scroll -->
+    <div id="reward-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire victory-scroll">
+        <div class="victory-emblem">🏆</div>
+        <h2 class="victory-header">戰鬥勝利！</h2>
+        <p class="victory-story">你成功破解奧術謎題，強大的法術擊退了暗影操縱！</p>
+        <div class="victory-pouch">
+          <div class="pouch-slot"><span class="pouch-icon">🌟</span><strong id="reward-xp">+45 XP</strong></div>
+          <div class="pouch-slot"><span class="pouch-icon">🪙</span><strong id="reward-gold">+30 金幣</strong></div>
+          <div class="pouch-slot" id="reward-pet-slot"><span class="pouch-icon">🐾</span><strong id="reward-pet-xp">+45 夥伴 XP</strong></div>
+        </div>
+        <div id="reward-pet-rows" class="reward-pet-rows"></div>
+        <div id="reward-pet-lvlup-banner" class="reward-pet-lvlup-banner hidden">
+          🎉 出戰守護精靈已升級！
+        </div>
+        <div id="reward-newpet-notice" class="reward-newpet-notice hidden"></div>
+        <button id="btn-reward-confirm" class="channel-magic-btn" style="margin-top: 16px;">
+          <span>收取榮耀並繼續前進 🚀</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Level Up Celebration Modal -->
+    <div id="level-up-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire level-up-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">🌟</span>
+            <span class="incantation-tag">等級提升！(LEVEL UP!)</span>
+          </div>
+        </div>
+        <div class="level-up-body">
+          <div class="level-up-emblem-wrap">
+            <div class="level-up-sparkle-bg"></div>
+            <div class="level-up-emblem" id="level-up-emblem">🎁</div>
+          </div>
+          <h2 class="level-up-title" id="level-up-title">等級提升至 LV. 2！</h2>
+          <p class="level-up-subtitle" id="level-up-subtitle">學院長老為你的成長送來了一件【神秘升級大禮盒】！快點擊拆開！</p>
+          
+          <!-- Mystery Gift Box Unboxing Component -->
+          <div id="level-up-gift-box" class="level-up-gift-box">
+            <div class="gift-box-wrapper" id="btn-unbox-gift" title="點擊拆開大禮盒！">
+              <div class="gift-box-sparkles">✨</div>
+              <div class="gift-box-icon">🎁</div>
+              <span class="gift-box-prompt">點擊拆開大禮盒！</span>
+            </div>
+            <div id="gift-reward-reveal" class="gift-reward-reveal hidden">
+              <div class="revealed-icon" id="gift-reveal-icon">🪄</div>
+              <strong class="revealed-title" id="gift-reveal-title">獲得【星光見習魔杖】！</strong>
+              <span class="revealed-desc" id="gift-reveal-desc">魔法攻擊力永久提升！</span>
+            </div>
+          </div>
+
+          <div class="level-up-bonuses-grid">
+            <div class="bonus-card">
+              <span class="bonus-icon">❤️</span>
+              <div class="bonus-info">
+                <span class="bonus-label">生命上限</span>
+                <strong class="bonus-value" id="level-up-hp">120 Hearts (+20)</strong>
+              </div>
+            </div>
+            <div class="bonus-card">
+              <span class="bonus-icon">⚡</span>
+              <div class="bonus-info">
+                <span class="bonus-label">奧術威力</span>
+                <strong class="bonus-value">+5 Power</strong>
+              </div>
+            </div>
+            <div class="bonus-card">
+              <span class="bonus-icon">💖</span>
+              <div class="bonus-info">
+                <span class="bonus-label">體力狀態</span>
+                <strong class="bonus-value" style="color: #2ed573;">全隊完全回復！</strong>
+              </div>
+            </div>
+          </div>
+          <button id="btn-level-up-confirm" class="channel-magic-btn level-up-btn">
+            <span>榮耀晉升，領取獎勵！✨</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mystery Pet Egg Hatching Ceremony Modal -->
+    <div id="egg-hatch-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire egg-hatch-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">✨</span>
+            <span class="incantation-tag">奇蹟誕生！(EGG HATCHING!)</span>
+          </div>
+        </div>
+        <div class="egg-hatch-body">
+          <div class="egg-hatch-stage" id="egg-hatch-stage">
+            <div class="egg-wobble-wrapper" id="btn-tap-egg" title="點擊彩蛋幫牠破殼！">
+              <div class="egg-sparkle-fx">✨</div>
+              <div class="egg-giant-icon" id="egg-giant-icon">🥚</div>
+              <span class="egg-tap-hint">👉 點擊彩蛋助牠破殼！👈</span>
+            </div>
+            <div id="baby-pet-reveal" class="baby-pet-reveal hidden">
+              <div class="baby-pet-halo">🌟</div>
+              <div class="baby-pet-icon" id="baby-pet-icon">🐣</div>
+              <h2 class="baby-pet-name" id="baby-pet-name">【蛋殼皮克鳥】誕生了！</h2>
+              <p class="baby-pet-tagline" id="baby-pet-tagline">頭上頂著半塊彩色蛋殼，對你發出啾啾叫聲！</p>
+            </div>
+          </div>
+          <button id="btn-egg-hatch-confirm" class="channel-magic-btn" style="margin-top: 14px;">
+            <span>帶上新夥伴去冒險！🎉</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warden Keystone Retrieval Ceremony Modal -->
+    <div id="keystone-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire keystone-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">💎</span>
+            <span class="incantation-tag">守護神石奪回！(Warden Keystone Restored!)</span>
+          </div>
+        </div>
+        <div class="keystone-body">
+          <div class="keystone-pedestal-wrap">
+            <div class="keystone-radiance-effect"></div>
+            <div class="keystone-large-icon" id="keystone-large-icon">🌱</div>
+          </div>
+          <h2 class="keystone-restore-title" id="keystone-restore-title">大地神石 (Earth Keystone) 已淨化！</h2>
+          <div class="keystone-realm-badge" id="keystone-realm-badge">螢火森林 • 暗影退散</div>
+          <p class="keystone-restore-desc" id="keystone-restore-desc">
+            你成功擊敗了受暗影操縱的區域守護者，解除了傀儡大師的詛咒！守護神石的神聖力量已重歸法師行囊，世界的平衡正逐漸恢復！
+          </p>
+          <div class="keystone-award-stars">⭐ 獲得 3 顆區域冒險之星！</div>
+          <div id="keystone-choices-grid" class="keystone-choices-grid">
+            <button id="btn-keystone-next-realm" class="channel-magic-btn keystone-next-realm-btn">
+              <span id="btn-keystone-next-realm-text">🚀 前往下一王國</span>
+            </button>
+            <div class="keystone-secondary-actions">
+              <button id="btn-keystone-town" class="keystone-sub-btn">
+                <span>🏛️ 返回燈火主城</span>
+              </button>
+              <button id="btn-keystone-confirm" class="keystone-sub-btn">
+                <span>🌊 留在本王國探索</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Altar Boss Trial Modal -->
+    <div id="altar-boss-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire altar-boss-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">🏛️</span>
+            <span id="altar-boss-title" class="incantation-tag">神石祭壇 • 守護者試煉</span>
+          </div>
+          <button id="btn-close-altar-boss" class="story-skip-btn">✕</button>
+        </div>
+        <div class="altar-boss-body">
+          <div class="keystone-pedestal-wrap">
+            <div class="keystone-radiance-effect" style="background: radial-gradient(circle, rgba(30, 144, 255, 0.5) 0%, transparent 72%);"></div>
+            <div class="keystone-large-icon" id="altar-boss-icon" style="background: linear-gradient(135deg, #1e90ff, #2ed573);">💧</div>
+          </div>
+          <h2 class="keystone-restore-title" id="altar-boss-heading">潮汐神石祭壇</h2>
+          <div class="keystone-realm-badge" id="altar-boss-realm-badge">王國守護者鎮守中</div>
+          <p class="keystone-restore-desc" id="altar-boss-desc">
+            守護者<strong>潛水恐龍 (Diveosaur) [Boss]</strong> 正在祭壇鎮守！挑戰守護者並贏得決鬥，即可淨化並奪回海洋神石！
+          </p>
+          <div class="altar-boss-actions">
+            <button id="btn-start-altar-boss" class="channel-magic-btn" style="width: 100%; min-height: 44px; margin-bottom: 8px;">
+              <span>⚔️ 發起守護者決鬥！</span>
+            </button>
+            <button id="btn-cancel-altar-boss" class="keystone-sub-btn" style="width: 100%;">
+              <span>暫時離開</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canonical Out of Hearts / Defeat Modal -->
+    <div id="defeat-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire defeat-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">💔</span>
+            <span class="incantation-tag">體力耗盡！(OUT OF HEARTS!)</span>
+          </div>
+        </div>
+        <div class="defeat-body" style="padding: 16px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(231,76,60,0.5));">💔</div>
+          <h2 style="font-size: 18px; color: #c0392b; margin-bottom: 8px;">不要氣餒，繼續加油！</h2>
+          <p style="font-size: 13px; color: #576574; line-height: 1.6; max-width: 440px; margin: 0 auto 14px;">
+            即使是最偉大的學院魔法師也有需要調息的時候！在安全營地休息後，你的體力已完全恢復，隨時可以重新挑戰！
+          </p>
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(46,213,115,0.15); border: 1px solid #2ed573; border-radius: 20px; padding: 6px 14px; margin-bottom: 16px; color: #27ae60; font-size: 13px; font-weight: bold;">
+            <span>💖</span>
+            <span>生命值已完全恢復：100 / 100 Hearts</span>
+          </div>
+          <div>
+            <button id="btn-defeat-confirm" class="channel-magic-btn" style="background: linear-gradient(180deg, #3498db, #2980b9); border-color: #2980b9; margin: 0 auto;">
+              <span>返回安全營地 (Return to Safety) 🛡️</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Authentic Offline / Connection Error Modal (from APK) -->
+    <div id="offline-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire offline-error-frame">
+        <div class="offline-mascot-wrap">
+          <img src="data:image/png;base64,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" class="offline-mascot-img" alt="Offline Mascot">
+        </div>
+        <h2 class="offline-error-title">魔法網絡連線中斷</h2>
+        <p class="offline-error-subtitle">無法連接至 Prodigy 魔法伺服器，請檢查您的網絡連線狀態。</p>
+        <button id="btn-offline-retry" class="offline-retry-btn">
+          <span>重試連接 (Retry) 🔄</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Official Prodigy APK "TapToLoginScreen" -->
+    <div id="tap-to-login-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire login-screen-frame">
+        <div class="login-screen-header">
+          <div class="login-brand-group">
+            <span class="login-crest-icon">🌟</span>
+            <h1 class="login-prodigy-title">PRODIGY GAME</h1>
+          </div>
+          <p class="login-canonical-subtitle">Login with yout student credentials to start playing !!</p>
+        </div>
+
+        <div class="login-screen-content">
+          <div class="login-options-grid">
+            <!-- Student Login Action Card -->
+            <div class="login-action-card student-login-card">
+              <div class="action-card-header">
+                <span class="action-badge">🎓 學生帳號</span>
+                <h3>學生憑證登入 (Student Login)</h3>
+                <p>已有班級學生帳號？輸入憑證繼續冒險與課程進度！</p>
+              </div>
+
+              <button id="btn-show-login-form" class="channel-magic-btn login-expand-btn">
+                <span>Click here to login. 🔑</span>
+              </button>
+
+              <div id="student-login-form-container" class="login-form-collapse hidden">
+                <div class="login-input-row">
+                  <label for="login-student-username">學生用戶名 (Username):</label>
+                  <input type="text" id="login-student-username" placeholder="例如 StarMage" />
+                </div>
+                <div class="login-input-row">
+                  <label for="login-student-password">密碼 (Password):</label>
+                  <input type="password" id="login-student-password" placeholder="••••••••" />
+                </div>
+                <div class="login-btn-row">
+                  <button id="btn-student-login-submit" class="channel-magic-btn btn-login-act">
+                    <span>登入進入學院 🚀</span>
+                  </button>
+                  <button id="btn-quick-demo-login" class="demo-login-btn">
+                    <span>⚡ 快速示範登入</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Guest / New Student Play Card -->
+            <div class="login-action-card guest-play-card">
+              <div class="action-card-header">
+                <span class="action-badge">✨ 免費體驗</span>
+                <h3>訪客 / 新生遊玩 (Play as Guest)</h3>
+                <p>無需密碼立即啟程！探索五大元素世界與數學謎題！</p>
+              </div>
+              <div class="guest-action-box">
+                <div class="guest-motto">「Get on with your math skills !!」</div>
+                <button id="btn-guest-play" class="channel-magic-btn btn-guest-act">
+                  <span>Play on and with your math skills !! 🎮</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Prodigy APK "Leave Prodigy?" Modal -->
+    <div id="leave-prodigy-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire leave-prodigy-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">🚪</span>
+            <span class="incantation-tag">Leave Prodigy?</span>
+          </div>
+          <button id="btn-close-leave-prodigy" class="grimoire-cancel-seal">&times;</button>
+        </div>
+        <div class="leave-prodigy-body">
+          <div class="leave-icon-bounce">🧙‍♂️</div>
+          <h2 class="leave-prodigy-title">Leave Prodigy? (確定離開魔法世界？)</h2>
+          <p class="leave-prodigy-desc">你的角色等級、解鎖守護神石、寵物與數學進度都已自動妥善儲存！隨時可以重新登入繼續冒險。</p>
+          <div class="leave-prodigy-actions">
+            <button id="btn-leave-prodigy-stay" class="channel-magic-btn btn-stay-act">
+              <span>留在遊戲中 (Stay) 🛡️</span>
+            </button>
+            <button id="btn-leave-prodigy-confirm" class="leave-exit-btn">
+              <span>登出返回主畫面 (Exit to Title) 🚪</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Authentic Prodigy "Where are you playing?" Entry Modal -->
+    <div id="where-playing-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire where-playing-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">📍</span>
+            <span class="incantation-tag">Prodigy • Where are you playing? (你在哪裡玩？)</span>
+          </div>
+        </div>
+        <div class="where-playing-body">
+          <!-- Step 1: Mode Selection (Home vs School) -->
+          <div id="where-step-mode" class="where-step-container">
+            <h2 class="where-playing-title">選擇你的冒險場景 (Select Game Mode)</h2>
+            <p class="where-playing-subtitle">選擇適合你當前環境的學習模式，隨時可以在主選單切換！</p>
+            
+            <div class="where-playing-cards-grid">
+              <!-- At Home Card -->
+              <div class="where-card home-card" id="card-play-home">
+                <div class="where-card-badge">🏠 自由探險 (Home)</div>
+                <div class="where-card-icon-wrap">
+                  <span class="where-card-icon">🏠</span>
+                </div>
+                <h3 class="where-card-heading">在家裡 (Home Mode)</h3>
+                <p class="where-card-desc">全自由探索模式！自主遨遊五大元素王國，解開古老謎題並拯救魔法夥伴！</p>
+                <div class="home-features-list">
+                  <span class="home-feature-pill">🌟 每日獎勵 (Daily Prizes)</span>
+                  <span class="home-feature-pill">🐾 自由收服野生精靈</span>
+                  <span class="home-feature-pill">🧙‍♂️ 免費遊玩 (Free to Play)</span>
+                </div>
+                <button id="btn-select-home" class="channel-magic-btn btn-choose-home">
+                  <span>在家裡開始冒險 🚀</span>
+                </button>
+              </div>
+
+              <!-- At School Card -->
+              <div class="where-card school-card" id="card-play-school">
+                <div class="where-card-badge">🏫 課堂學習 (School)</div>
+                <div class="where-card-icon-wrap">
+                  <span class="where-card-icon">🏫</span>
+                </div>
+                <h3 class="where-card-heading">在學校 (School Mode)</h3>
+                <p class="where-card-desc">專為課堂同步打造！配合學校教師的數學進度，輸入班級代碼即可同步課題！</p>
+                <div class="home-features-list">
+                  <span class="home-feature-pill">📚 課堂專屬課題</span>
+                  <span class="home-feature-pill">🎯 教師進度同步</span>
+                  <span class="home-feature-pill">🎓 免費遊玩 (Free to Play)</span>
+                </div>
+                <button id="btn-select-school" class="channel-magic-btn btn-choose-school">
+                  <span>以學校模式開始 🎓</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Class Code Prompt (What is your class code?) -->
+          <div id="where-step-code" class="where-step-container hidden">
+            <h2 class="where-playing-title">What is your class code? (你的班級代碼是什麼？)</h2>
+            <p class="where-playing-subtitle">Ask your teacher for your class code and type it here. (向老師詢問班級代碼並在此輸入)</p>
+            <div class="class-code-box-wrapper">
+              <input type="text" id="input-step-class-code" class="step-class-code-input" placeholder="代碼 (例如 MATH88)" maxlength="8" />
+              <div class="class-code-actions">
+                <button id="btn-submit-class-code" class="channel-magic-btn btn-code-submit">
+                  <span>下一步 (Next) ▶</span>
+                </button>
+                <button id="btn-no-class-code" class="grimoire-cancel-seal-btn btn-no-code">
+                  <span>I don't have a class code (我沒有班級代碼)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Grade Selection (What grade are you in?) -->
+          <div id="where-step-grade" class="where-step-container hidden">
+            <h2 class="where-playing-title">What grade are you in? (你在讀幾年級？)</h2>
+            <p class="where-playing-subtitle">選擇適合你的年級，魔法世界中的算術難題將自動對齊相應課綱！</p>
+            <div class="grade-selection-grid" id="grade-selection-grid">
+              <button class="grade-card-btn active" data-grade="1">
+                <span class="grade-num">Grade 1</span>
+                <span class="grade-sub">一年級 (20以內運算)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="2">
+                <span class="grade-num">Grade 2</span>
+                <span class="grade-sub">二年級 (雙位數加減)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="3">
+                <span class="grade-num">Grade 3</span>
+                <span class="grade-sub">三年級 (乘除法入門)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="4">
+                <span class="grade-num">Grade 4</span>
+                <span class="grade-sub">四年級 (多位數運算)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="5">
+                <span class="grade-num">Grade 5</span>
+                <span class="grade-sub">五年級 (分數與代數)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="6">
+                <span class="grade-num">Grade 6</span>
+                <span class="grade-sub">六年級 (幾何與比例)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="7">
+                <span class="grade-num">Grade 7</span>
+                <span class="grade-sub">七年級 (方程式運算)</span>
+              </button>
+              <button class="grade-card-btn" data-grade="8">
+                <span class="grade-num">Grade 8</span>
+                <span class="grade-sub">八年級 (函數與進階)</span>
+              </button>
+            </div>
+            <div class="grade-confirm-row">
+              <button id="btn-confirm-grade" class="channel-magic-btn btn-grade-next">
+                <span>確認年級，開始自訂巫師！(Next) ▶</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Authentic Prodigy Pet Evolution Modal -->
+    <div id="pet-evolution-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire pet-evolution-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">✨</span>
+            <span class="incantation-tag">奧術蛻變 • 守護精靈正在進化！(Pet Evolution)</span>
+          </div>
+        </div>
+        <div class="pet-evolution-body">
+          <div class="evolution-sparkle-halo"></div>
+          
+          <div class="evolution-showcase-row">
+            <!-- Previous Pet Card -->
+            <div class="evolution-card before-card">
+              <div class="evolution-stage-badge">蛻變前 (Stage 1)</div>
+              <div class="evolution-avatar-wrap">
+                <img id="evo-before-sprite" src="./assets/hotpot-BL2fByBE.png" alt="Before" class="evo-sprite-img">
+              </div>
+              <h4 id="evo-before-name" class="evo-name">Hotpot</h4>
+              <div id="evo-before-element" class="evo-elem-tag">🔥 烈焰系</div>
+              <div class="evo-stats-brief">
+                <span id="evo-before-hp">❤️ HP: 60</span>
+                <span id="evo-before-atk">⚔️ ATK: 12</span>
+              </div>
+            </div>
+
+            <!-- Transformation Ray & Arrow -->
+            <div class="evolution-arrow-col">
+              <div class="evo-lightning-anim">⚡</div>
+              <div class="evo-arrow-icon">➔</div>
+              <div class="evo-burst-label">🌟 突破極限 🌟</div>
+            </div>
+
+            <!-- Evolved Pet Card -->
+            <div class="evolution-card after-card">
+              <div class="evolution-stage-badge evolved-badge">✨ 進化形態 (Stage 2)</div>
+              <div class="evolution-avatar-wrap evolved-wrap">
+                <img id="evo-after-sprite" src="./assets/magmay-DzLOa5AV.png" alt="Evolved" class="evo-sprite-img evolved-img">
+              </div>
+              <h4 id="evo-after-name" class="evo-name evolved-name">Magmay</h4>
+              <div id="evo-after-element" class="evo-elem-tag evolved-elem">🔥 烈焰系</div>
+              <div class="evo-stats-brief evolved-stats">
+                <span id="evo-after-hp">❤️ HP: 120 (+60)</span>
+                <span id="evo-after-atk">⚔️ ATK: 21 (+9)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- New Skill Unlocked Banner -->
+          <div class="evolution-new-skill-banner">
+            <span class="new-skill-icon">🔮</span>
+            <div class="new-skill-info">
+              <span class="new-skill-title">習得強力新法術：</span>
+              <strong id="evo-new-skill-name" class="new-skill-name">Lava Toss (岩漿投擲)</strong>
+            </div>
+          </div>
+
+          <button id="btn-confirm-evolution" class="channel-magic-btn evo-confirm-btn">
+            <span>見證進化完成！(Complete Evolution) ✨</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Opening Story Prologue & Mentor Dialogue Modal -->
+    <div id="story-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire story-scroll-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">📜</span>
+            <span id="story-modal-title" class="incantation-tag">燈火學院編年史 • 院長訓示</span>
+          </div>
+          <button id="btn-story-skip" class="story-skip-btn">略過序幕 ⏩</button>
+        </div>
+        <div id="story-dialogue-body" class="story-dialogue-body">
+          <div class="story-speaker-portrait-box">
+            <div class="story-speaker-frame">
+              <img id="story-speaker-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACdUlEQVR4nO2bPUsjURSGjY5gF7RxFbQwCiJqsNAooggGAooKGsRi9zfIbgpJsY0W6RTxDwgiSIhioxCwUCHsqgSJXyiKjeuu1UJY2LXwY1vPSZzxOjO8yj1Pdyb3nnl5OfeTiafAZeq/Rh/t9D+dinmc0pKPQjeTvwfEALQANMZCuMZ0jH5KXDo6Br1Njaa/Zw+PnHydJdpXgBiAFoDG4A98pcUk5nMEnxP4Os/HOB/TmwPDpoJaWPtAfJHk5/ns7hO0rwAxAC0ATc4coMp8/xCJ/X4/iTPVPlfztU/FlPJztK8AMQAtAI2xb5STBw8fKkic+fOLdblUegEfw063t4v2FSAGoAWgsb0PSKfTJK66OybxRnKNxMFQv2k+q/bpzK2qRFO0rwAxAC0ATc5Z+stYBzl/++vYvuCc7gt8XR9JHA6HHROXj0QiQeK5mx9K/fn9gfYVIAagBaDx8Du9vvNN0sBqDpiYXXVF2EsZ3NpQas/vFLWvADEALQCN7bOA6hh8a2hfAWIAWgAaQ3XdX6/rIbHXDVUK8HXd6vsDjvYVIAagBaBR3gfwOaO76MwpLa9im81RkVCtafvU9V8Sa18BYgBaABqjPdBGHnS2NpM4GKIdepMXJE41qK27qkRPlkkcaxghcfae7gMiivm1rwAxAC0AjRiAFoBGDEALQGN839klD/79viIxvw8oYPcBbsPXfafRvgLEALQANMr3AZNl9DzdWWn+zc7wzxLVVxBWLPLz831q78C0/ejnWfk+4CliAFoAmpw5gK/700vfyJiJB9qU/gscuab7DD4GOfGZcZq/svmZlvmxys/RvgLEALQANP8BF5GWZ3RH484AAAAASUVORK5CYII=" alt="Headmaster" class="story-speaker-avatar">
+            </div>
+            <div id="story-speaker-name" class="story-speaker-name">努特校長 (Headmaster Noot)</div>
+            <div id="story-speaker-title" class="story-speaker-title">燈火魔法學院院長</div>
+          </div>
+          <div class="story-speech-content">
+            <div class="story-parchment-bubble">
+              <p id="story-dialogue-text" class="story-dialogue-text">
+                加載中...
+              </p>
+            </div>
+            <div class="story-action-bar">
+              <div id="story-step-dots" class="story-dots-track"></div>
+              <button id="btn-story-next" class="channel-magic-btn story-next-btn">
+                <span>繼續聆聽 ▶</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Starter Pet Selection View (shown after prologue or when choosing starter) -->
+        <div id="starter-select-body" class="starter-select-body hidden">
+          <div class="starter-header">
+            <h3 class="starter-title">🐾 選擇你的初始守護精靈 (Choose Starter Pet)</h3>
+            <p class="starter-desc">努特校長贈予你的第一位冒險夥伴！精靈將在冒險時跟隨在你身後，並在戰鬥中引導屬性魔力！</p>
+          </div>
+          <div class="starter-cards-grid" id="starter-cards-grid">
+            <!-- Rendered by StoryModal.js -->
+          </div>
+        </div>
+
+        <!-- Puppet Master Crisis Cutscene -->
+        <div id="puppet-master-body" class="puppet-master-body hidden">
+          <div class="puppet-eclipse-banner">
+            <span class="eclipse-warning-badge">⚠️ 突發事件 • 暗影侵蝕</span>
+            <span class="eclipse-subtext">學院防護結界破裂，暗影之主降臨！</span>
+          </div>
+          <div class="puppet-dialogue-row">
+            <div class="puppet-portrait-box">
+              <div class="puppet-portrait-frame">
+                <img id="puppet-speaker-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAACqUlEQVR4nO3dMWsUQRiH8VWsQkCLdKazsElhZSnCFQErObALpJRUVoIfQbDSJlgG0gmHlZDiQLSzPhGttUtnEDv9APeOzDq3M7t5nl85zOzNHX9e3tvb3es6SZIkSZIkSZIkSZIkSZIkTd6V1huYPTj8s+ljLt+dDPK+prTXXFdbvrjaMwBwBgDOAMAZALhrNV9siC566qLPpOY3AysAnAGAMwBwBgBukCawtNmbP5yH44u3i5LDVlO6/9TnN0RzaAWAMwBwBgDOAMBVPRMYSTVMl1H0Xls3tlYAOAMAZwDgDACcAYAr/hbgb/z1DHHtgBUAzgDAGQA4AwBX9VTw6+PnRetzT5s+uTcbpDFdZc7b37+bfcxo7uOjZ9nrS1kB4AwAnAGAMwBwBgDOAMAZADgDAGcA4AwAXNVTwWdnn4rWH9z4uTb2aL4TzLxV9Dp9vFmcr42Vvs+arABwBgDOAMAZALjmt4ZFUr+nf3x/Unkn/ye1/zE2h1YAOAMAZwDgDABc1SYwuqgzulA01SxtBWNfPv8u3dbGpfbf+gLQiBUAzgDAGQA4AwBnAOBG+e9aqSeHbQWngvdub6+N7Tw9DtefvzjKmhvNS1l9vVgb+3X/MJxb+kQwHxWrjTMAcAYAzgDADXIqONWs5DaH305fheN3dq8X7Kqe1P677d2s9f5plKoxAHAGAM4AwDX97/quixvDvYvv2esPZjc3up++Tpc/sueugiawZsMXsQLAGQA4AwBnAOAMAFzzbwGRoR712trLD8vRfd5WADgDAGcA4AwA3Oiakn+ZSnM4xmYvxQoAZwDgDACcAYCbTLPSR587k6Lf40vXT4kVAM4AwBkAOAMAZwDgRvmo2FKlt6b1Pe6UWQHgDACcAYAzAJIkSZIkSZIkSZIkSZfMXxsAh3aPLZrVAAAAAElFTkSuQmCC" alt="Puppet Master" class="puppet-speaker-avatar">
+              </div>
+              <div id="puppet-speaker-name" class="puppet-speaker-name">傀儡大師 (The Puppet Master)</div>
+              <div id="puppet-speaker-title" class="puppet-speaker-title">秩序影響結社首領</div>
+            </div>
+            <div class="puppet-speech-content">
+              <div class="puppet-parchment-bubble">
+                <p id="puppet-dialogue-text" class="puppet-dialogue-text">
+                  加載中...
+                </p>
+                <div id="puppet-keystones-scatter" class="puppet-keystones-scatter hidden">
+                  <div class="scatter-stone stone-earth">🌱 大地神石 ➔ 螢火森林</div>
+                  <div class="scatter-stone stone-water">💧 海洋神石 ➔ 海難海岸</div>
+                  <div class="scatter-stone stone-fire">🔥 烈焰神石 ➔ 篝火古塔</div>
+                  <div class="scatter-stone stone-ice">❄️ 冰霜神石 ➔ 寒霜雪山</div>
+                  <div class="scatter-stone stone-storm">⚡ 風暴神石 ➔ 浮空風暴城</div>
+                </div>
+              </div>
+              <div class="puppet-action-bar">
+                <div id="puppet-step-dots" class="story-dots-track"></div>
+                <button id="btn-puppet-next" class="channel-magic-btn puppet-next-btn">
+                  <span>繼續面對暗影 ▶</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Training Wand Obtained Modal (Theo Addiwise Gift) -->
+    <div id="training-wand-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire wand-obtained-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">🪄</span>
+            <span class="incantation-tag">獲得初階魔杖 • New Wand Obtained!</span>
+          </div>
+        </div>
+        <div class="wand-obtained-body">
+          <div class="wand-card-display">
+            <div class="wand-icon-orb">🪄</div>
+            <h2 class="wand-name-title">Training Wand (訓練魔杖)</h2>
+            <div class="wand-badge-tag">初階奧術法器 • Theo 導師的舊魔杖</div>
+            <p class="wand-desc-text">導師 Theo Addiwise 贈送的舊魔杖！雖然有些斑駁，但能引導純淨的星光魔力！</p>
+            <div class="wand-spells-preview">
+              <span class="wand-spell-chip">⭐ Starbit (星之碎片 - 威力 24)</span>
+              <span class="wand-spell-chip">🪄 Bop (魔杖敲擊 - 威力 20)</span>
+            </div>
+          </div>
+          <div class="wand-choice-actions">
+            <button id="btn-wear-wand" class="channel-magic-btn btn-wear-wand">
+              <span>Wear (立即裝備) ✨</span>
+            </button>
+            <button id="btn-not-now-wand" class="grimoire-cancel-seal-btn btn-not-now-wand">
+              <span>Not now (稍後再說)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Creator & Stylist Modal (What does your wizard look like?) -->
+    <div id="character-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire char-creator-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">🧙‍♂️</span>
+            <span class="incantation-tag">What does your wizard look like? (你的巫師外觀自訂)</span>
+          </div>
+          <button id="btn-close-char" class="grimoire-cancel-seal">&times;</button>
+        </div>
+        <div class="char-creator-body">
+          <!-- Left Column: Live Preview Card -->
+          <div class="char-preview-column">
+            <div class="char-preview-card">
+              <div class="char-avatar-platform">
+                <img id="char-preview-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAADB0lEQVR4nO3dsWoUURSA4VGCWGmthWAQH8HGylS+gVbaiY2NWIgIriBiIWlsxE4rfQOrpEqTRxDRzl4rsdHe3IF7Oblz7uT/v3o3M9n8XM7c3exMkyRJknBOZZ/A3reff7PPIdPO9vnUv8HpzIMrnwHAGQCcAcAZAFyXCTQ62d+4fO64TmUo+99/hZ7f44rBFQDOAOAMAM4A4MJDRcvAVzvcRYelUfX4/aODoSsAnAHAGQCcAcBt9fihc8NO7XDzYrN7nKczjs3DqodFX78WrgBwBgBnAHAGAGcAcE3biLXbvi1T7Imd+Cs9LVwZRK8CWraHXQHgDADOAOAMAC48BJYGlrlhJTrwvXm9CT1/KQ8ebULPLw2G01T/WjsEqpoBwBkAnAHAdfk8QNRahr05c+cfHQ57cAWAMwA4A4AzADgDgBvyKmDOwZff2adQ5frVs9mnUM0VAM4A4AwAzgDghhwC1zLszVnT+bsCwBkAnAHAGQDckENg1KeX96sfe+vJ245nMj5XADgDgDMAOAOAMwA4A4AzADgDgDMAOAOAO5FbwfTt3RauAHAGAGcAcAYAt6ohsPZ9/pYhkP7ZAVcAOAOAMwA4A4AzALhFrwJKX4Hq/QLq7iTWiysAnAHAGQCcAcCFh8DS99X3uvVpj63YEbd3vXWsFmMAcAYAZwBwTTeNKqm9kdQ0xYeYrz/OVD0u+z3+Kxf/hJ7f8vq13CCqxBUAzgDgDADOAOAMAK7LVcCcuen2fz22PEfQ4/f3KkAhBgBnAHAGABceAktaBsOS2mFpbaLDbXTgK3EFgDMAOAOAMwC4LkPgnJ07z44Mh9n/GZOt9J9Rex+eL/Z3cQWAMwA4A4AzADgDgEv/lrDSFHz73uOEM+nv47tX2adwhCsAnAHAGQCcAcClbwW3uHbzbuj4h5/fD3WcaVp227fEFQDOAOAMAM4A4BbdCSwNPC2D4falC6HjHw52nBG4AsAZAJwBwBkAnAHApX8eoOXKoPR+evZnB1re48/e9i1xBYAzADgDgDMAuH9pbqoTH/7mfgAAAABJRU5ErkJggg==" alt="Wizard" class="char-preview-avatar">
+              </div>
+              <div class="char-preview-details-box">
+                <div id="char-preview-name" class="char-preview-name">Alex Starweaver</div>
+                <div id="char-preview-style" class="char-preview-style">奧術學徒 (Arcane Apprentice)</div>
+                <div class="char-preview-attributes" id="char-preview-attributes">髮型 1 • 淺棕髮 • 深褐眸 • 膚色 1</div>
+                <div class="char-preview-crest">You can change this later. (可隨時修改)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Name & Style Options -->
+          <div class="char-options-column">
+            <div class="char-form-group">
+              <label class="char-label">📜 巫師正統名號 (Wizard Name)</label>
+              <div class="char-name-picker-row">
+                <select id="char-first-name" class="char-select"></select>
+                <select id="char-surname" class="char-select"></select>
+                <button id="btn-random-name" class="char-random-btn" title="隨機生成姓名">🎲 擲骰</button>
+              </div>
+            </div>
+
+            <!-- Hair Style (1-6) -->
+            <div class="char-form-group">
+              <label class="char-label">💇 髮型 (Hair Style)</label>
+              <div class="char-chip-row" id="char-hair-styles">
+                <button class="char-chip-btn active" data-hair-style="1">Style 1</button>
+                <button class="char-chip-btn" data-hair-style="2">Style 2</button>
+                <button class="char-chip-btn" data-hair-style="3">Style 3</button>
+                <button class="char-chip-btn" data-hair-style="4">Style 4</button>
+                <button class="char-chip-btn" data-hair-style="5">Style 5</button>
+                <button class="char-chip-btn" data-hair-style="6">Style 6</button>
+              </div>
+            </div>
+
+            <!-- Hair Color -->
+            <div class="char-form-group">
+              <label class="char-label">🎨 髮色 (Hair Color)</label>
+              <div class="char-chip-row" id="char-hair-colors">
+                <button class="char-chip-btn" data-hair-color="Light Blonde" style="--c:#f5cd79;">Light Blonde</button>
+                <button class="char-chip-btn" data-hair-color="Dark Blonde" style="--c:#eccc68;">Dark Blonde</button>
+                <button class="char-chip-btn active" data-hair-color="Light Brown" style="--c:#cd84f1;">Light Brown</button>
+                <button class="char-chip-btn" data-hair-color="Brown" style="--c:#b33939;">Brown</button>
+                <button class="char-chip-btn" data-hair-color="Black" style="--c:#2f3542;">Black</button>
+                <button class="char-chip-btn" data-hair-color="Red" style="--c:#ff4757;">Red</button>
+              </div>
+            </div>
+
+            <!-- Eye Color -->
+            <div class="char-form-group">
+              <label class="char-label">👁️ 瞳色 (Eye Color)</label>
+              <div class="char-chip-row" id="char-eye-colors">
+                <button class="char-chip-btn" data-eye-color="Light Brown">Light Brown</button>
+                <button class="char-chip-btn active" data-eye-color="Dark Brown">Dark Brown</button>
+                <button class="char-chip-btn" data-eye-color="Orange">Orange</button>
+                <button class="char-chip-btn" data-eye-color="Amber">Amber</button>
+                <button class="char-chip-btn" data-eye-color="Green">Green</button>
+                <button class="char-chip-btn" data-eye-color="Blue">Blue</button>
+              </div>
+            </div>
+
+            <!-- Skin Color -->
+            <div class="char-form-group">
+              <label class="char-label">☀️ 膚色 (Skin Tone)</label>
+              <div class="char-chip-row" id="char-skin-tones">
+                <button class="char-chip-btn active" data-skin-tone="1">Tone 1</button>
+                <button class="char-chip-btn" data-skin-tone="2">Tone 2</button>
+                <button class="char-chip-btn" data-skin-tone="3">Tone 3</button>
+                <button class="char-chip-btn" data-skin-tone="4">Tone 4</button>
+                <button class="char-chip-btn" data-skin-tone="5">Tone 5</button>
+                <button class="char-chip-btn" data-skin-tone="6">Tone 6</button>
+              </div>
+            </div>
+
+            <!-- Archetype -->
+            <div class="char-form-group">
+              <label class="char-label">🥋 巫師法袍與流派 (Wizard Archetype)</label>
+              <div class="char-style-grid" id="char-style-grid">
+                <!-- 5 Style cards populated by JS -->
+              </div>
+            </div>
+
+            <button id="btn-confirm-char" class="channel-magic-btn char-submit-btn">
+              <span>Done (完成自訂，踏入魔法世界！) ✨</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canon 5-Element Pet Book Modal -->
+    <div id="pet-book-modal" class="tome-overlay hidden">
+      <div class="ancient-grimoire pet-book-frame">
+        <div class="grimoire-ribbon">
+          <div class="story-header-group">
+            <span class="incantation-spark">📖</span>
+            <span class="incantation-tag">燈火學院 • 正統五大元素精靈圖鑑 (Pet Book)</span>
+          </div>
+          <span id="pet-book-counter" class="pet-book-counter-pill">🐾 已解鎖: 1 / 10</span>
+          <button id="btn-close-pet-book" class="grimoire-cancel-seal">&times;</button>
+        </div>
+
+        <div class="pet-book-tabs-bar" id="pet-book-tabs">
+          <button class="pet-book-tab active" data-element="all">全部 (All)</button>
+          <button class="pet-book-tab" data-element="fire">🔥 烈焰系</button>
+          <button class="pet-book-tab" data-element="water">💧 水流系</button>
+          <button class="pet-book-tab" data-element="earth">🌱 大地系</button>
+          <button class="pet-book-tab" data-element="ice">❄️ 冰霜系</button>
+          <button class="pet-book-tab" data-element="storm">⚡ 風暴系</button>
+        </div>
+
+        <div class="pet-book-grid-container" id="pet-book-grid">
+          <!-- Rendered cards -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Battle Announcement Banner (YOUR TURN / MISS & FIZZLE) -->
+    <div id="battle-banner" class="battle-announcement-banner hidden">
+      <div class="banner-ribbon" id="banner-ribbon">
+        <div class="banner-glow-effect"></div>
+        <div class="banner-icon" id="banner-icon">⚡</div>
+        <div class="banner-content">
+          <div class="banner-main" id="banner-main">YOUR TURN!</div>
+          <div class="banner-sub" id="banner-sub">輪到你的回合 • 請選擇奧術攻擊</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

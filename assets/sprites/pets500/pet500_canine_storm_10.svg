@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <path d="M128 48 C98 48 82 72 82 102 C82 132 92 158 128 158 C164 158 174 132 174 102 C174 72 158 48 128 48 Z" fill="#ffe082" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M82 92 C68 88 58 100 60 118 C62 132 72 138 82 132 C88 128 88 118 86 110 Z" fill="#ffd54f" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M174 92 C188 88 198 100 196 118 C194 132 184 138 174 132 C168 128 168 118 170 110 Z" fill="#ffd54f" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M58 112 L52 122 L60 120 L54 132" fill="none" stroke="#2d3436" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M198 112 L204 122 L196 120 L202 132" fill="none" stroke="#2d3436" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="128" cy="140" rx="34" ry="22" fill="#fffde7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="112" cy="102" r="11" fill="#2d3436"/>
+  <circle cx="144" cy="102" r="11" fill="#2d3436"/>
+  <circle cx="108" cy="98" r="4" fill="#ffffff"/>
+  <circle cx="116" cy="106" r="2" fill="#ffffff"/>
+  <circle cx="140" cy="98" r="4" fill="#ffffff"/>
+  <circle cx="148" cy="106" r="2" fill="#ffffff"/>
+  <ellipse cx="98" cy="122" rx="12" ry="8" fill="#ff9ff3"/>
+  <ellipse cx="158" cy="122" rx="12" ry="8" fill="#ff9ff3"/>
+  <path d="M92 118 L104 126 M96 116 L108 124" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M152 118 L164 126 M156 116 L168 124" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M124 118 Q128 124 132 118" fill="none" stroke="#2d3436" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="104" cy="162" rx="12" ry="9" fill="#ffe082" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="152" cy="162" rx="12" ry="9" fill="#ffe082" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M172 150 C186 148 194 158 188 168 C184 174 176 172 172 166 Z" fill="#ffd54f" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M190 160 L196 168 L188 166 L194 176" fill="none" stroke="#2d3436" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

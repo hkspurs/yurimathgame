@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <path d="M 128 210 C 100 210 80 190 80 160 C 80 130 90 110 128 110 C 166 110 176 130 176 160 C 176 190 156 210 128 210 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 128 110 C 110 100 90 90 80 70 C 75 60 80 50 90 50 C 100 50 110 60 115 70 C 120 80 125 90 128 100 C 131 90 136 80 141 70 C 146 60 156 50 166 50 C 176 50 181 60 176 70 C 166 90 146 100 128 110 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 90 50 C 85 40 80 30 85 20 C 90 15 95 20 95 30 C 95 40 92 45 90 50 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 166 50 C 171 40 176 30 171 20 C 166 15 161 20 161 30 C 161 40 164 45 166 50 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 128 110 C 115 105 105 100 100 90 C 95 80 100 70 110 70 C 120 70 125 80 128 90 C 131 80 136 70 146 70 C 156 70 161 80 156 90 C 151 100 141 105 128 110 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="110" cy="140" r="12" fill="#2d3436"/>
+  <circle cx="113" cy="137" r="4" fill="#ffffff"/>
+  <circle cx="115" cy="142" r="2" fill="#ffffff"/>
+  <circle cx="146" cy="140" r="12" fill="#2d3436"/>
+  <circle cx="149" cy="137" r="4" fill="#ffffff"/>
+  <circle cx="151" cy="142" r="2" fill="#ffffff"/>
+  <ellipse cx="100" cy="155" rx="10" ry="6" fill="#ff9ff3"/>
+  <line x1="95" y1="152" x2="105" y2="158" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="97" y1="155" x2="107" y2="161" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="156" cy="155" rx="10" ry="6" fill="#ff9ff3"/>
+  <line x1="151" y1="152" x2="161" y2="158" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="153" y1="155" x2="163" y2="161" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M 128 165 C 125 168 122 170 120 172 C 122 174 125 175 128 175 C 131 175 134 174 136 172 C 134 170 131 168 128 165 Z" fill="#2d3436"/>
+  <path d="M 100 190 C 95 195 90 200 90 205 C 90 210 95 212 100 210 C 105 208 108 200 105 195 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 156 190 C 161 195 166 200 166 205 C 166 210 161 212 156 210 C 151 208 148 200 151 195 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 176 160 C 190 150 200 140 210 130 C 215 125 220 130 215 135 C 205 145 195 155 185 165 C 180 170 175 165 176 160 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 180 155 C 195 145 205 135 215 125 C 220 120 225 125 220 130 C 210 140 200 150 190 160 C 185 165 180 160 180 155 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 185 150 C 200 140 210 130 220 120 C 225 115 230 120 225 125 C 215 135 205 145 195 155 C 190 160 185 155 185 150 Z" fill="#ffeaa7" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 60 80 L 65 75 L 70 80 L 65 85 Z" fill="#f1c40f" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 190 70 L 195 65 L 200 70 L 195 75 Z" fill="#f1c40f" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 50 120 L 55 115 L 60 120 L 55 125 Z" fill="#f1c40f" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 200 110 L 205 105 L 210 110 L 205 115 Z" fill="#f1c40f" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 70 170 L 75 165 L 80 170 L 75 175 Z" fill="#f1c40f" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 180 180 L 185 175 L 190 180 L 18
+</svg>
