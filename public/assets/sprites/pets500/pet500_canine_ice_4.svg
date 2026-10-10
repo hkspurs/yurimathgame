@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Frost tail -->
+  <path d="M 175 165 Q 205 155 215 135 Q 220 125 210 120 Q 195 125 185 145 Q 178 158 175 165 Z"
+        fill="#cbeaf8" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 205 135 Q 210 128 205 125" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Body -->
+  <path d="M 128 70
+           C 175 70 195 100 195 140
+           C 195 185 165 210 128 210
+           C 91 210 61 185 61 140
+           C 61 100 81 70 128 70 Z"
+        fill="#cbeaf8" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Belly -->
+  <ellipse cx="128" cy="165" rx="38" ry="32" fill="#fffdf5" stroke="#2d3436" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left ear -->
+  <path d="M 85 85 L 70 45 L 105 70 Z"
+        fill="#cbeaf8" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 78 62 L 70 45 L 88 58 Z" fill="#ffffff" stroke="#2d3436" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+
+  <!-- Right ear -->
+  <path d="M 171 85 L 186 45 L 151 70 Z"
+        fill="#cbeaf8" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 178 62 L 186 45 L 168 58 Z" fill="#ffffff" stroke="#2d3436" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+
+  <!-- Left paw -->
+  <ellipse cx="95" cy="205" rx="14" ry="10" fill="#e0f5fc" stroke="#2d3436" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right paw -->
+  <ellipse cx="161" cy="205" rx="14" ry="10" fill="#e0f5fc" stroke="#2d3436" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left blush -->
+  <ellipse cx="88" cy="148" rx="14" ry="9" fill="#ff9ff3" opacity="0.85"/>
+  <line x1="82" y1="144" x2="88" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="87" y1="144" x2="93" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="92" y1="144" x2="98" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Right blush -->
+  <ellipse cx="168" cy="148" rx="14" ry="9" fill="#ff9ff3" opacity="0.85"/>
+  <line x1="162" y1="144" x2="168" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="167" y1="144" x2="173" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="172" y1="144" x2="178" y2="152" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Left eye -->
+  <circle cx="100" cy="128" r="13" fill="#2d3436"/>
+  <circle cx="96" cy="124" r="5" fill="#ffffff"/>
+  <circle cx="104" cy="132" r="2.5" fill="#ffffff"/>
+
+  <!-- Right eye -->
+  <circle cx="156" cy="128" r="13" fill="#2d3436"/>
+  <circle cx="152" cy="124" r="5" fill="#ffffff"/>
+  <circle cx="160" cy="132" r="2.5" fill="#ffffff"/>
+
+  <!-- Tiny nose -->
+  <ellipse cx="128" cy="142" rx="4" ry="3" fill="#2d3436"/>
+
+  <!-- Tiny mouth -->
+  <path d="M 124 150 Q 128 154 132 150" fill="none" stroke="#2d3436" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

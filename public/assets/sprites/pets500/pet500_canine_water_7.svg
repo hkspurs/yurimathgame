@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Body -->
+  <ellipse cx="128" cy="145" rx="58" ry="52" fill="#bce6eb" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Belly -->
+  <ellipse cx="128" cy="155" rx="38" ry="32" fill="#fff5e6" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Tail - curled shiba tail like water wave -->
+  <path d="M 185 130 Q 210 110 200 90 Q 190 75 175 85 Q 165 95 175 105 Q 185 115 195 105 Q 205 95 195 85" fill="#bce6eb" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Left Ear -->
+  <path d="M 85 105 L 70 65 L 100 85 Z" fill="#bce6eb" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 85 105 L 78 78 L 95 88 Z" fill="#ff9ff3" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Right Ear -->
+  <path d="M 171 105 L 186 65 L 156 85 Z" fill="#bce6eb" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 171 105 L 178 78 L 161 88 Z" fill="#ff9ff3" stroke="#2d3436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Left Eye -->
+  <circle cx="105" cy="135" r="12" fill="#2d3436"/>
+  <circle cx="101" cy="131" r="4" fill="white"/>
+  <circle cx="109" cy="139" r="2" fill="white"/>
+  
+  <!-- Right Eye -->
+  <circle cx="151" cy="135" r="12" fill="#2d3436"/>
+  <circle cx="147" cy="131" r="4" fill="white"/>
+  <circle cx="155" cy="139" r="2" fill="white"/>
+  
+  <!-- Smile -->
+  <path d="M 118 155 Q 128 165 138 155" fill="none" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Left Blush -->
+  <ellipse cx="92" cy="150" rx="12" ry="8" fill="#ff9ff3" opacity="0.7"/>
+  <line x1="86" y1="146" x2="90" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="92" y1="146" x2="96" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="98" y1="146" x2="102" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Right Blush -->
+  <ellipse cx="164" cy="150" rx="12" ry="8" fill="#ff9ff3" opacity="0.7"/>
+  <line x1="158" y1="146" x2="162" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="164" y1="146" x2="168" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="170" y1="146" x2="174" y2="154" stroke="#2d3436" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Left Paw -->
+  <ellipse cx="95" cy="195" rx="14" ry="10" fill="#fff5e6" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Right Paw -->
+  <ellipse cx="161" cy="195" rx="14" ry="10" fill="#fff5e6" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Left Foot -->
+  <ellipse cx="105" cy="210" rx="16" ry="12" fill="#fff5e6" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Right Foot -->
+  <ellipse cx="151" cy="210" rx="16" ry="12" fill="#fff5e6" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

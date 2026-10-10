@@ -28,13 +28,13 @@ export class GameState {
     this.maxHp = initialData?.maxHp || 100;
     this.hp = initialData?.hp || 100;
     this.attack = initialData?.attack || 15;
-    this.gold = initialData?.gold || 150;
-    this.stars = initialData?.stars || 3;
+    this.gold = initialData?.gold ?? 150;
+    this.stars = initialData?.stars ?? 3;
     this.energy = 0; // Spell energy pips (0 to 5)
     this.maxEnergy = 5;
-    this.potionsCount = initialData?.potionsCount || 3;
+    this.potionsCount = initialData?.potionsCount ?? 3;
     this.xpBoostBattles = initialData?.xpBoostBattles || 0;
-    this.petTreatsCount = initialData?.petTreatsCount || 1;
+    this.petTreatsCount = initialData?.petTreatsCount ?? 1;
     this.winStreak = initialData?.winStreak || 0;
     this.pets = initialData?.pets || [];
     // Support dual companion pet squad: activePetIds = [petId1, petId2]
@@ -75,7 +75,8 @@ export class GameState {
       'starbit', 'bop', 'arcane_blast', 'torrent', 'flame_orb', 'vine_whip', 'static_shock', 'star_dust', 'potion', 'frogify'
     ];
     // Mystery Pet Egg Incubator System
-    this.egg = initialData?.egg || {
+    // An explicitly saved null means the egg was consumed, not a new player.
+    this.egg = initialData?.egg !== undefined ? initialData.egg : {
       hasEgg: true,
       name: '彩虹星斑蛋',
       icon: '🥚',

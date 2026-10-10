@@ -19,17 +19,37 @@
       color: #ff7675;
       margin-bottom: 6px;
       text-align: center;
-      font-size: 26px;
+      font-size: 28px;
       letter-spacing: 0.5px;
     }
     p.sub {
       color: #8395a7;
       margin-top: 0;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       text-align: center;
-      font-size: 14px;
-      max-width: 600px;
+      font-size: 15px;
+      max-width: 680px;
       line-height: 1.6;
+    }
+    .stats-bar {
+      background: #ffffff;
+      border: 2px solid #ffd1dc;
+      border-radius: 16px;
+      padding: 10px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #2d3436;
+      box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stats-bar span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .back-btn {
       display: inline-block;
@@ -48,10 +68,10 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 24px;
       width: 100%;
-      max-width: 1100px;
+      max-width: 1160px;
     }
     .card {
       background: #ffffff;
@@ -110,10 +130,11 @@
     .water { background: #74b9ff; color: #fff; }
     .ice { background: #81ecec; color: #0984e3; }
     .name {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
       margin: 4px 0;
       color: #2d3436;
+      text-align: center;
     }
     .feature {
       color: #636e72;
@@ -124,23 +145,38 @@
     }
     .section-title {
       width: 100%;
-      max-width: 1100px;
-      font-size: 18px;
+      max-width: 1160px;
+      font-size: 20px;
       font-weight: bold;
       color: #d63031;
-      margin: 20px 0 10px 0;
+      margin: 20px 0 14px 0;
       border-bottom: 2px dashed #ffb8b8;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
   </style>
 </head>
 <body>
   <h1>🌸 Chiikawa (ちいかわ / 吉伊卡哇) 風格精靈展示館</h1>
   <p class="sub">告別硬邦邦！軟綿綿麻糬小身軀、水汪汪無辜淚眼、手繪粗墨線與粉嫩腮紅，極致治癒萌物風！</p>
+  
+  <div class="stats-bar">
+    <span>✨ <b>首批完成度</b>：10 / 10 隻狗狼狐系手繪完成 (100%)</span>
+    <span>⚡ <b>生圖伺服器</b>：Qwen3.8 (192.168.1.235:8001) + Playwright</span>
+    <span>🚀 <b>後台進度</b>：4-Worker 並行佇列中</span>
+  </div>
+
   <a href="index.html" class="back-btn">🎮 返回遊戲主程式</a>
 
-  <div class="section-title">💖 最新完成！吉伊卡哇 (Chiikawa) 超萌手繪風精靈</div>
+  <div class="section-title">
+    <span>💖 已完成 Chiikawa 超萌手繪風精靈（全 10 隻）</span>
+    <span style="font-size: 13px; color: #00b894;">● 100% 透明 PNG Sprite</span>
+  </div>
+
   <div class="grid">
+    <!-- 1. BlazePup -->
     <div class="card">
       <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
@@ -151,6 +187,18 @@
       <div class="feature">軟綿綿麻糬身軀、垂垂火焰小耳朵、純真水汪汪大眼配小肉爪！</div>
     </div>
 
+    <!-- 2. TidalOtter -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_water_2.png" alt="TidalOtter">
+      </div>
+      <span class="badge water">水流系</span>
+      <div class="name">TidalOtter (浪花水獺)</div>
+      <div class="feature">圓碌碌淡藍水獺、肚腩抱著小貝殼、水汪汪淚眼配無辜表情。</div>
+    </div>
+
+    <!-- 3. FloraCorgi -->
     <div class="card">
       <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
@@ -161,6 +209,18 @@
       <div class="feature">圓滾滾薄荷綠柯基、粉紅腮紅、頭頂可愛四葉草小嫩芽！</div>
     </div>
 
+    <!-- 4. FrostWolf -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
+      <div class="avatar-wrap">
+        <img src="assets/sprites/pets500/pet500_canine_ice_4.png" alt="FrostWolf">
+      </div>
+      <span class="badge ice">冰霜系</span>
+      <div class="name">FrostWolf (玄冰灰狼)</div>
+      <div class="feature">冰藍麻糬狼崽、耳尖霜晶小裝飾、水靈大眼與招牌腮紅三斜線。</div>
+    </div>
+
+    <!-- 5. VoltPug -->
     <div class="card">
       <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
@@ -170,71 +230,60 @@
       <div class="name">VoltPug (電光八哥)</div>
       <div class="feature">吉伊卡哇式招牌委屈淚汪汪大眼、臉頰微弱黃色靜電腮紅、閃電短尾巴！</div>
     </div>
-  </div>
 
-  <div class="section-title" style="margin-top: 40px;">🐾 其餘待換裝精靈展示</div>
-  <div class="grid">
-    <div class="card" style="opacity: 0.85;">
-      <div class="avatar-wrap">
-        <img src="assets/sprites/pets500/pet500_canine_water_2.png" alt="TidalHound">
-      </div>
-      <span class="badge water">水流系</span>
-      <div class="name">TidalHound (浪花獵犬)</div>
-      <div class="feature">水流系湛藍毛色、水滴垂耳、奔馳浪花旋渦尾</div>
-    </div>
-
-    <div class="card" style="opacity: 0.85;">
-      <div class="avatar-wrap">
-        <img src="assets/sprites/pets500/pet500_canine_ice_4.png" alt="FrostWolf">
-      </div>
-      <span class="badge ice">冰霜系</span>
-      <div class="name">FrostWolf (玄冰灰狼)</div>
-      <div class="feature">冰晶藍白絨毛、耳尖冰錐與晶透長尾</div>
-    </div>
-
-    <div class="card" style="opacity: 0.85;">
+    <!-- 6. CinderHusky -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
         <img src="assets/sprites/pets500/pet500_canine_fire_6.png" alt="CinderHusky">
       </div>
       <span class="badge fire">烈焰系</span>
       <div class="name">CinderHusky (熾熱哈士奇)</div>
-      <div class="feature">哈士奇面譜配烈火雙色、熱情笑容</div>
+      <div class="feature">暖米白色麻糬哈士奇、暖橘火焰雙耳、開心小卷尾配純真笑容。</div>
     </div>
 
-    <div class="card" style="opacity: 0.85;">
+    <!-- 7. AquaShiba -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
         <img src="assets/sprites/pets500/pet500_canine_water_7.png" alt="AquaShiba">
       </div>
       <span class="badge water">水流系</span>
       <div class="name">AquaShiba (波紋柴犬)</div>
-      <div class="feature">微笑柴犬臉、水滴卷尾與水紋項圈</div>
+      <div class="feature">水藍色微笑柴犬頭套造型、波浪卷尾、大黑眼珠反光閃閃發亮。</div>
     </div>
 
-    <div class="card" style="opacity: 0.85;">
+    <!-- 8. MossFox -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
         <img src="assets/sprites/pets500/pet500_canine_earth_8.png" alt="MossFox">
       </div>
       <span class="badge earth">大地系</span>
       <div class="name">MossFox (繁花狐仙)</div>
-      <div class="feature">伊貝/花仙子式大長耳、百花盛開巨尾</div>
+      <div class="feature">長長草綠仙狐耳、抱著粉嫩花瓣大尾巴、可愛小吐舌萌態。</div>
     </div>
 
-    <div class="card" style="opacity: 0.85;">
+    <!-- 9. GlacioDingo -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
         <img src="assets/sprites/pets500/pet500_canine_ice_9.png" alt="GlacioDingo">
       </div>
       <span class="badge ice">冰霜系</span>
       <div class="name">GlacioDingo (晶瑩野犬)</div>
-      <div class="feature">矯健冰原犬、冰晶圍領與靈動姿態</div>
+      <div class="feature">淡冰藍色靈動小野犬、水晶小尖角、圓滾小身軀配可愛小肉球。</div>
     </div>
 
-    <div class="card" style="opacity: 0.85;">
+    <!-- 10. ThunderSpaniel -->
+    <div class="card">
+      <span class="chiikawa-badge">ちいかわ風 ✨</span>
       <div class="avatar-wrap">
         <img src="assets/sprites/pets500/pet500_canine_storm_10.png" alt="ThunderSpaniel">
       </div>
       <span class="badge storm">風暴系</span>
       <div class="name">ThunderSpaniel (雷暴獵犬)</div>
-      <div class="feature">長卷垂耳閃爍電光、胸口雷雲絨毛</div>
+      <div class="feature">溫柔黃色垂耳小獵犬、軟綿綿白肚腩、閃電毛絨小球尾巴！</div>
     </div>
   </div>
 </body>
