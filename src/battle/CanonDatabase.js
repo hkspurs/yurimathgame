@@ -498,10 +498,15 @@ export const BASE_CANON_MONSTERS = {
   }
 };
 
-// Merged Canon Monsters + 500 Animal Family Star Pets
+// Keep ONLY the first 10 Gemini AI-generated Pokemon pets (hide the other 490 SVG placeholders)
+const ACTIVE_POKEMON_PETS = Object.fromEntries(
+  Object.entries(PETS_500_DATABASE).filter(([id]) => id.startsWith('pet500_canine_') && parseInt(id.split('_').pop(), 10) <= 10)
+);
+
+// Merged Canon Monsters + Only AI-Drawn Pokémon Pets
 export const CANON_MONSTERS = {
   ...BASE_CANON_MONSTERS,
-  ...PETS_500_DATABASE
+  ...ACTIVE_POKEMON_PETS
 };
 
 // Canon Prodigy Pet Evolutions (Stage 1 -> Stage 2 -> Stage 3)
