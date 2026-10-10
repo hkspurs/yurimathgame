@@ -56,7 +56,7 @@ export const BASE_CANON_MONSTERS = {
     level: 2,
     maxHp: 60,
     attack: 11,
-    sprite: './assets/sprites/peeko.png',
+    sprite: getPetAssetUrl('peeko', 'portrait', 'player', './assets/sprites/peeko.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Peck (啄擊)', power: 10, text: 'Peeko 用尖銳的小喙啄了一下！' }],
@@ -69,7 +69,7 @@ export const BASE_CANON_MONSTERS = {
     level: 3,
     maxHp: 65,
     attack: 12,
-    sprite: './assets/sprites/floraflare.png',
+    sprite: getPetAssetUrl('floraflare', 'portrait', 'player', './assets/sprites/floraflare.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Vine Barrage (藤蔓狂舞)', power: 12, text: 'Floraflare 揮舞翠綠藤蔓！' }],
@@ -111,7 +111,7 @@ export const BASE_CANON_MONSTERS = {
     level: 4,
     maxHp: 75,
     attack: 13,
-    sprite: './assets/sprites/fishbol.png',
+    sprite: getPetAssetUrl('fishbol', 'portrait', 'player', './assets/sprites/fishbol.png'),
     weakness: 'storm',
     resistance: 'fire',
     skills: [{ name: 'Bubble Blast (泡泡連擊)', power: 12, text: 'Fishbol 吐出一串連環氣泡！' }],
@@ -124,7 +124,7 @@ export const BASE_CANON_MONSTERS = {
     level: 5,
     maxHp: 85,
     attack: 15,
-    sprite: './assets/sprites/triptrop.png',
+    sprite: getPetAssetUrl('triptrop', 'portrait', 'player', './assets/sprites/triptrop.png'),
     weakness: 'storm',
     resistance: 'fire',
     skills: [{ name: 'Aqua Jet (水流噴射)', power: 14, text: 'TripTrop 噴射出強烈水流！' }],
@@ -195,7 +195,7 @@ export const BASE_CANON_MONSTERS = {
     level: 11,
     maxHp: 150,
     attack: 26,
-    sprite: './assets/sprites/snoot.png',
+    sprite: getPetAssetUrl('snoot', 'portrait', 'player', './assets/sprites/snoot.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Snowball (重裝雪球)', power: 24, text: 'Snoot 滾出巨大雪球撞擊過來！' }],
@@ -208,7 +208,7 @@ export const BASE_CANON_MONSTERS = {
     level: 11,
     maxHp: 145,
     attack: 25,
-    sprite: './assets/sprites/chillwing.png',
+    sprite: getPetAssetUrl('chillwing', 'portrait', 'player', './assets/sprites/chillwing.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Frost Gust (冰霜颶風)', power: 23, text: 'Chillwing 拍打冰翼捲起寒風！' }],
@@ -250,7 +250,7 @@ export const BASE_CANON_MONSTERS = {
     level: 15,
     maxHp: 195,
     attack: 31,
-    sprite: './assets/sprites/stormcloud.png',
+    sprite: getPetAssetUrl('stormcloud', 'portrait', 'player', './assets/sprites/stormcloud.png'),
     weakness: 'earth',
     resistance: 'water',
     skills: [{ name: 'Thunder Clap (雷霆重擊)', power: 29, text: 'Stormcloud 引爆雷雲巨響！' }],
@@ -264,7 +264,7 @@ export const BASE_CANON_MONSTERS = {
     level: 17,
     maxHp: 310,
     attack: 43,
-    sprite: './assets/sprites/galehound.png',
+    sprite: getPetAssetUrl('galehound', 'portrait', 'player', './assets/sprites/galehound.png'),
     weakness: 'earth',
     resistance: 'storm',
     skills: [{ name: 'Hurricane Blitz (颶風突襲)', power: 40, text: 'Galehound 化身風暴席捲全場！' }],
@@ -318,7 +318,7 @@ export const BASE_CANON_MONSTERS = {
     level: 5,
     maxHp: 80,
     attack: 15,
-    sprite: './assets/sprites/aquafox.png',
+    sprite: getPetAssetUrl('aquafox', 'portrait', 'player', './assets/sprites/aquafox.png'),
     weakness: 'storm',
     resistance: 'fire',
     skills: [{ name: 'Aqua Tail (水紋甩尾)', power: 14, text: 'Aquafox 甩動浪花之尾！' }],
@@ -370,7 +370,7 @@ export const BASE_CANON_MONSTERS = {
     level: 6,
     maxHp: 100,
     attack: 18,
-    sprite: './assets/sprites/mossy.png',
+    sprite: getPetAssetUrl('mossy', 'portrait', 'player', './assets/sprites/mossy.png'),
     weakness: 'fire',
     resistance: 'storm',
     skills: [{ name: 'Stone Toss (巨石滾擊)', power: 16, text: 'Mossy 滾動青苔巨石！' }],
@@ -396,7 +396,7 @@ export const BASE_CANON_MONSTERS = {
     level: 12,
     maxHp: 165,
     attack: 28,
-    sprite: './assets/sprites/frostfang.png',
+    sprite: getPetAssetUrl('frostfang', 'portrait', 'player', './assets/sprites/frostfang.png'),
     weakness: 'fire',
     resistance: 'ice',
     skills: [{ name: 'Glacial Bite (玄冰撕咬)', power: 26, text: 'Frostfang 凝聚霜氣撕咬！' }],
@@ -409,7 +409,7 @@ export const BASE_CANON_MONSTERS = {
     level: 10,
     maxHp: 135,
     attack: 23,
-    sprite: './assets/sprites/snowfluff.png',
+    sprite: getPetAssetUrl('snowfluff', 'portrait', 'player', './assets/sprites/snowfluff.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Frost Dust (霜塵飛舞)', power: 21, text: 'Snowfluff 拍動絨毛灑下寒霜！' }],
@@ -448,7 +448,7 @@ export const BASE_CANON_MONSTERS = {
     level: 14,
     maxHp: 185,
     attack: 31,
-    sprite: './assets/sprites/zapzap.png',
+    sprite: getPetAssetUrl('zapzap', 'portrait', 'player', './assets/sprites/zapzap.png'),
     weakness: 'earth',
     resistance: 'storm',
     skills: [{ name: 'Volt Glide (雷馳滑翔)', power: 29, text: 'Zapzap 帶電滑翔突襲！' }],
@@ -499,15 +499,9 @@ export const BASE_CANON_MONSTERS = {
   }
 };
 
-// Keep ONLY the first 10 Gemini AI-generated Pokemon pets (hide the other 490 SVG placeholders)
-const ACTIVE_POKEMON_PETS = Object.fromEntries(
-  Object.entries(PETS_500_DATABASE).filter(([id]) => id.startsWith('pet500_canine_') && parseInt(id.split('_').pop(), 10) <= 10)
-);
-
-// Merged Canon Monsters + Only AI-Drawn Pokémon Pets
+// Canonical Prodigy Monsters & Elemental Companions
 export const CANON_MONSTERS = {
-  ...BASE_CANON_MONSTERS,
-  ...ACTIVE_POKEMON_PETS
+  ...BASE_CANON_MONSTERS
 };
 
 // Canon Prodigy Pet Evolutions (Stage 1 -> Stage 2 -> Stage 3)

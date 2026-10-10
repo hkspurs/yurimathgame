@@ -35,14 +35,12 @@ test('collectWildEncounterIds unions stage monsterIds and pool encounter ids', (
   for (const id of ['sprout', 'fishbol', 'pyropup', 'chillwing', 'stormcloud']) {
     assert.ok(WILD.has(id), `pool encounter ${id} must be counted as wild-encounterable`);
   }
-  // All 10 pet500 canine companions roam realm pools.
-  for (const id of Object.keys(CANON_MONSTERS)) {
-    if (id.startsWith('pet500_canine_')) {
-      assert.ok(WILD.has(id), `${id} must be counted as wild-encounterable`);
-    }
+  // Elemental companions roam realm pools.
+  for (const id of ['mossy', 'triptrop', 'aquafox', 'cinderkat', 'snowfluff', 'frostfang', 'zapzap']) {
+    assert.ok(WILD.has(id), `${id} must be counted as wild-encounterable`);
   }
-  // Exact size: 11 unique stage ids + 15 pool-only ids (5 roaming base + 10 pet500).
-  assert.equal(WILD.size, 26, 'union of all stage and pool encounter ids must be exactly 26');
+  // Exact size: 23 (11 unique stage ids + 12 pool-only ids).
+  assert.equal(WILD.size, 23, 'union of all stage and pool encounter ids must be exactly 23');
 });
 
 // ---------------------------------------------------------------------------
@@ -58,10 +56,12 @@ test('ordinary wild rescue species are told the weaken-to-45% rescue route', () 
     assert.ok(hint.text.includes('【💖 Rescue】'), `${id} hint must mention the Rescue spell`);
     assert.notEqual(hint.text, OLD_BLANKET_HINT, `${id} must not reuse the old blanket hint verbatim`);
   }
-  // pet500 companions: real wild pool encounters, rescueable.
-  const blazePup = getAcquisitionHint('pet500_canine_fire_1');
-  assert.equal(blazePup.kind, 'wild', 'BlazePup must be classified wild');
-  assert.ok(blazePup.text.includes('45%'));
+  // Elemental companions: real wild pool encounters, rescueable.
+  for (const id of ['mossy', 'triptrop', 'aquafox', 'cinderkat', 'snowfluff', 'frostfang', 'zapzap']) {
+    const compHint = getAcquisitionHint(id);
+    assert.equal(compHint.kind, 'wild', `${id} must be classified wild`);
+    assert.ok(compHint.text.includes('45%'));
+  }
 });
 
 test('genuine keystone guardian bosses are never promised rescue', () => {
@@ -117,8 +117,7 @@ test('floraflare is evolution-only and names the real predecessor without level 
 });
 
 test('species with no confirmed route get an honest noncommittal hint', () => {
-  for (const id of ['triptrop', 'charfoal', 'burnie', 'cinderkat', 'aquafox', 'crabbot', 'starfin',
-    'mossy', 'woodling', 'frostfang', 'snowfluff', 'polarcub', 'electromite', 'zapzap', 'windcherub', 'volts']) {
+  for (const id of ['charfoal', 'burnie', 'crabbot', 'starfin', 'woodling', 'polarcub', 'electromite', 'windcherub', 'volts']) {
     const hint = getAcquisitionHint(id);
     assert.equal(hint.kind, 'unknown', `${id} must be classified unknown`);
     assert.ok(hint.text.length > 0, `${id} must still show some copy`);
@@ -323,9 +322,9 @@ test('PetBookModal locked cards show derived acquisition copy; silhouettes, habi
   const findCard = (sprite, habitat) => cards.find(c =>
     c.innerHTML.includes(sprite) && (habitat ? c.innerHTML.includes(habitat) : true));
 
-  // Counter reflects real owned/catalog counts (44 catalog - 1 tutorial mentor = 43).
-  assert.equal(cards.length, 43, 'pet book must show 43 cards');
-  assert.equal(els['pet-book-counter'].textContent, '🐾 已收服精靈：1 / 43');
+  // Counter reflects real owned/catalog counts (34 catalog - 1 tutorial mentor = 33).
+  assert.equal(cards.length, 33, 'pet book must show 33 cards');
+  assert.equal(els['pet-book-counter'].textContent, '🐾 已收服精靈：1 / 33');
 
   // Owned card keeps its existing UI (follow button, no silhouette, no hint tag).
   const hotpotCard = findCard('hotpot.png');
@@ -377,14 +376,14 @@ test('PetBookModal locked cards show derived acquisition copy; silhouettes, habi
   assert.ok(!voltsCard.innerHTML.includes('【💖 Rescue】'), 'unknown card must not advertise Rescue');
   assert.ok(voltsCard.innerHTML.includes('dex-hint-tag'), 'unknown card must still fill the hint slot');
 
-  // Locked BlazePup (pet500): real wild pool encounter, so rescue copy is honest.
-  const pupCard = findCard('pet500_canine_fire_1.png');
-  assert.ok(pupCard, 'locked BlazePup card must render');
-  assert.ok(pupCard.innerHTML.includes('45%'), 'BlazePup is a real wild encounter and must keep rescue copy');
+  // Locked Pyropup: real wild pool encounter, so rescue copy is honest.
+  const pupCard = findCard('pyropup');
+  assert.ok(pupCard, 'locked Pyropup card must render');
+  assert.ok(pupCard.innerHTML.includes('45%'), 'Pyropup is a real wild encounter and must keep rescue copy');
 
   // No locked card anywhere may still carry the old blanket hint.
   const lockedCards = cards.filter(c => c.className.split(' ').includes('locked'));
-  assert.ok(lockedCards.length === 42, 'exactly 42 cards are locked with 1 owned');
+  assert.ok(lockedCards.length === 32, 'exactly 32 cards are locked with 1 owned');
   for (const c of lockedCards) {
     assert.ok(!c.innerHTML.includes(OLD_BLANKET_HINT), 'old blanket hint must be gone from every locked card');
     assert.ok(c.innerHTML.includes('📍 出沒地帶：'), 'every locked card must keep its habitat clue');
