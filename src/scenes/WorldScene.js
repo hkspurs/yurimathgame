@@ -1,6 +1,7 @@
 // WorldScene.js - High-Fidelity Theatrical Adventure World Exploration
 import { eventBus } from '../core/EventBus.js';
 import { PETS_500_DATABASE } from '../battle/PetDatabase500.js';
+import { getPetAssetUrl, getPetConfig } from '../battle/CompanionPetAssets.js';
 
 // Keep ONLY the first 10 Gemini AI-drawn Pokemon pets (hiding the SVG placeholders)
 const PET_LIST = Object.values(PETS_500_DATABASE).filter(p => 
@@ -25,11 +26,11 @@ export const REALM_MONSTER_POOLS = {
   'firefly_forest': [
     ...FOREST_AI,
     { id: 'peeko', name: 'Peeko (葉雀靈)', sprite: './assets/sprites/peeko.png', balloonMsg: '🌱 綠蔭深處 • 點擊戰鬥！', isBoss: false },
-    { id: 'sprout', name: 'Sprout (嫩芽精靈)', sprite: './assets/sprites/sprout.png', balloonMsg: '🌱 嫩綠草甸 • 點擊收服！', isBoss: false }
+    { id: 'sprout', name: 'Sprout (嫩芽精靈)', sprite: getPetAssetUrl('sprout', 'overworld', 'enemy', './assets/sprites/sprout.png'), balloonMsg: '🌱 嫩綠草甸 • 點擊收服！', isBoss: false }
   ],
   'shipwreck_shore': [
     ...SHORE_AI,
-    { id: 'squiddle', name: 'Squiddle (章魚仔)', sprite: './assets/sprites/squiddle.png', balloonMsg: '🌊 潮汐淺灘 • 點擊戰鬥！', isBoss: false },
+    { id: 'squiddle', name: 'Squiddle (章魚仔)', sprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/squiddle.png'), balloonMsg: '🌊 潮汐淺灘 • 點擊戰鬥！', isBoss: false },
     { id: 'fishbol', name: 'Fishbol (小魚獸)', sprite: './assets/sprites/fishbol.png', balloonMsg: '🐠 珊瑚暗礁 • 點擊戰鬥！', isBoss: false }
   ],
   'bonfire_spire': [
@@ -44,7 +45,7 @@ export const REALM_MONSTER_POOLS = {
   ],
   'skywatch': [
     ...SKYWATCH_AI,
-    { id: 'cloudling', name: 'Cloudling (雷雲獸)', sprite: './assets/sprites/cloudling.png', balloonMsg: '⚡ 浮空外圍 • 點擊戰鬥！', isBoss: false },
+    { id: 'cloudling', name: 'Cloudling (雷雲獸)', sprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/cloudling.png'), balloonMsg: '⚡ 浮空外圍 • 點擊戰鬥！', isBoss: false },
     { id: 'stormcloud', name: 'Stormcloud (暴風雲獸)', sprite: './assets/sprites/stormcloud.png', balloonMsg: '☁️ 雲端雷陣 • 點擊戰鬥！', isBoss: false }
   ]
 };
@@ -250,7 +251,7 @@ export class WorldScene {
       'shipwreck_shore': {
         monsterId: 'squiddle',
         monsterName: '章魚仔 (Squiddle)',
-        monsterSprite: './assets/sprites/squiddle.png',
+        monsterSprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/squiddle.png'),
         balloonMsg: '🌊 潮汐淺灘 • 點擊戰鬥！',
         skyTop: '#f5cd79',
         skyBottom: '#eccc68',
@@ -292,7 +293,7 @@ export class WorldScene {
       'skywatch': {
         monsterId: 'cloudling',
         monsterName: '雷雲獸 (Cloudling)',
-        monsterSprite: './assets/sprites/cloudling.png',
+        monsterSprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/cloudling.png'),
         balloonMsg: '⚡ 浮空雷霆 • 點擊戰鬥！',
         skyTop: '#74b9ff',
         skyBottom: '#a29bfe',
@@ -1335,7 +1336,7 @@ export class WorldScene {
     const petB = activePets[1] || null;
 
     // --- Pet A (Left companion) ---
-    const spritePathA = petA.sprite || './assets/sprites/hotpot.png';
+    const spritePathA = getPetAssetUrl(petA.id, 'overworld', 'player', petA.sprite || './assets/sprites/hotpot.png');
     if (!this.followerPet.img.src || !this.followerPet.img.src.includes(spritePathA.replace('./', ''))) {
       this.followerPet.img.src = spritePathA;
     }
@@ -1422,7 +1423,7 @@ export class WorldScene {
 
     // --- Pet B (Right companion, if equipped) ---
     if (petB) {
-      const spritePathB = petB.sprite || './assets/sprites/squiddle.png';
+      const spritePathB = getPetAssetUrl(petB.id, 'overworld', 'player', petB.sprite || './assets/sprites/squiddle.png');
       if (!this.followerPetB.img.src || !this.followerPetB.img.src.includes(spritePathB.replace('./', ''))) {
         this.followerPetB.img.src = spritePathB;
       }

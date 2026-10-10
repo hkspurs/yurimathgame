@@ -1,5 +1,6 @@
 // StoryModal.js - Official Prodigy Math Game Opening Prologue, Mentor Dialogue, Starter Pet Selection & Puppet Master Crisis
 import { eventBus } from '../core/EventBus.js';
+import { getPetAssetUrl } from '../battle/CompanionPetAssets.js';
 
 export const STARTER_PETS = [
   {
@@ -21,7 +22,7 @@ export const STARTER_PETS = [
     elementLabel: '💧 水流系 (Water)',
     title: '潮汐蔚藍小精靈',
     desc: '機敏聰慧的海中精靈，身具澄澈流水護佑。擅長清涼浪濤與水流衝擊！',
-    sprite: './assets/sprites/squiddle.png',
+    sprite: getPetAssetUrl('squiddle', 'portrait', 'player', './assets/sprites/squiddle.png'),
     maxHp: 55,
     attack: 10,
     skillName: 'Ink Spray (墨汁噴射)'
@@ -57,7 +58,7 @@ export const STARTER_PETS = [
     elementLabel: '⚡ 風暴系 (Storm)',
     title: '浮空迅捷小精靈',
     desc: '靈動活潑的雷雲之靈，周身環繞閃耀電芒。擅長迅捷電弧與雷霆震撼！',
-    sprite: './assets/sprites/cloudling.png',
+    sprite: getPetAssetUrl('cloudling', 'portrait', 'player', './assets/sprites/cloudling.png'),
     maxHp: 52,
     attack: 13,
     skillName: 'Thunder Shock (雷電擊)'

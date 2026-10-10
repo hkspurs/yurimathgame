@@ -1,5 +1,6 @@
 // InventoryModal.js - Displays canonical Warden Keystones, Rescued Pets, and Gear
 import { eventBus } from '../core/EventBus.js';
+import { getPetAssetUrl } from '../battle/CompanionPetAssets.js';
 
 const KEYSTONE_DEFS = [
   { id: 'earth', name: '大地神石 (Earth Keystone)', sprite: './assets/sprites/keystone_earth.png', icon: '🌱' },
@@ -72,7 +73,7 @@ export class InventoryModal {
           return `
             <div class="pet-card ${isFollower ? 'active-follower' : ''}">
               <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; margin: 0 auto 4px;">
-                <img src="${p.sprite || './assets/sprites/hotpot.png'}" style="width:38px; height:38px; image-rendering:pixelated;" alt="${p.name}">
+                <img src="${getPetAssetUrl(p.id, 'icon', 'player', p.sprite || './assets/sprites/hotpot.png')}" style="width:38px; height:38px; object-fit:contain;" alt="${p.name}">
               </div>
               <div class="pet-name">${p.name}</div>
               <div class="pet-tag">Lv.${p.level} • ${p.element}</div>

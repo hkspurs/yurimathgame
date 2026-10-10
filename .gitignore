@@ -12,3 +12,4 @@ playtest_*.png
 !public/assets/**
 __pycache__/
 playtest_portrait/
+*.cjs

@@ -1,5 +1,6 @@
 // BattleScene.js - Theatrical RPG Battle Arena Canvas Rendering
 import { eventBus } from '../core/EventBus.js';
+import { getPetAssetUrl, getPetConfig } from '../battle/CompanionPetAssets.js';
 
 export class BattleScene {
   constructor(canvas) {
@@ -71,9 +72,8 @@ export class BattleScene {
     if (!this.petImgB) this.petImgB = new Image();
 
     if (this.activePet) {
-      if (this.activePet.sprite) {
-        this.petImg.src = this.activePet.sprite;
-      }
+      const petSprite = getPetAssetUrl(this.activePet.id, 'battle', 'player', this.activePet.sprite);
+      this.petImg.src = petSprite;
       this.petMaxHp = this.activePet.maxHp || (60 + ((this.activePet.level || 1) - 1) * 15);
       this.petHp = this.activePet.hp !== undefined ? this.activePet.hp : this.petMaxHp;
       this.petIsFainted = !!this.activePet.isFainted;
@@ -84,9 +84,8 @@ export class BattleScene {
     }
 
     if (this.activePetB) {
-      if (this.activePetB.sprite) {
-        this.petImgB.src = this.activePetB.sprite;
-      }
+      const petSpriteB = getPetAssetUrl(this.activePetB.id, 'battle', 'player', this.activePetB.sprite);
+      this.petImgB.src = petSpriteB;
       this.petMaxHpB = this.activePetB.maxHp || (60 + ((this.activePetB.level || 1) - 1) * 15);
       this.petHpB = this.activePetB.hp !== undefined ? this.activePetB.hp : this.petMaxHpB;
       this.petIsFaintedB = !!this.activePetB.isFainted;
@@ -95,8 +94,9 @@ export class BattleScene {
       this.petMaxHpB = 0;
       this.petIsFaintedB = false;
     }
-    if (monster && monster.sprite) {
-      this.monsterImg.src = monster.sprite;
+    if (monster) {
+      const monsterSprite = getPetAssetUrl(monster.id, 'battle', 'enemy', monster.sprite);
+      this.monsterImg.src = monsterSprite;
     }
     this.damageTexts = [];
     this.projectiles = [];
@@ -487,7 +487,10 @@ export class BattleScene {
     // 5.1 Render Active Companion Pet A (beside wizard, front-left)
     if (this.activePet && this.petImg.complete && this.petImg.naturalWidth > 0) {
       const isFainted = this.petIsFainted || this.petHp <= 0;
-      let petBob = Math.sin(this.timer * 1.3 + 1.2) * 2.5;
+      const petCfg = getPetConfig(this.activePet.id);
+      const cycleSpd = petCfg?.idleCycleSpeed || 1.3;
+      const bobAmp = petCfg?.idleBobAmp || 2.5;
+      let petBob = Math.sin(this.timer * cycleSpd + 1.2) * bobAmp;
       let jumpOffsetX = 0;
       let jumpOffsetY = 0;
       if (this.petJumpTimer > 0) {
@@ -496,9 +499,18 @@ export class BattleScene {
         jumpOffsetY = -Math.sin(jumpProgress * Math.PI) * (isPortrait ? 16 : 22);
       }
 
-      const petSize = Math.round(playerSize * (isPortrait ? 0.56 : 0.62));
+      const scaleMult = petCfg?.scale || 1.0;
+      const petSize = Math.round(playerSize * (isPortrait ? 0.58 : 0.65) * scaleMult);
       const petX = (isPortrait ? Math.round(w * 0.36) : Math.round(w * 0.32)) + jumpOffsetX;
       const petY = groundY - petSize + 10 + petBob + jumpOffsetY;
+
+      // Ground shadow under active companion pet A
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+      ctx.beginPath();
+      ctx.ellipse(petX, groundY + 4, Math.round(petSize * 0.36), Math.round(petSize * 0.13), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
       ctx.save();
       ctx.imageSmoothingEnabled = false;
@@ -524,11 +536,23 @@ export class BattleScene {
     // 5.2 Render Active Companion Pet B (back-left or flank, if present)
     if (this.activePetB && this.petImgB && this.petImgB.complete && this.petImgB.naturalWidth > 0) {
       const isFaintedB = this.petIsFaintedB || this.petHpB <= 0;
-      let petBobB = Math.sin(this.timer * 1.4 + 2.5) * 2.5;
+      const petCfgB = getPetConfig(this.activePetB.id);
+      const cycleSpdB = petCfgB?.idleCycleSpeed || 1.4;
+      const bobAmpB = petCfgB?.idleBobAmp || 2.5;
+      let petBobB = Math.sin(this.timer * cycleSpdB + 2.5) * bobAmpB;
 
-      const petSizeB = Math.round(playerSize * (isPortrait ? 0.52 : 0.58));
+      const scaleMultB = petCfgB?.scale || 1.0;
+      const petSizeB = Math.round(playerSize * (isPortrait ? 0.54 : 0.60) * scaleMultB);
       const petXB = isPortrait ? Math.round(w * 0.48) : Math.round(w * 0.42);
       const petYB = groundY - petSizeB - 14 + petBobB;
+
+      // Ground shadow under companion pet B
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+      ctx.beginPath();
+      ctx.ellipse(petXB, groundY - 8, Math.round(petSizeB * 0.34), Math.round(petSizeB * 0.12), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
       ctx.save();
       ctx.imageSmoothingEnabled = false;

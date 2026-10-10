@@ -1,5 +1,6 @@
 // CanonDatabase.js - Official Prodigy Math Game Canon Items, Monsters, and Shop Database
 import { PETS_500_DATABASE } from './PetDatabase500.js';
+import { getPetAssetUrl } from './CompanionPetAssets.js';
 
 export const CANON_ITEMS = {
   wands: [
@@ -97,7 +98,7 @@ export const BASE_CANON_MONSTERS = {
     level: 4,
     maxHp: 80,
     attack: 14,
-    sprite: './assets/sprites/squiddle.png',
+    sprite: getPetAssetUrl('squiddle', 'portrait', 'player', './assets/sprites/squiddle.png'),
     weakness: 'storm',
     resistance: 'fire',
     skills: [{ name: 'Ink Spray (墨汁噴射)', power: 13, text: 'Squiddle 噴出了漆黑的深海墨汁！' }],
@@ -236,7 +237,7 @@ export const BASE_CANON_MONSTERS = {
     level: 14,
     maxHp: 200,
     attack: 32,
-    sprite: './assets/sprites/cloudling.png',
+    sprite: getPetAssetUrl('cloudling', 'portrait', 'player', './assets/sprites/cloudling.png'),
     weakness: 'earth',
     resistance: 'water',
     skills: [{ name: 'Thunder Shock (雷電擊)', power: 30, text: 'Cloudling 發射出一道霹靂電光！' }],
@@ -356,7 +357,7 @@ export const BASE_CANON_MONSTERS = {
     level: 3,
     maxHp: 65,
     attack: 11,
-    sprite: './assets/sprites/sprout.png',
+    sprite: getPetAssetUrl('sprout', 'portrait', 'player', './assets/sprites/sprout.png'),
     weakness: 'fire',
     resistance: 'water',
     skills: [{ name: 'Leaf Cutter (飛葉切)', power: 11, text: 'Sprout 投擲出鋒利的翠綠飛葉！' }],
