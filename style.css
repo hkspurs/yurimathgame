@@ -5018,9 +5018,10 @@ html, body {
     position: absolute;
     top: 50px;
     left: 8px;
-    padding: 2px 7px;
-    font-size: 10px;
-    max-width: 140px;
+    padding: 3px 9px;
+    font-size: 13px;
+    font-weight: 800;
+    max-width: 155px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -5028,10 +5029,11 @@ html, body {
 
   #hud-mode-badge {
     position: absolute;
-    top: 74px;
+    top: 78px;
     left: 8px;
-    padding: 2px 6px;
-    font-size: 10px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
     white-space: nowrap;
   }
 
@@ -5402,8 +5404,8 @@ html, body {
     flex: 0 0 100% !important;
     width: 100% !important;
     order: 1 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
     color: #ffeaa7 !important;
     text-align: center !important;
     letter-spacing: 0.2px !important;
@@ -5411,7 +5413,7 @@ html, body {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    padding: 2px 4px !important;
+    padding: 3px 6px !important;
     margin: 0 !important;
     line-height: 1.3 !important;
   }
@@ -5421,13 +5423,13 @@ html, body {
     order: 2 !important;
     display: flex !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
 
   .dock-energy-label {
-    font-size: 11px !important;
+    font-size: 13px !important;
     font-weight: 800 !important;
     color: #f1c40f !important;
     text-shadow: 0 1px 2px #000 !important;
@@ -5437,12 +5439,12 @@ html, body {
 
   .mana-pips {
     display: flex !important;
-    gap: 4px !important;
+    gap: 5px !important;
   }
 
   .mana-crystal {
-    width: 12px !important;
-    height: 16px !important;
+    width: 13px !important;
+    height: 17px !important;
   }
 
   .dock-buffs-cluster {
@@ -5453,8 +5455,8 @@ html, body {
   }
 
   .battle-buff-badge {
-    font-size: 9.5px !important;
-    padding: 2px 6px !important;
+    font-size: 11px !important;
+    padding: 2px 7px !important;
     border-radius: 8px !important;
     font-weight: 800 !important;
   }
@@ -5473,9 +5475,11 @@ html, body {
 
   .dock-rescue-btn {
     order: 4 !important;
-    padding: 3px 8px !important;
-    font-size: 10px !important;
-    border-radius: 14px !important;
+    padding: 5px 12px !important;
+    min-height: 34px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 16px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
     margin-left: auto !important;
@@ -5483,9 +5487,11 @@ html, body {
 
   .dock-flee-btn {
     order: 5 !important;
-    padding: 3px 8px !important;
-    font-size: 10px !important;
-    border-radius: 8px !important;
+    padding: 5px 10px !important;
+    min-height: 34px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
@@ -5495,12 +5501,12 @@ html, body {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 12px !important;
+    gap: 10px !important;
     width: 100% !important;
-    height: 84px !important;
-    min-height: 84px !important;
-    max-height: 84px !important;
-    padding: 4px 8px 6px !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    max-height: 88px !important;
+    padding: 6px 10px !important;
     overflow-x: auto !important;
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch !important;
@@ -5518,54 +5524,72 @@ html, body {
     flex-direction: column !important;
     align-items: center !important;
     gap: 4px !important;
-    min-width: 58px !important;
-    max-width: 76px !important;
-    padding: 0 !important;
+    min-width: 60px !important;
+    min-height: 72px !important;
+    padding: 2px !important;
     background: none !important;
     border: none !important;
     flex-shrink: 0 !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
-    transition: transform 0.15s ease !important;
+    transition: transform 0.15s ease, filter 0.15s ease !important;
+  }
+
+  .spell-orb-btn.low-energy .orb-disc {
+    opacity: 0.55 !important;
+    border-color: #747d8c !important;
+    filter: grayscale(0.5) !important;
+  }
+
+  .spell-orb-btn.active-spell .orb-disc {
+    border-color: #ffffff !important;
+    box-shadow: 0 0 16px rgba(255, 234, 167, 1), 0 0 8px #f1c40f !important;
+    transform: scale(1.08) !important;
   }
 
   .orb-disc {
     width: 48px !important;
     height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
     border-radius: 50% !important;
     position: relative !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    border: 2px solid #f1c40f !important;
+    border: 2.5px solid #f1c40f !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.35) !important;
   }
 
   .orb-icon {
-    font-size: 20px !important;
+    font-size: 22px !important;
     line-height: 1 !important;
   }
 
   .orb-cost-badge {
     position: absolute !important;
-    top: -4px !important;
-    right: -4px !important;
-    font-size: 9px !important;
+    top: -5px !important;
+    right: -7px !important;
+    font-size: 9.5px !important;
     font-weight: 800 !important;
     padding: 1px 5px !important;
-    border-radius: 9px !important;
+    border-radius: 8px !important;
     z-index: 5 !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8) !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
   }
 
   .orb-label {
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    color: #f1f2f6 !important;
-    text-shadow: 0 1px 3px #000 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 2px #000 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 72px !important;
+    max-width: 76px !important;
     text-align: center !important;
     line-height: 1.2 !important;
   }

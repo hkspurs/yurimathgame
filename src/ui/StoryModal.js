@@ -10,7 +10,7 @@ export const STARTER_PETS = [
     elementLabel: '🔥 烈焰系 (Fire)',
     title: '熾熱活力小精靈',
     desc: '熱情勇敢的火之精靈，頭上燃燒著不滅的希望之火。擅長高爆發火焰法術！',
-    sprite: './assets/sprites/hotpot.png',
+    sprite: getPetAssetUrl('hotpot', 'portrait', 'player'),
     maxHp: 50,
     attack: 12,
     skillName: 'Spit Fire (吐火星)'
@@ -34,7 +34,7 @@ export const STARTER_PETS = [
     elementLabel: '🌱 大地系 (Earth)',
     title: '生機古林小精靈',
     desc: '親切純真的自然之靈，身披翡翠羽翼。擅長生機藤蔓與飛葉守護！',
-    sprite: './assets/sprites/peeko.png',
+    sprite: getPetAssetUrl('peeko', 'portrait', 'player'),
     maxHp: 60,
     attack: 9,
     skillName: 'Peck (啄擊)'
@@ -46,7 +46,7 @@ export const STARTER_PETS = [
     elementLabel: '❄️ 冰霜系 (Ice)',
     title: '極地玄冰小精靈',
     desc: '堅韌沉靜的雪原之靈，身裹厚實絨雪。擅長重裝雪球與冰霜凝結！',
-    sprite: './assets/sprites/snoot.png',
+    sprite: getPetAssetUrl('snoot', 'portrait', 'player'),
     maxHp: 58,
     attack: 11,
     skillName: 'Snowball (重裝雪球)'

@@ -157,10 +157,12 @@ export class BattleEngine {
 
   handleMathResult(isCorrect) {
     if (this.isFinished || !this.pendingAction) return;
+    const action = this.pendingAction;
+    this.pendingAction = null;
     this.isBusy = true;
     this.turnInProgress = true;
 
-    if (this.pendingAction.type === 'rescue') {
+    if (action.type === 'rescue') {
       if (isCorrect) {
         this.handleRescueSuccess();
       } else {
@@ -171,8 +173,8 @@ export class BattleEngine {
       return;
     }
 
-    const spell = this.pendingAction.spell;
-    const attacker = this.pendingAction.attacker || 'player';
+    const spell = action.spell;
+    const attacker = action.attacker || 'player';
 
     if (isCorrect) {
       this.gameState.progressBounty('math_correct', 1);

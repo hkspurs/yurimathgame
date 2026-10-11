@@ -157,13 +157,20 @@ export class MathModal {
   }
 
   close() {
+    this.isSubmitting = false;
     this.modalEl.classList.add('hidden');
   }
 
   submitAnswer() {
-    if (!this.selectedAnswer || !this.currentQuestion) return;
+    if (this.isSubmitting || !this.selectedAnswer || !this.currentQuestion) return;
+    this.isSubmitting = true;
 
     this.submitBtn.disabled = true;
+    // Lock all option buttons immediately to prevent altering selection during resolution
+    this.choicesContainer.querySelectorAll('.rune-seal-btn').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+    });
+
     const isCorrect = String(this.selectedAnswer).trim() === String(this.currentQuestion.correctAnswer).trim();
 
     this.feedbackEl.classList.remove('hidden');
@@ -178,7 +185,8 @@ export class MathModal {
     } else {
       this.playChime('wrong');
       this.feedbackEl.className = 'incantation-feedback wrong';
-      this.feedbackEl.textContent = `❌ 答案不正確！正確答案是 ${this.currentQuestion.correctAnswer}。魔法出現了失誤！`;
+      const expl = this.currentQuestion.explanation ? ` (${this.currentQuestion.explanation})` : '';
+      this.feedbackEl.textContent = `❌ 答案不正確！正確答案是 ${this.currentQuestion.correctAnswer}${expl}。魔法失靈了！別氣餒，我們重整旗鼓！`;
       setTimeout(() => {
         this.close();
         eventBus.emit('MATH_QUESTION_ANSWERED', { isCorrect: false });

@@ -5,33 +5,33 @@ import { getPetAssetUrl, getPetConfig } from '../battle/CompanionPetAssets.js';
 
 export const REALM_MONSTER_POOLS = {
   'firefly_forest': [
-    { id: 'sprout', name: 'Sprout (芽芽草熊)', sprite: getPetAssetUrl('sprout', 'overworld', 'enemy', './assets/sprites/sprout.png'), balloonMsg: '🌱 嫩綠草甸 • 點擊收服！', isBoss: false },
-    { id: 'peeko', name: 'Peeko (葉羽雀靈)', sprite: getPetAssetUrl('peeko', 'overworld', 'enemy', './assets/sprites/peeko.png'), balloonMsg: '🌿 樹蔭枝頭 • 點擊戰鬥！', isBoss: false },
-    { id: 'mossy', name: 'Mossy (苔原水豚)', sprite: getPetAssetUrl('mossy', 'overworld', 'enemy', './assets/sprites/mossy.png'), balloonMsg: '🍃 濕地溪畔 • 點擊戰鬥！', isBoss: false }
+    { id: 'sprout', name: 'Sprout (芽芽草熊)', sprite: getPetAssetUrl('sprout', 'overworld', 'enemy', './assets/sprites/companions/sprout_overworld.png'), balloonMsg: '🌱 嫩綠草甸 • 點擊收服！', isBoss: false },
+    { id: 'peeko', name: 'Peeko (葉羽雀靈)', sprite: getPetAssetUrl('peeko', 'overworld', 'enemy', './assets/sprites/companions/peeko.png'), balloonMsg: '🌿 樹蔭枝頭 • 點擊戰鬥！', isBoss: false },
+    { id: 'mossy', name: 'Mossy (苔原水豚)', sprite: getPetAssetUrl('mossy', 'overworld', 'enemy', './assets/sprites/companions/mossy_overworld.png'), balloonMsg: '🍃 濕地溪畔 • 點擊戰鬥！', isBoss: false }
   ],
   'shipwreck_shore': [
-    { id: 'squiddle', name: 'Squiddle (水滴萌兔)', sprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/squiddle.png'), balloonMsg: '🌊 潮汐淺灘 • 點擊收服！', isBoss: false },
-    { id: 'fishbol', name: 'Fishbol (泡泡刺魨)', sprite: getPetAssetUrl('fishbol', 'overworld', 'enemy', './assets/sprites/fishbol.png'), balloonMsg: '🫧 珊瑚暗礁 • 點擊戰鬥！', isBoss: false },
-    { id: 'triptrop', name: 'TripTrop (碧浪海龜)', sprite: getPetAssetUrl('triptrop', 'overworld', 'enemy', './assets/sprites/triptrop.png'), balloonMsg: '🐢 暖陽沙灘 • 點擊戰鬥！', isBoss: false },
-    { id: 'aquafox', name: 'Aquafox (浪花靈狐)', sprite: getPetAssetUrl('aquafox', 'overworld', 'enemy', './assets/sprites/aquafox.png'), balloonMsg: '🦊 蔚藍海岸 • 點擊戰鬥！', isBoss: false }
+    { id: 'squiddle', name: 'Squiddle (水滴萌兔)', sprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/companions/squiddle.png'), balloonMsg: '🌊 潮汐淺灘 • 點擊收服！', isBoss: false },
+    { id: 'fishbol', name: 'Fishbol (泡泡刺魨)', sprite: getPetAssetUrl('fishbol', 'overworld', 'enemy', './assets/sprites/companions/fishbol_overworld.png'), balloonMsg: '🫧 珊瑚暗礁 • 點擊戰鬥！', isBoss: false },
+    { id: 'triptrop', name: 'TripTrop (碧浪海龜)', sprite: getPetAssetUrl('triptrop', 'overworld', 'enemy', './assets/sprites/companions/triptrop_overworld.png'), balloonMsg: '🐢 暖陽沙灘 • 點擊戰鬥！', isBoss: false },
+    { id: 'aquafox', name: 'Aquafox (浪花靈狐)', sprite: getPetAssetUrl('aquafox', 'overworld', 'enemy', './assets/sprites/companions/aquafox_overworld.png'), balloonMsg: '🦊 蔚藍海岸 • 點擊戰鬥！', isBoss: false }
   ],
   'bonfire_spire': [
-    { id: 'hotpot', name: 'Hotpot (炭火陶甲獸)', sprite: getPetAssetUrl('hotpot', 'overworld', 'enemy', './assets/sprites/hotpot.png'), balloonMsg: '🍲 熔岩暖灶 • 點擊收服！', isBoss: false },
-    { id: 'pyropup', name: 'Pyropup (烈焰柴犬)', sprite: getPetAssetUrl('pyropup', 'overworld', 'enemy', './assets/sprites/pyropup.png'), balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false },
-    { id: 'cinderkat', name: 'Cinderkat (餘燼暖貓)', sprite: getPetAssetUrl('cinderkat', 'overworld', 'enemy', './assets/sprites/cinderkat.png'), balloonMsg: '🐱 餘燼岩隙 • 點擊戰鬥！', isBoss: false },
-    { id: 'magmay', name: 'Magmay (熔岩幼龍)', sprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/magmay.png'), balloonMsg: '🌋 黑曜石山道 • 點擊戰鬥！', isBoss: false }
+    { id: 'hotpot', name: 'Hotpot (炭火陶甲獸)', sprite: getPetAssetUrl('hotpot', 'overworld', 'enemy', './assets/sprites/companions/hotpot.png'), balloonMsg: '🍲 熔岩暖灶 • 點擊收服！', isBoss: false },
+    { id: 'pyropup', name: 'Pyropup (烈焰柴犬)', sprite: getPetAssetUrl('pyropup', 'overworld', 'enemy', './assets/sprites/companions/pyropup_overworld.png'), balloonMsg: '🐶 赤焰熔岩 • 點擊戰鬥！', isBoss: false },
+    { id: 'cinderkat', name: 'Cinderkat (餘燼暖貓)', sprite: getPetAssetUrl('cinderkat', 'overworld', 'enemy', './assets/sprites/companions/cinderkat_overworld.png'), balloonMsg: '🐱 餘燼岩隙 • 點擊戰鬥！', isBoss: false },
+    { id: 'magmay', name: 'Magmay (熔岩幼龍)', sprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/companions/magmay.png'), balloonMsg: '🌋 黑曜石山道 • 點擊戰鬥！', isBoss: false }
   ],
   'shiverchill_mountains': [
-    { id: 'snoot', name: 'Snoot (雪絨企鵝)', sprite: getPetAssetUrl('snoot', 'overworld', 'enemy', './assets/sprites/snoot.png'), balloonMsg: '❄️ 霜凍松林 • 點擊戰鬥！', isBoss: false },
-    { id: 'chillwing', name: 'Chillwing (霜羽雪鴞)', sprite: getPetAssetUrl('chillwing', 'overworld', 'enemy', './assets/sprites/chillwing.png'), balloonMsg: '🦅 冰雪懸崖 • 點擊戰鬥！', isBoss: false },
-    { id: 'snowfluff', name: 'Snowfluff (雪球圓雀)', sprite: getPetAssetUrl('snowfluff', 'overworld', 'enemy', './assets/sprites/snowfluff.png'), balloonMsg: '🌨️ 白雪山嶺 • 點擊戰鬥！', isBoss: false },
-    { id: 'frostfang', name: 'Frostfang (冰川海豹)', sprite: getPetAssetUrl('frostfang', 'overworld', 'enemy', './assets/sprites/frostfang.png'), balloonMsg: '🦭 浮冰海灣 • 點擊戰鬥！', isBoss: false }
+    { id: 'snoot', name: 'Snoot (雪絨企鵝)', sprite: getPetAssetUrl('snoot', 'overworld', 'enemy', './assets/sprites/companions/snoot.png'), balloonMsg: '❄️ 霜凍松林 • 點擊戰鬥！', isBoss: false },
+    { id: 'chillwing', name: 'Chillwing (霜羽雪鴞)', sprite: getPetAssetUrl('chillwing', 'overworld', 'enemy', './assets/sprites/companions/chillwing_overworld.png'), balloonMsg: '🦅 冰雪懸崖 • 點擊戰鬥！', isBoss: false },
+    { id: 'snowfluff', name: 'Snowfluff (雪球圓雀)', sprite: getPetAssetUrl('snowfluff', 'overworld', 'enemy', './assets/sprites/companions/snowfluff_overworld.png'), balloonMsg: '🌨️ 白雪山嶺 • 點擊戰鬥！', isBoss: false },
+    { id: 'frostfang', name: 'Frostfang (冰川海豹)', sprite: getPetAssetUrl('frostfang', 'overworld', 'enemy', './assets/sprites/companions/frostfang_overworld.png'), balloonMsg: '🦭 浮冰海灣 • 點擊戰鬥！', isBoss: false }
   ],
   'skywatch': [
-    { id: 'cloudling', name: 'Cloudling (雷電倉鼠)', sprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/cloudling.png'), balloonMsg: '⚡ 浮空外圍 • 點擊收服！', isBoss: false },
-    { id: 'stormcloud', name: 'Stormcloud (雷雲飛鼠)', sprite: getPetAssetUrl('stormcloud', 'overworld', 'enemy', './assets/sprites/stormcloud.png'), balloonMsg: '☁️ 雲端雷陣 • 點擊戰鬥！', isBoss: false },
-    { id: 'galehound', name: 'Galehound (疾風獵犬)', sprite: getPetAssetUrl('galehound', 'overworld', 'enemy', './assets/sprites/galehound.png'), balloonMsg: '🌪️ 狂風石階 • 點擊戰鬥！', isBoss: false },
-    { id: 'zapzap', name: 'Zapzap (電光飛蜥)', sprite: getPetAssetUrl('zapzap', 'overworld', 'enemy', './assets/sprites/zapzap.png'), balloonMsg: '🦎 雷霆尖塔 • 點擊戰鬥！', isBoss: false }
+    { id: 'cloudling', name: 'Cloudling (雷電倉鼠)', sprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/companions/cloudling_overworld.png'), balloonMsg: '⚡ 浮空外圍 • 點擊收服！', isBoss: false },
+    { id: 'stormcloud', name: 'Stormcloud (雷雲飛鼠)', sprite: getPetAssetUrl('stormcloud', 'overworld', 'enemy', './assets/sprites/companions/stormcloud_overworld.png'), balloonMsg: '☁️ 雲端雷陣 • 點擊戰鬥！', isBoss: false },
+    { id: 'galehound', name: 'Galehound (疾風獵犬)', sprite: getPetAssetUrl('galehound', 'overworld', 'enemy', './assets/sprites/companions/galehound_overworld.png'), balloonMsg: '🌪️ 狂風石階 • 點擊戰鬥！', isBoss: false },
+    { id: 'zapzap', name: 'Zapzap (電光飛蜥)', sprite: getPetAssetUrl('zapzap', 'overworld', 'enemy', './assets/sprites/companions/zapzap_overworld.png'), balloonMsg: '🦎 雷霆尖塔 • 點擊戰鬥！', isBoss: false }
   ]
 };
 
@@ -236,7 +236,7 @@ export class WorldScene {
       'shipwreck_shore': {
         monsterId: 'squiddle',
         monsterName: '章魚仔 (Squiddle)',
-        monsterSprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/squiddle.png'),
+        monsterSprite: getPetAssetUrl('squiddle', 'overworld', 'enemy', './assets/sprites/companions/squiddle.png'),
         balloonMsg: '🌊 潮汐淺灘 • 點擊戰鬥！',
         skyTop: '#f5cd79',
         skyBottom: '#eccc68',
@@ -250,7 +250,7 @@ export class WorldScene {
       'bonfire_spire': {
         monsterId: 'magmay',
         monsterName: '熔岩獸 (Magmay)',
-        monsterSprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/magmay.png'),
+        monsterSprite: getPetAssetUrl('magmay', 'overworld', 'enemy', './assets/sprites/companions/magmay.png'),
         balloonMsg: '🌋 熔火黑曜石 • 點擊戰鬥！',
         skyTop: '#2f3542',
         skyBottom: '#1e272e',
@@ -264,7 +264,7 @@ export class WorldScene {
       'shiverchill_mountains': {
         monsterId: 'snoot',
         monsterName: '雪鼻獸 (Snoot)',
-        monsterSprite: getPetAssetUrl('snoot', 'overworld', 'enemy', './assets/sprites/snoot.png'),
+        monsterSprite: getPetAssetUrl('snoot', 'overworld', 'enemy', './assets/sprites/companions/snoot.png'),
         balloonMsg: '❄️ 霜凍極地 • 點擊戰鬥！',
         skyTop: '#f1f2f6',
         skyBottom: '#dfe4ea',
@@ -278,7 +278,7 @@ export class WorldScene {
       'skywatch': {
         monsterId: 'cloudling',
         monsterName: '雷雲獸 (Cloudling)',
-        monsterSprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/cloudling.png'),
+        monsterSprite: getPetAssetUrl('cloudling', 'overworld', 'enemy', './assets/sprites/companions/cloudling_overworld.png'),
         balloonMsg: '⚡ 浮空雷霆 • 點擊戰鬥！',
         skyTop: '#74b9ff',
         skyBottom: '#a29bfe',
@@ -797,7 +797,7 @@ export class WorldScene {
           maxHp: 80,
           hp: 80,
           attack: 14,
-          sprite: './assets/sprites/peeko.png'
+          sprite: './assets/sprites/companions/peeko.png'
         });
         this.gameState.activePetId = 'peeko';
         activePet = this.getActivePet();
@@ -1321,7 +1321,7 @@ export class WorldScene {
     const petB = activePets[1] || null;
 
     // --- Pet A (Left companion) ---
-    const spritePathA = getPetAssetUrl(petA.id, 'overworld', 'player', petA.sprite || './assets/sprites/hotpot.png');
+    const spritePathA = getPetAssetUrl(petA.id, 'overworld', 'player', petA.sprite || './assets/sprites/companions/hotpot.png');
     if (!this.followerPet.img.src || !this.followerPet.img.src.includes(spritePathA.replace('./', ''))) {
       this.followerPet.img.src = spritePathA;
     }
@@ -1408,7 +1408,7 @@ export class WorldScene {
 
     // --- Pet B (Right companion, if equipped) ---
     if (petB) {
-      const spritePathB = getPetAssetUrl(petB.id, 'overworld', 'player', petB.sprite || './assets/sprites/squiddle.png');
+      const spritePathB = getPetAssetUrl(petB.id, 'overworld', 'player', petB.sprite || './assets/sprites/companions/squiddle.png');
       if (!this.followerPetB.img.src || !this.followerPetB.img.src.includes(spritePathB.replace('./', ''))) {
         this.followerPetB.img.src = spritePathB;
       }

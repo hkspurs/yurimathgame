@@ -7,7 +7,7 @@ import { BattleScene } from './scenes/BattleScene.js';
 import { HUD } from './ui/HUD.js';
 import { MathModal } from './ui/MathModal.js';
 import { MONSTERS } from './battle/Monsters.js';
-import { SPELLS, registerPetSpell } from './battle/Spells.js';
+import { SPELLS, registerPetSpell, getSpellShortName } from './battle/Spells.js';
 import { WORLDS } from './battle/Worlds.js';
 import { BattleEngine } from './battle/BattleEngine.js';
 import { audioManager } from './core/AudioManager.js';
@@ -677,7 +677,7 @@ class GameApp {
         this.isEggHatched = true;
 
         const babyPets = [
-          { id: 'baby_peeko', name: '蛋殼皮克鳥 (Shell-Peeko)', icon: '🐣', tagline: '頂著五彩斑斕的蛋殼帽，發出清脆的啾啾叫聲！', element: 'earth', sprite: './assets/sprites/peeko.png' },
+          { id: 'baby_peeko', name: '蛋殼皮克鳥 (Shell-Peeko)', icon: '🐣', tagline: '頂著五彩斑斕的蛋殼帽，發出清脆的啾啾叫聲！', element: 'earth', sprite: './assets/sprites/companions/peeko.png' },
           { id: 'baby_rexy', name: '迷你晶角龍 (Baby Rexy)', icon: '🦕', tagline: '渾身閃閃發光的綠色幼龍，好奇地咬了咬你的手指！', element: 'water', sprite: './assets/sprites/diveosaur.png' },
           { id: 'baby_foxling', name: '萌火小狐狸 (Ember Foxling)', icon: '🦊', tagline: '尾巴燃燒著溫暖的小火焰，開心地搖來搖去！', element: 'fire', sprite: './assets/sprites/ember_fox.png' }
         ];
@@ -959,9 +959,9 @@ class GameApp {
         setTimeout(() => {
           this.battleBannerEl.classList.add('hidden');
           this.battleBannerEl.classList.remove('banner-exit');
-        }, 300);
+        }, 250);
       }
-    }, 1300);
+    }, 750);
   }
 
   startBattle(monsterId) {
@@ -1089,31 +1089,41 @@ class GameApp {
         costBadge = `${spell.energyCost}⚡`;
       }
 
+      const isLowEnergy = !isPotion && !isPet && spell.energyCost > 0 && this.gameState.energy < spell.energyCost;
       const isDisabled = (isPotion && this.gameState.potionsCount <= 0) || isPetFainted;
 
+      const shortName = getSpellShortName(spell.name);
+
       const btn = document.createElement('button');
-      btn.className = `spell-orb-btn ${isPet ? 'pet-spell-btn' : ''} ${isDisabled ? 'disabled' : ''}`;
+      btn.className = `spell-orb-btn ${isPet ? 'pet-spell-btn' : ''} ${isDisabled ? 'disabled' : ''} ${isLowEnergy ? 'low-energy' : ''}`;
       if (isDisabled) btn.disabled = true;
+      btn.setAttribute('data-spell-id', spellId);
+      btn.setAttribute('title', `${spell.name}: ${spell.desc}`);
 
       btn.innerHTML = `
         <div class="orb-disc element-${spell.element || 'neutral'}">
           <span class="orb-icon">${spell.icon}</span>
           <span class="orb-cost-badge ${isPet ? 'badge-pet' : ''}">${costBadge}</span>
         </div>
-        <span class="orb-label">${spell.name}</span>
+        <span class="orb-label" title="${spell.name}">${shortName}</span>
       `;
 
-      btn.addEventListener('mouseenter', () => {
+      const showSpellInfo = () => {
         if (this.battleMessageEl) {
           if (isPet && isPetFainted) {
             this.battleMessageEl.textContent = `💫 守護精靈 ${spell.petName || '精靈'} 體力耗盡昏迷中，無法出戰！請使用巫師法術或生命藥水！`;
           } else if (isPotion && isDisabled) {
             this.battleMessageEl.textContent = `🎒 生命藥水已耗盡！可前往燈火鎮布洛克商店購買。`;
+          } else if (isLowEnergy) {
+            this.battleMessageEl.textContent = `⚡ 魔力不足！【${spell.name}】需 ${spell.energyCost} 顆魔力水晶 (當前: ${this.gameState.energy})，請先用 0 消耗法術蓄力！`;
           } else {
             this.battleMessageEl.textContent = `${spell.icon} ${spell.name} [${costBadge}] • ${spell.desc}`;
           }
         }
-      });
+      };
+
+      btn.addEventListener('mouseenter', showSpellInfo);
+      btn.addEventListener('touchstart', showSpellInfo, { passive: true });
 
       btn.addEventListener('mouseleave', () => {
         if (this.battleMessageEl && this.battleEngine) {
@@ -1123,6 +1133,9 @@ class GameApp {
 
       btn.addEventListener('click', () => {
         if (this.battleEngine && this.battleEngine.isPlayerTurn && !this.battleEngine.isBusy) {
+          // Highlight currently selected spell button
+          this.spellGridEl.querySelectorAll('.spell-orb-btn').forEach(b => b.classList.remove('active-spell'));
+          btn.classList.add('active-spell');
           this.battleEngine.selectSpell(spellId);
         }
       });
@@ -1192,16 +1205,19 @@ class GameApp {
 
   updateRealmBadge() {
     const realmMap = {
-      'firefly_forest': { icon: '🌲', name: '螢火蟲森林 (Firefly Forest)' },
-      'shipwreck_shore': { icon: '🌊', name: '海難海岸 (Shipwreck Shore)' },
-      'bonfire_spire': { icon: '🌋', name: '篝火火山峰 (Bonfire Spire)' },
-      'shiverchill_mountains': { icon: '❄️', name: '寒顫雪山 (Shiverchill Mountains)' },
-      'skywatch': { icon: '⚡', name: '浮空風暴城 (Skywatch)' },
-      'lamplight_town': { icon: '🏛️', name: '燈火主城 (Lamplight Town)' }
+      'firefly_forest': { icon: '🌲', name: '螢火蟲森林', fullName: '螢火蟲森林 (Firefly Forest)' },
+      'shipwreck_shore': { icon: '🌊', name: '海難海岸', fullName: '海難海岸 (Shipwreck Shore)' },
+      'bonfire_spire': { icon: '🌋', name: '篝火火山峰', fullName: '篝火火山峰 (Bonfire Spire)' },
+      'shiverchill_mountains': { icon: '❄️', name: '寒顫雪山', fullName: '寒顫雪山 (Shiverchill Mountains)' },
+      'skywatch': { icon: '⚡', name: '浮空風暴城', fullName: '浮空風暴城 (Skywatch)' },
+      'lamplight_town': { icon: '🏛️', name: '燈火主城', fullName: '燈火主城 (Lamplight Town)' }
     };
     const info = realmMap[this.gameState.currentRealm] || realmMap['firefly_forest'];
     if (this.realmBadgeIconEl) this.realmBadgeIconEl.textContent = info.icon;
-    if (this.realmBadgeNameEl) this.realmBadgeNameEl.textContent = info.name;
+    if (this.realmBadgeNameEl) {
+      this.realmBadgeNameEl.textContent = info.name;
+      this.realmBadgeNameEl.parentElement?.setAttribute('title', `當前王國：${info.fullName} • 點擊開啟世界地圖`);
+    }
   }
 
   triggerEncounter(monsterId, battleTitle = '野生物怪遭遇戰') {

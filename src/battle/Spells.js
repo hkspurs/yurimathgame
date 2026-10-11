@@ -154,6 +154,27 @@ export function getPetSignatureSpell(pet) {
 }
 
 /**
+ * Returns a concise Chinese name for mobile UI displays while preserving the full name on hover/details.
+ * @param {string} rawName 
+ * @returns {string} Short name
+ */
+export function getSpellShortName(rawName) {
+  if (!rawName) return '';
+  if (rawName.startsWith('🐾')) {
+    const afterColon = rawName.split(':')[1] || rawName;
+    const zh = afterColon.split('(')[0].replace(/[🐾\s]/g, '').trim();
+    return zh || rawName;
+  }
+  const match = rawName.match(/\((.*?)\)/);
+  if (match && match[1]) {
+    const candidate = match[1].trim();
+    if (/[\u4e00-\u9fa5]/.test(candidate)) return candidate;
+  }
+  const zhMatch = rawName.match(/[\u4e00-\u9fa5]+/);
+  return zhMatch ? zhMatch[0] : rawName.split('(')[0].trim();
+}
+
+/**
  * Registers pet signature move into SPELLS registry dynamically
  */
 export function registerPetSpell(pet) {

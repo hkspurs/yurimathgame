@@ -500,9 +500,9 @@ export class BattleScene {
       }
 
       const scaleMult = petCfg?.scale || 1.0;
-      const petSize = Math.round(playerSize * (isPortrait ? 0.58 : 0.65) * scaleMult);
-      const petX = (isPortrait ? Math.round(w * 0.36) : Math.round(w * 0.32)) + jumpOffsetX;
-      const petY = groundY - petSize + 10 + petBob + jumpOffsetY;
+      const petSize = Math.round(playerSize * (isPortrait ? 0.72 : 0.78) * scaleMult);
+      const petX = (isPortrait ? Math.round(w * 0.38) : Math.round(w * 0.34)) + jumpOffsetX;
+      const petY = groundY - petSize + 12 + petBob + jumpOffsetY;
 
       // Ground shadow under active companion pet A
       ctx.save();
@@ -827,25 +827,28 @@ export class BattleScene {
 
     // Header: Name & Subtitle
     ctx.fillStyle = '#ffffff';
-    ctx.font = (isCompact || isPortrait) ? 'bold 11px ProdigySans, sans-serif' : 'bold 12px ProdigySans, sans-serif';
+    ctx.font = (isCompact || isPortrait) ? 'bold 13px ProdigySans, sans-serif' : 'bold 14px ProdigySans, sans-serif';
     ctx.textAlign = 'left';
     let displayName = name;
-    const maxChars = isPortrait ? 9 : (isCompact ? 11 : 14);
-    if (displayName.length > maxChars) {
-      displayName = displayName.substring(0, maxChars - 1) + '…';
+    // Prefer clean Chinese short title if present (e.g. "苔原水豚" instead of "Mossy (苔原水豚)")
+    const zhMatch = name.match(/[\u4e00-\u9fa5]+/);
+    if (zhMatch && zhMatch[0].length >= 2) {
+      displayName = zhMatch[0];
+    } else if (name.length > (isPortrait ? 10 : 14)) {
+      displayName = name.split(' ')[0];
     }
     ctx.fillText(displayName, x - plateW / 2 + 8, y + (isCompact ? 14 : (isPortrait ? 15 : 18)));
 
     ctx.textAlign = 'right';
     ctx.fillStyle = isHero ? '#7bed9f' : '#ff7675';
-    ctx.font = (isCompact || isPortrait) ? 'bold 9.5px ProdigySans, sans-serif' : 'bold 11px ProdigySans, sans-serif';
+    ctx.font = (isCompact || isPortrait) ? 'bold 11px ProdigySans, sans-serif' : 'bold 12px ProdigySans, sans-serif';
     ctx.fillText(subtitle, x + plateW / 2 - 8, y + (isCompact ? 14 : (isPortrait ? 15 : 18)));
 
     // HP Bar Outer Groove
     const barX = x - plateW / 2 + 8;
     const barY = y + (isCompact ? 20 : (isPortrait ? 22 : 27));
     const barW = plateW - 16;
-    const barH = isCompact ? 12 : (isPortrait ? 13 : 14);
+    const barH = isCompact ? 14 : (isPortrait ? 15 : 16);
 
     ctx.fillStyle = '#0b0e14';
     ctx.beginPath();
@@ -887,19 +890,19 @@ export class BattleScene {
       // If HP is <= 45%, render pulsating Rescue Flag
       if (hp / maxHp <= 0.45 && hp > 0) {
         ctx.fillStyle = '#ff4757';
-        ctx.font = 'bold 9px ProdigySans, sans-serif';
+        ctx.font = 'bold 10px ProdigySans, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('💖 RESCUE READY', barX, barY - 4);
+        ctx.fillText('💖 可淨化', barX, barY - 4);
       }
     }
 
-    // HP Text
+    // HP Text clearly separated and centered inside HP bar with clean shadow
     ctx.fillStyle = '#ffffff';
-    ctx.font = isCompact ? 'bold 9px ProdigySans, sans-serif' : 'bold 10px ProdigySans, sans-serif';
+    ctx.font = isCompact ? 'bold 11px ProdigySans, sans-serif' : 'bold 12px ProdigySans, sans-serif';
     ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 3;
-    ctx.fillText(`${hp} / ${maxHp} ❤️`, x, barY + (isCompact ? 9.5 : 11));
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(`${hp} / ${maxHp} ❤️`, x, barY + (isCompact ? 10.5 : 12));
 
     ctx.restore();
   }
