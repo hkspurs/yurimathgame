@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Soft round Chiikawa otter -->
+  <!-- ears -->
+  <circle cx="85" cy="65" r="18" fill="#a4d8ed" stroke="#3d3d3d" stroke-width="4.5"/>
+  <circle cx="171" cy="65" r="18" fill="#a4d8ed" stroke="#3d3d3d" stroke-width="4.5"/>
+  <circle cx="85" cy="65" r="9" fill="#ffb8b8"/>
+  <circle cx="171" cy="65" r="9" fill="#ffb8b8"/>
+
+  <!-- mochi squishy body -->
+  <path d="M 128 48 C 190 48, 218 85, 218 135 C 218 195, 195 218, 128 218 C 61 218, 38 195, 38 135 C 38 85, 66 48, 128 48 Z" fill="#bfe3f2" stroke="#3d3d3d" stroke-width="4.5"/>
+
+  <!-- cream belly patch -->
+  <ellipse cx="128" cy="148" rx="55" ry="52" fill="#fff9eb"/>
+
+  <!-- eyes: big innocent black watery dots with white sparkle -->
+  <circle cx="95" cy="115" r="12" fill="#2d3436"/>
+  <circle cx="92" cy="111" r="4.5" fill="#ffffff"/>
+  <circle cx="99" cy="119" r="2" fill="#ffffff"/>
+
+  <circle cx="161" cy="115" r="12" fill="#2d3436"/>
+  <circle cx="158" cy="111" r="4.5" fill="#ffffff"/>
+  <circle cx="165" cy="119" r="2" fill="#ffffff"/>
+
+  <!-- pink blush cheeks with Chiikawa lines -->
+  <ellipse cx="74" cy="132" rx="12" ry="7" fill="#ff9ff3" opacity="0.8"/>
+  <line x1="68" y1="130" x2="71" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+  <line x1="74" y1="129" x2="77" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+  <line x1="80" y1="130" x2="83" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+
+  <ellipse cx="182" cy="132" rx="12" ry="7" fill="#ff9ff3" opacity="0.8"/>
+  <line x1="176" y1="130" x2="179" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+  <line x1="182" y1="129" x2="185" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+  <line x1="188" y1="130" x2="191" y2="135" stroke="#ff6b81" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- cute tiny nose and mouth -->
+  <circle cx="128" cy="120" r="3" fill="#2d3436"/>
+  <path d="M 121 126 Q 125 131 128 126 Q 131 131 135 126" fill="none" stroke="#2d3436" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- tiny whiskers -->
+  <line x1="56" y1="122" x2="68" y2="124" stroke="#2d3436" stroke-width="2" stroke-linecap="round"/>
+  <line x1="55" y1="130" x2="67" y2="130" stroke="#2d3436" stroke-width="2" stroke-linecap="round"/>
+  <line x1="200" y1="122" x2="188" y2="124" stroke="#2d3436" stroke-width="2" stroke-linecap="round"/>
+  <line x1="201" y1="130" x2="189" y2="130" stroke="#2d3436" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- sea shell held in tummy -->
+  <path d="M 112 165 C 112 152, 144 152, 144 165 C 144 176, 112 176, 112 165 Z" fill="#74b9ff" stroke="#3d3d3d" stroke-width="3"/>
+  <line x1="128" y1="156" x2="128" y2="173" stroke="#0984e3" stroke-width="2"/>
+  <line x1="120" y1="158" x2="122" y2="172" stroke="#0984e3" stroke-width="2"/>
+  <line x1="136" y1="158" x2="134" y2="172" stroke="#0984e3" stroke-width="2"/>
+
+  <!-- stubby little paws holding the shell -->
+  <ellipse cx="106" cy="165" rx="10" ry="8" fill="#bfe3f2" stroke="#3d3d3d" stroke-width="3.5"/>
+  <ellipse cx="150" cy="165" rx="10" ry="8" fill="#bfe3f2" stroke="#3d3d3d" stroke-width="3.5"/>
+
+  <!-- stubby feet -->
+  <ellipse cx="98" cy="216" rx="16" ry="10" fill="#bfe3f2" stroke="#3d3d3d" stroke-width="4"/>
+  <ellipse cx="158" cy="216" rx="16" ry="10" fill="#bfe3f2" stroke="#3d3d3d" stroke-width="4"/>
+</svg>

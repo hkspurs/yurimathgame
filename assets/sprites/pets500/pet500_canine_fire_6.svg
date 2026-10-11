@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <g fill="none" stroke="#2d3436" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 128 196 C 78 196 68 156 68 126 C 68 86 98 76 128 76 C 158 76 188 86 188 126 C 188 156 178 196 128 196 Z" fill="#FFF5E1"/>
+    <path d="M 88 96 C 72 76 68 56 80 46 C 92 56 98 76 96 92 Z" fill="#FF8C42"/>
+    <path d="M 168 96 C 184 76 188 56 176 46 C 164 56 158 76 160 92 Z" fill="#FF8C42"/>
+    <path d="M 112 196 C 112 186 124 186 124 196 Z" fill="#FFF5E1"/>
+    <path d="M 132 196 C 132 186 144 186 144 196 Z" fill="#FFF5E1"/>
+    <path d="M 176 168 C 196 158 206 138 196 128 C 202 138 196 148 186 152 C 192 142 186 132 178 136 C 172 146 176 158 176 168 Z" fill="#FF6B35"/>
+  </g>
+  <g fill="#2d3436">
+    <circle cx="102" cy="122" r="9"/>
+    <circle cx="154" cy="122" r="9"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="99" cy="119" r="3"/>
+    <circle cx="151" cy="119" r="3"/>
+    <circle cx="105" cy="125" r="1.5"/>
+    <circle cx="157" cy="125" r="1.5"/>
+  </g>
+  <g fill="#FFB6C1">
+    <ellipse cx="86" cy="142" rx="10" ry="6"/>
+    <ellipse cx="170" cy="142" rx="10" ry="6"/>
+  </g>
+  <g stroke="#FF8FA3" stroke-width="2" stroke-linecap="round">
+    <line x1="80" y1="140" x2="76" y2="138"/>
+    <line x1="80" y1="144" x2="76" y2="146"/>
+    <line x1="176" y1="140" x2="180" y2="138"/>
+    <line x1="176" y1="144" x2="180" y2="146"/>
+  </g>
+  <path d="M 122 142 Q 128 148 134 142" fill="none" stroke="#2d3436" stroke-width="3" stroke-linecap="round"/>
+</svg>
